@@ -12,5 +12,6 @@ func Router() *gin.Engine {
 	}
 
 	r.GET("/index", service.Index)
+	r.GET("/user/list", service.UserList)
 	return r
 }

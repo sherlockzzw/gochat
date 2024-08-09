@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gochat/utils"
+	"gorm.io/gorm"
+)
 
 type UserBasic struct {
 	gorm.Model
@@ -19,4 +22,9 @@ type UserBasic struct {
 
 func (table *UserBasic) TableName() string {
 	return "user_basic"
+}
+func GetUserList() []*UserBasic {
+	var data []*UserBasic
+	utils.DB.Find(&data)
+	return data
 }

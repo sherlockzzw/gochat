@@ -15,6 +15,38 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/user/add": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "创建用户"
+                ],
+                "parameters": [
+                    {
+                        "description": "用户信息",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UserBasic"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\",\"data\",\"message\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/list": {
             "get": {
                 "tags": [
@@ -22,13 +54,18 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "code\",\"data}",
+                        "description": "code\",\"data\"}",
                         "schema": {
                             "type": "string"
                         }
                     }
                 }
             }
+        }
+    },
+    "definitions": {
+        "models.UserBasic": {
+            "type": "object"
         }
     }
 }`

@@ -8,7 +8,7 @@ import (
 type UserBasic struct {
 	gorm.Model
 	Name       string `gorm:"column:name;type:varchar(32);not null;default:'';comment:用户名"`
-	Password   string `gorm:"column:password;type:varchar(32);not null;default:'';comment:密码"`
+	Password   string `gorm:"column:password;type:varchar(128);not null;default:'';comment:密码"`
 	Phone      string `gorm:"column:phone;type:varchar(32);not null;default:'';comment:手机号"`
 	Email      string `gorm:"column:email;type:varchar(32);not null;default:'';comment:邮箱"`
 	ClientIp   string `gorm:"column:client_ip;type:varchar(32);not null;default:'';comment:客户端ip"`
@@ -27,4 +27,12 @@ func GetUserList() []*UserBasic {
 	var data []*UserBasic
 	utils.DB.Find(&data)
 	return data
+}
+
+func CreateUser(user *UserBasic) error {
+	result := utils.DB.Create(user)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

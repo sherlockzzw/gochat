@@ -2,15 +2,17 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"gochat/docs"
 	"gochat/service"
 )
 
 func Router() *gin.Engine {
 	r := gin.Default()
-	if err := r.SetTrustedProxies([]string{"127.0.0.1"}); err != nil {
-		panic(err)
-	}
+	docs.SwaggerInfo.BasePath = ""
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.GET("/index", service.Index)
 	r.GET("/user/list", service.UserList)
 	return r

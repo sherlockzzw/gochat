@@ -1,4 +1,13 @@
 info:
   contact: {}
-paths: {}
+paths:
+  /user/list:
+    get:
+      responses:
+        "200":
+          description: code","data}
+          schema:
+            type: string
+      tags:
+      - 测试用户列表
 swagger: "2.0"

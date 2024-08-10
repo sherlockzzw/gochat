@@ -3,5 +3,21 @@
     "info": {
         "contact": {}
     },
-    "paths": {}
+    "paths": {
+        "/user/list": {
+            "get": {
+                "tags": [
+                    "测试用户列表"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "code\",\"data}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -6,6 +6,10 @@ import (
 	"net/http"
 )
 
+// UserList
+// @Tags 测试用户列表
+// @Success 200 {string} json{"code","data}
+// @Router /user/list [get]
 func UserList(c *gin.Context) {
 	data := models.GetUserList()
 

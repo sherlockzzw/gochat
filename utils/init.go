@@ -23,7 +23,7 @@ func InitConfig() {
 		fmt.Println("Configuration file was incorrectly read")
 		panic(err)
 	}
-	fmt.Println("config:", viper.Get("mysql"))
+	//fmt.Println("config:", viper.Get("mysql"))
 }
 
 func InitMysql() {

@@ -36,3 +36,14 @@ func CreateUser(user *UserBasic) error {
 	}
 	return nil
 }
+func GetUserByName(name string) (*UserBasic, error) {
+	var user UserBasic
+	result := utils.DB.Where("name = ?", name).First(&user)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &user, nil
+}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	"gochat/middleware"
 	"gochat/models"
 	"gochat/utils"
 	"golang.org/x/crypto/bcrypt"
@@ -71,7 +72,7 @@ func UserLogin(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request payload",
+			"error": "参数有误",
 		})
 		return
 	}
@@ -89,8 +90,18 @@ func UserLogin(c *gin.Context) {
 		})
 		return
 	}
+	authMiddleware := middleware.JwtMiddleware()
+	token, expire, err := authMiddleware.GenerateToken(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Token生成失败",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "登录成功",
 		"data":    user,
+		"token":   token,
+		"expire":  expire,
 	})
 }

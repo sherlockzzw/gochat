@@ -2,27 +2,29 @@ package middleware
 
 import (
 	"context"
-	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/goccy/go-json"
-	"gochat/models"
-	"gochat/utils"
+	"encoding/json"
+	"github.com/spf13/viper"
 	"log"
 	"strconv"
 	"time"
-)
 
-var identityKey = "id"
-var encryptionKey = "examplekey946666" // 16字节密钥
+	jwt "github.com/appleboy/gin-jwt/v2"
+	"gochat/models"
+	"gochat/utils"
+)
 
 type JwtMiddlewareWrapper struct {
 	*jwt.GinJWTMiddleware
 }
+
 type RedisUserInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
 func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
+	var identityKey = "id"
+	var encryptionKey = viper.GetString("token.encryptionKey")
 	var timeout time.Duration
 	var payloadFunc func(data interface{}) jwt.MapClaims
 
@@ -33,7 +35,7 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 			if v, ok := data.(*models.UserBasic); ok {
 				encryptedID, _ := utils.Encrypt(strconv.FormatUint(uint64(v.ID), 10), encryptionKey)
 				encryptedName, _ := utils.Encrypt(v.Name, encryptionKey)
-				redisKey := modelType + ":" + encryptedID
+				redisKey := modelType + ":" + strconv.FormatUint(uint64(v.ID), 10)
 				userInfo := RedisUserInfo{
 					ID:   encryptedID,
 					Name: encryptedName,
@@ -58,8 +60,13 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 			if v, ok := data.(*models.Admin); ok {
 				encryptedID, _ := utils.Encrypt(strconv.FormatUint(uint64(v.ID), 10), encryptionKey)
 				encryptedName, _ := utils.Encrypt(v.Name, encryptionKey)
-
-				err := utils.Redis.Set(context.Background(), encryptedID, v.ID, timeout).Err()
+				redisKey := modelType + ":" + encryptedID
+				userInfo := RedisUserInfo{
+					ID:   encryptedID,
+					Name: encryptedName,
+				}
+				userInfoJSON, _ := json.Marshal(userInfo)
+				err := utils.Redis.Set(context.Background(), redisKey, userInfoJSON, timeout).Err()
 				if err != nil {
 					log.Printf("Failed to store user info in Redis: %v", err)
 				}
@@ -92,8 +99,8 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 	return &JwtMiddlewareWrapper{authMiddleware}
 }
 
-func (mw *JwtMiddlewareWrapper) GenerateToken(user interface{}) (string, int64, error) {
-	token, expire, err := mw.TokenGenerator(user)
+func (mw *JwtMiddlewareWrapper) GenerateToken(data interface{}) (string, int64, error) {
+	token, expire, err := mw.TokenGenerator(data)
 	if err != nil {
 		return "", 0, err
 	}

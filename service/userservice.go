@@ -90,7 +90,7 @@ func UserLogin(c *gin.Context) {
 		})
 		return
 	}
-	authMiddleware := middleware.JwtMiddleware()
+	authMiddleware := middleware.JwtMiddleware("UserBasic")
 	token, expire, err := authMiddleware.GenerateToken(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/goccy/go-json"
 	"gochat/models"
 	"gochat/utils"
 	"log"
@@ -16,6 +17,10 @@ var encryptionKey = "examplekey946666" // 16字节密钥
 type JwtMiddlewareWrapper struct {
 	*jwt.GinJWTMiddleware
 }
+type RedisUserInfo struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
 
 func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 	var timeout time.Duration
@@ -23,13 +28,18 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 
 	switch modelType {
 	case "UserBasic":
-		timeout = time.Hour // 前台用户过期时间
+		timeout = 24 * time.Hour
 		payloadFunc = func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.UserBasic); ok {
 				encryptedID, _ := utils.Encrypt(strconv.FormatUint(uint64(v.ID), 10), encryptionKey)
 				encryptedName, _ := utils.Encrypt(v.Name, encryptionKey)
-
-				err := utils.Redis.Set(context.Background(), encryptedID, v.ID, timeout).Err()
+				redisKey := modelType + ":" + encryptedID
+				userInfo := RedisUserInfo{
+					ID:   encryptedID,
+					Name: encryptedName,
+				}
+				userInfoJSON, _ := json.Marshal(userInfo)
+				err := utils.Redis.Set(context.Background(), redisKey, userInfoJSON, timeout).Err()
 				if err != nil {
 					log.Printf("Failed to store user info in Redis: %v", err)
 				}
@@ -43,7 +53,7 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 		}
 
 	case "Admin":
-		timeout = 2 * time.Hour // 后台用户过期时间
+		timeout = 24 * time.Hour
 		payloadFunc = func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.Admin); ok {
 				encryptedID, _ := utils.Encrypt(strconv.FormatUint(uint64(v.ID), 10), encryptionKey)
@@ -67,7 +77,7 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 	}
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "test zone",
+		Realm:       modelType,
 		Key:         []byte("secret key"),
 		Timeout:     timeout,
 		MaxRefresh:  timeout,

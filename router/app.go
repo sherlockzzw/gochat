@@ -14,14 +14,14 @@ func Router() *gin.Engine {
 	docs.SwaggerInfo.BasePath = ""
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	r.GET("/index", service.Index)
-	r.GET("/user/list", service.UserList)
 
 	r.POST("/user/login", service.UserLogin)
 	auth := r.Group("/")
-	auth.Use(middleware.JwtMiddleware().MiddlewareFunc())
+	auth.Use(middleware.JwtMiddleware("UserBasic").MiddlewareFunc())
 	{
 		auth.POST("/user/add", service.CreateUser)
+		auth.GET("/index", service.Index)
+		auth.GET("/user/list", service.UserList)
 	}
 
 	return r

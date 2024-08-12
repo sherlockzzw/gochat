@@ -14,6 +14,7 @@ import (
 )
 
 var DB *gorm.DB
+var Redis *redis.Client
 
 func InitConfig() {
 	viper.SetConfigName("app")
@@ -67,8 +68,6 @@ func InitMysql() {
 	fmt.Println("Successfully connected to MySQL")
 }
 
-var RedisClient *redis.Client
-
 func InitRedis() {
 	addr := fmt.Sprintf("%s:%d", viper.GetString("redis.host"), viper.GetInt("redis.port"))
 	options := &redis.Options{
@@ -77,10 +76,10 @@ func InitRedis() {
 		DB:       viper.GetInt("redis.db"),
 	}
 
-	RedisClient = redis.NewClient(options)
+	Redis = redis.NewClient(options)
 
 	ctx := context.Background()
-	pong, err := RedisClient.Ping(ctx).Result()
+	pong, err := Redis.Ping(ctx).Result()
 	if err != nil {
 		fmt.Println("Failed to connect to Redis")
 		panic(err)

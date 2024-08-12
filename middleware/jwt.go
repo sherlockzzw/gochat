@@ -1,14 +1,12 @@
 package middleware
 
 import (
-	"strconv"
-
+	"context"
 	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/gin-gonic/gin"
 	"gochat/models"
 	"gochat/utils"
-	"gorm.io/gorm"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -19,65 +17,62 @@ type JwtMiddlewareWrapper struct {
 	*jwt.GinJWTMiddleware
 }
 
-func JwtMiddleware() *JwtMiddlewareWrapper {
-	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       "test zone",
-		Key:         []byte("secret key"),
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
-		IdentityKey: identityKey,
-		PayloadFunc: func(data interface{}) jwt.MapClaims {
+func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
+	var timeout time.Duration
+	var payloadFunc func(data interface{}) jwt.MapClaims
+
+	switch modelType {
+	case "UserBasic":
+		timeout = time.Hour // 前台用户过期时间
+		payloadFunc = func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.UserBasic); ok {
 				encryptedID, _ := utils.Encrypt(strconv.FormatUint(uint64(v.ID), 10), encryptionKey)
 				encryptedName, _ := utils.Encrypt(v.Name, encryptionKey)
+
+				err := utils.Redis.Set(context.Background(), encryptedID, v.ID, timeout).Err()
+				if err != nil {
+					log.Printf("Failed to store user info in Redis: %v", err)
+				}
+
 				return jwt.MapClaims{
 					"id":   encryptedID,
 					"name": encryptedName,
 				}
 			}
 			return jwt.MapClaims{}
-		},
-		IdentityHandler: func(c *gin.Context) interface{} {
-			claims := jwt.ExtractClaims(c)
-			decryptedIDStr, _ := utils.Decrypt(claims["id"].(string), encryptionKey)
-			decryptedID64, _ := strconv.ParseUint(decryptedIDStr, 10, 32)
-			decryptedName, _ := utils.Decrypt(claims["name"].(string), encryptionKey)
-			return &models.UserBasic{
-				Model: gorm.Model{
-					ID: uint(decryptedID64), // 将 uint64 转换为 uint
-				},
-				Name: decryptedName,
-			}
-		},
-		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals login
-			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
-			}
+		}
 
-			// 通过你自己的方法验证用户
-			user, err := models.GetUserByName(loginVals.Username)
-			if err != nil {
-				return nil, jwt.ErrFailedAuthentication
-			}
+	case "Admin":
+		timeout = 2 * time.Hour // 后台用户过期时间
+		payloadFunc = func(data interface{}) jwt.MapClaims {
+			if v, ok := data.(*models.Admin); ok {
+				encryptedID, _ := utils.Encrypt(strconv.FormatUint(uint64(v.ID), 10), encryptionKey)
+				encryptedName, _ := utils.Encrypt(v.Name, encryptionKey)
 
-			return user, nil
-		},
-		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*models.UserBasic); ok && v.Name == "admin" {
-				return true
+				err := utils.Redis.Set(context.Background(), encryptedID, v.ID, timeout).Err()
+				if err != nil {
+					log.Printf("Failed to store user info in Redis: %v", err)
+				}
+
+				return jwt.MapClaims{
+					"id":   encryptedID,
+					"name": encryptedName,
+				}
 			}
-			return false
-		},
-		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(code, gin.H{
-				"code":    code,
-				"message": message,
-			})
-		},
-		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
-		TokenHeadName: "Bearer",
-		TimeFunc:      time.Now,
+			return jwt.MapClaims{}
+		}
+
+	default:
+		log.Fatal("Unknown model type")
+	}
+
+	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Realm:       "test zone",
+		Key:         []byte("secret key"),
+		Timeout:     timeout,
+		MaxRefresh:  timeout,
+		IdentityKey: identityKey,
+		PayloadFunc: payloadFunc,
 	})
 
 	if err != nil {
@@ -87,15 +82,11 @@ func JwtMiddleware() *JwtMiddlewareWrapper {
 	return &JwtMiddlewareWrapper{authMiddleware}
 }
 
-func (mw *JwtMiddlewareWrapper) GenerateToken(user *models.UserBasic) (string, time.Time, error) {
+func (mw *JwtMiddlewareWrapper) GenerateToken(user interface{}) (string, int64, error) {
 	token, expire, err := mw.TokenGenerator(user)
 	if err != nil {
-		return "", time.Time{}, err
+		return "", 0, err
 	}
-	return token, expire, nil
-}
-
-type login struct {
-	Username string `form:"username" json:"username" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
+	expireTimestamp := expire.Unix()
+	return token, expireTimestamp, nil
 }

@@ -10,6 +10,7 @@ func main() {
 	utils.InitConfig()
 	utils.InitMysql()
 	utils.InitRedis()
+
 	//路由
 	r := router.Router()
 

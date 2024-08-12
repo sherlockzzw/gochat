@@ -13,3 +13,4 @@ redis:
 
 token:
   encryptionKey: examplekey946666
+  expire: 24 # token过期时间，单位小时

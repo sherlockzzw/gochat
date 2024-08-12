@@ -2,11 +2,13 @@ package service
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"gochat/middleware"
 	"gochat/models"
 	"gochat/utils"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"time"
 )
 
 // UserList
@@ -91,7 +93,9 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 	authMiddleware := middleware.JwtMiddleware("UserBasic")
-	token, expire, err := authMiddleware.GenerateToken(user)
+	expireHours := viper.GetInt("token.expire")
+	expireTime := time.Duration(expireHours) * time.Hour
+	token, expire, err := authMiddleware.GenerateToken(user, expireTime)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Token生成失败",

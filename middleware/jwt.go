@@ -1,16 +1,25 @@
 package middleware
 
 import (
+	"context"
+	"encoding/json"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	jwtv4 "github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/viper"
 	"gochat/models"
+	"gochat/utils"
 	"log"
+	"strconv"
 	"time"
 )
 
 type JwtMiddlewareWrapper struct {
 	*jwt.GinJWTMiddleware
+}
+
+type RedisUserInfo struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
@@ -25,7 +34,19 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 	case "UserBasic":
 		payloadFunc = func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.UserBasic); ok {
-				// 在这里添加你的加密和 Redis 存储逻辑
+				encryptedID, _ := utils.Encrypt(strconv.FormatUint(uint64(v.ID), 10), encryptionKey)
+				encryptedName, _ := utils.Encrypt(v.Name, encryptionKey)
+
+				redisKey := modelType + ":" + encryptedID
+				userInfo := RedisUserInfo{
+					ID:   encryptedID,
+					Name: encryptedName,
+				}
+				userInfoJSON, _ := json.Marshal(userInfo)
+				err := utils.Redis.Set(context.Background(), redisKey, userInfoJSON, expireTime).Err()
+				if err != nil {
+					log.Printf("Failed to store user info in Redis: %v", err)
+				}
 				return jwt.MapClaims{
 					"id":   v.ID,
 					"name": v.Name,
@@ -37,7 +58,7 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 	case "Admin":
 		payloadFunc = func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.Admin); ok {
-				// 在这里添加你的加密和 Redis 存储逻辑
+
 				return jwt.MapClaims{
 					"id":   v.ID,
 					"name": v.Name,

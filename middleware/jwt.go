@@ -3,14 +3,15 @@ package middleware
 import (
 	"context"
 	"encoding/json"
-	jwt "github.com/appleboy/gin-jwt/v2"
-	jwtv4 "github.com/golang-jwt/jwt/v4"
-	"github.com/spf13/viper"
 	"gochat/models"
 	"gochat/utils"
 	"log"
 	"strconv"
 	"time"
+
+	jwt "github.com/appleboy/gin-jwt/v2"
+	jwtv4 "github.com/golang-jwt/jwt/v4"
+	"github.com/spf13/viper"
 )
 
 type JwtMiddlewareWrapper struct {
@@ -43,7 +44,7 @@ func JwtMiddleware(modelType string) *JwtMiddlewareWrapper {
 					Name: encryptedName,
 				}
 				userInfoJSON, _ := json.Marshal(userInfo)
-				err := utils.Redis.Set(context.Background(), redisKey, userInfoJSON, expireTime).Err()
+				err := utils.RDB.Set(context.Background(), redisKey, userInfoJSON, expireTime).Err()
 				if err != nil {
 					log.Printf("Failed to store user info in Redis: %v", err)
 				}

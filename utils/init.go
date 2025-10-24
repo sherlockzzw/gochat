@@ -3,18 +3,30 @@ package utils
 import (
 	"context"
 	"fmt"
+	"log"
+	"math/rand"
+	"os"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
-	"os"
-	"time"
 )
 
 var DB *gorm.DB
-var Redis *redis.Client
+var RDB *redis.Client
+
+// MysqlService MySQL服务
+type MysqlService struct {
+	DB *gorm.DB
+}
+
+// RedisService Redis服务
+type RedisService struct {
+	Client *redis.Client
+}
 
 func InitConfig() {
 	viper.SetConfigName("app")
@@ -76,14 +88,29 @@ func InitRedis() {
 		DB:       viper.GetInt("redis.db"),
 	}
 
-	Redis = redis.NewClient(options)
+	RDB = redis.NewClient(options)
 
 	ctx := context.Background()
-	pong, err := Redis.Ping(ctx).Result()
+	pong, err := RDB.Ping(ctx).Result()
 	if err != nil {
 		fmt.Println("Failed to connect to Redis")
 		panic(err)
 	}
 
 	fmt.Println("Successfully connected to Redis:", pong)
+}
+
+// IsDevMode 判断是否为开发模式
+func IsDevMode() bool {
+	return viper.GetString("app.mode") == "dev"
+}
+
+// GenerateRandomString 生成随机字符串
+func GenerateRandomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
 }

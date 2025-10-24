@@ -114,3 +114,21 @@ func GenerateRandomString(length int) string {
 	}
 	return string(b)
 }
+
+// GetApiPort 获取API服务端口
+func GetApiPort() int {
+	port := viper.GetInt("app.api_port")
+	if port == 0 {
+		port = 8080 // 默认端口
+	}
+	return port
+}
+
+// GetAdminPort 获取Admin服务端口
+func GetAdminPort() int {
+	port := viper.GetInt("app.admin_port")
+	if port == 0 {
+		port = 8081 // 默认端口
+	}
+	return port
+}

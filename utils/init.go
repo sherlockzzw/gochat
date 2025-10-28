@@ -31,6 +31,11 @@ type MysqlService struct {
 	DB *gorm.DB
 }
 
+// GetDB 获取数据库连接
+func (m *MysqlService) GetDB() *gorm.DB {
+	return m.DB
+}
+
 // RedisService Redis服务
 type RedisService struct {
 	Client *redis.Client
@@ -38,7 +43,7 @@ type RedisService struct {
 
 // MongoService MongoDB服务
 type MongoService struct {
-	Database *mongo.Database
+	DB *mongo.Database
 }
 
 func InitConfig() {

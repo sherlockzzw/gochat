@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"gochat/internal/component"
 	"gochat/internal/router"
 	"gochat/utils"
 	"os"
@@ -25,12 +26,8 @@ var wsServerCmd = &cobra.Command{
 			}
 		}()
 
-		// 初始化配置
-		utils.InitConfig()
-		utils.InitMysql()
-		utils.InitRedis()
-		utils.InitMongoDB()
-		utils.InitWebSocket()
+		// 设置WebSocket服务器（内部会初始化所有配置和数据库连接）
+		component.SetWebSocketServer()
 
 		// 设置Gin模式
 		gin.SetMode(gin.ReleaseMode)

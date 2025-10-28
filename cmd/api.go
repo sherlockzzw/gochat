@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"gochat/internal/component"
 	"gochat/internal/router"
 	"gochat/utils"
 	"os"
@@ -25,11 +26,8 @@ var apiServerCmd = &cobra.Command{
 			}
 		}()
 
-		// 初始化配置
-		utils.InitConfig()
-		utils.InitMysql()
-		utils.InitRedis()
-		utils.InitMongoDB()
+		component.SetApiServer()
+
 		// 设置Gin模式
 		gin.SetMode(gin.ReleaseMode)
 

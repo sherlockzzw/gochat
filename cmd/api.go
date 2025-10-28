@@ -29,7 +29,7 @@ var apiServerCmd = &cobra.Command{
 		utils.InitConfig()
 		utils.InitMysql()
 		utils.InitRedis()
-
+		utils.InitMongoDB()
 		// 设置Gin模式
 		gin.SetMode(gin.ReleaseMode)
 

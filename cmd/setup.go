@@ -17,6 +17,9 @@ var setupCmd = &cobra.Command{
 		// 初始化配置
 		utils.InitConfig()
 		utils.InitMysql()
+		utils.InitRedis()
+		utils.InitMongoDB()
+		utils.InitWebSocket()
 
 		// 自动迁移数据库表
 		err := utils.DB.AutoMigrate(

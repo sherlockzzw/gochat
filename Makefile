@@ -10,6 +10,7 @@ grpc:
 	   	--go_out=paths=source_relative:./api \
 	   	--go-grpc_out=paths=source_relative:./api \
 		--validate_out=paths=source_relative,lang=go:./api \
+		--openapiv2_out=./api \
 		--experimental_allow_proto3_optional \
 		$(API_PROTO_FILES)
 	$(MAKE) inject-tags
@@ -26,6 +27,7 @@ install-tools:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
+	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 
 # 清理生成的文件
 clean:

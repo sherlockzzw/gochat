@@ -1,0 +1,281 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "admin/user/user.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AdminUser"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/admin/user/add": {
+      "post": {
+        "summary": "创建用户",
+        "operationId": "AdminUser_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_userCreateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_userCreateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/user/info": {
+      "get": {
+        "summary": "获取用户信息",
+        "operationId": "AdminUser_GetUserInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_userGetUserInfoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "@inject_tag: form:\"id\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/admin/user/list": {
+      "get": {
+        "summary": "获取用户列表",
+        "operationId": "AdminUser_GetUserList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_userGetUserListResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "description": "@inject_tag: form:\"page\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "description": "@inject_tag: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "admin_userCreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "@inject_tag: json:\"name\""
+        },
+        "password": {
+          "type": "string",
+          "title": "@inject_tag: json:\"password\""
+        },
+        "phone": {
+          "type": "string",
+          "title": "@inject_tag: json:\"phone\""
+        },
+        "email": {
+          "type": "string",
+          "title": "@inject_tag: json:\"email\""
+        },
+        "clientIp": {
+          "type": "string",
+          "title": "@inject_tag: json:\"client_ip\""
+        },
+        "clientPort": {
+          "type": "string",
+          "title": "@inject_tag: json:\"client_port\""
+        },
+        "deviceInfo": {
+          "type": "string",
+          "title": "@inject_tag: json:\"device_info\""
+        }
+      },
+      "title": "创建用户请求"
+    },
+    "admin_userCreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "title": "创建用户响应"
+    },
+    "admin_userGetUserInfoResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/admin_userUserInfo"
+        }
+      },
+      "title": "获取用户信息响应"
+    },
+    "admin_userGetUserListResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/admin_userUserInfo"
+          }
+        }
+      },
+      "title": "获取用户列表响应"
+    },
+    "admin_userUserInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "clientIp": {
+          "type": "string"
+        },
+        "clientPort": {
+          "type": "string"
+        },
+        "loginTime": {
+          "type": "string",
+          "format": "int64"
+        },
+        "identity": {
+          "type": "string"
+        },
+        "heartTime": {
+          "type": "string",
+          "format": "int64"
+        },
+        "logoutTime": {
+          "type": "string",
+          "format": "int64"
+        },
+        "deviceInfo": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "title": "用户信息"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,293 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/user/user.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ApiUser"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/login": {
+      "post": {
+        "summary": "用户登录",
+        "operationId": "ApiUser_Login",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userLoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userLoginRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
+    "/api/user/info": {
+      "get": {
+        "summary": "获取用户信息",
+        "operationId": "ApiUser_GetUserInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userGetUserInfoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "@inject_tag: form:\"id\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
+    "/api/user/register": {
+      "post": {
+        "summary": "用户注册",
+        "operationId": "ApiUser_Register",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userRegisterResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userRegisterRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "api_userGetUserInfoResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/api_userUserInfo"
+        }
+      },
+      "title": "获取用户信息响应"
+    },
+    "api_userLoginRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "@inject_tag: json:\"name\""
+        },
+        "password": {
+          "type": "string",
+          "title": "@inject_tag: json:\"password\""
+        }
+      },
+      "title": "登录请求"
+    },
+    "api_userLoginResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/api_userUserInfo"
+        },
+        "token": {
+          "type": "string"
+        },
+        "expire": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "登录响应"
+    },
+    "api_userRegisterRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "@inject_tag: json:\"name\""
+        },
+        "password": {
+          "type": "string",
+          "title": "@inject_tag: json:\"password\""
+        },
+        "phone": {
+          "type": "string",
+          "title": "@inject_tag: json:\"phone\""
+        },
+        "email": {
+          "type": "string",
+          "title": "@inject_tag: json:\"email\""
+        },
+        "clientIp": {
+          "type": "string",
+          "title": "@inject_tag: json:\"client_ip\""
+        },
+        "clientPort": {
+          "type": "string",
+          "title": "@inject_tag: json:\"client_port\""
+        },
+        "deviceInfo": {
+          "type": "string",
+          "title": "@inject_tag: json:\"device_info\""
+        }
+      },
+      "title": "用户注册请求"
+    },
+    "api_userRegisterResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/api_userUserInfo"
+        }
+      },
+      "title": "用户注册响应"
+    },
+    "api_userUserInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "clientIp": {
+          "type": "string"
+        },
+        "clientPort": {
+          "type": "string"
+        },
+        "loginTime": {
+          "type": "string",
+          "format": "int64"
+        },
+        "identity": {
+          "type": "string"
+        },
+        "heartTime": {
+          "type": "string",
+          "format": "int64"
+        },
+        "logoutTime": {
+          "type": "string",
+          "format": "int64"
+        },
+        "deviceInfo": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "title": "用户信息"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

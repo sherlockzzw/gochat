@@ -18,6 +18,7 @@ func ApiRouter(r *gin.Engine) {
 func publicRouter(route *gin.RouterGroup, api *handler.API) {
 	// 公开接口，无需认证
 	route.POST("login", api.UserHandler.Login)
+	route.POST("user/register", api.UserHandler.Register)
 }
 
 func privateRouter(r *gin.RouterGroup, api *handler.API) {

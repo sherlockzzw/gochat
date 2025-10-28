@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package admin_user;
+
+option go_package = "gochat/api/admin/user";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+// 管理端用户服务
+service AdminUser {
+  // 创建用户
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option(google.api.http) = {
+      post:"/admin/user/add"
+      body:"*"
+    };
+  };
+  
+  // 获取用户列表
+  rpc GetUserList(GetUserListRequest) returns (GetUserListResponse) {
+    option(google.api.http) = {
+      get:"/admin/user/list"
+    };
+  };
+  
+  // 获取用户信息
+  rpc GetUserInfo(GetUserInfoRequest) returns (GetUserInfoResponse) {
+    option(google.api.http) = {
+      get:"/admin/user/info"
+    };
+  };
+}
+
+// 创建用户请求
+message CreateUserRequest {
+  // @inject_tag: json:"name"
+  string name = 1[(validate.rules).string.min_len = 1];
+  // @inject_tag: json:"password"
+  string password = 2[(validate.rules).string.min_len = 1];
+  // @inject_tag: json:"phone"
+  string phone = 3;
+  // @inject_tag: json:"email"
+  string email = 4;
+  // @inject_tag: json:"client_ip"
+  string client_ip = 5;
+  // @inject_tag: json:"client_port"
+  string client_port = 6;
+  // @inject_tag: json:"device_info"
+  string device_info = 7;
+}
+
+// 创建用户响应
+message CreateUserResponse {
+  int32 code = 1;
+  string message = 2;
+  string data = 3;
+}
+
+// 获取用户列表请求
+message GetUserListRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+}
+
+// 获取用户列表响应
+message GetUserListResponse {
+  repeated UserInfo data = 1;
+}
+
+// 获取用户信息请求
+message GetUserInfoRequest {
+  // @inject_tag: form:"id"
+  int64 id = 1[(validate.rules).int64.gt = 0];
+}
+
+// 获取用户信息响应
+message GetUserInfoResponse {
+  string message = 1;
+  UserInfo user = 2;
+}
+
+// 用户信息
+message UserInfo {
+  int64 id = 1;
+  string name = 2;
+  string phone = 3;
+  string email = 4;
+  string client_ip = 5;
+  string client_port = 6;
+  int64 login_time = 7;
+  string identity = 8;
+  int64 heart_time = 9;
+  int64 logout_time = 10;
+  string device_info = 11;
+  string created_at = 12;
+  string updated_at = 13;
+}

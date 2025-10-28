@@ -8,15 +8,23 @@ import (
 	"os"
 	"time"
 
+	"gochat/internal/infrastructure/websocket"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-var DB *gorm.DB
-var RDB *redis.Client
+var (
+	DB      *gorm.DB
+	RDB     *redis.Client
+	MongoDB *mongo.Database
+	WSHub   *websocket.Hub
+)
 
 // MysqlService MySQL服务
 type MysqlService struct {
@@ -26,6 +34,11 @@ type MysqlService struct {
 // RedisService Redis服务
 type RedisService struct {
 	Client *redis.Client
+}
+
+// MongoService MongoDB服务
+type MongoService struct {
+	Database *mongo.Database
 }
 
 func InitConfig() {
@@ -100,6 +113,34 @@ func InitRedis() {
 	fmt.Println("Successfully connected to Redis:", pong)
 }
 
+func InitMongoDB() {
+	uri := viper.GetString("mongodb.uri")
+	database := viper.GetString("mongodb.database")
+
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+	if err != nil {
+		fmt.Println("Failed to connect to MongoDB")
+		panic(err)
+	}
+
+	// 测试连接
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
+		fmt.Println("Failed to ping MongoDB")
+		panic(err)
+	}
+
+	MongoDB = client.Database(database)
+	fmt.Println("Successfully connected to MongoDB")
+}
+
+// InitWebSocket 初始化WebSocket Hub
+func InitWebSocket() {
+	WSHub = websocket.NewHub()
+	go WSHub.Run()
+	fmt.Println("WebSocket Hub initialized")
+}
+
 // IsDevMode 判断是否为开发模式
 func IsDevMode() bool {
 	return viper.GetString("app.mode") == "dev"
@@ -129,6 +170,15 @@ func GetAdminPort() int {
 	port := viper.GetInt("app.admin_port")
 	if port == 0 {
 		port = 8081 // 默认端口
+	}
+	return port
+}
+
+// GetWebSocketPort 获取WebSocket服务端口
+func GetWebSocketPort() int {
+	port := viper.GetInt("websocket.port")
+	if port == 0 {
+		port = 8082 // 默认端口
 	}
 	return port
 }

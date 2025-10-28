@@ -25,6 +25,5 @@ func adminPrivateRouter(r *gin.RouterGroup, api *controller.API) {
 
 	// 用户管理
 	userRoute := r.Group("user")
-	userRoute.POST("add", api.ControllerUser.CreateUser)
 	userRoute.GET("list", api.ControllerUser.GetUserList)
 }

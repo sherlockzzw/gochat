@@ -1,43 +1,61 @@
 syntax = "proto3";
 
-package user;
+package api_user;
 
-option go_package = "gochat/api/user";
+option go_package = "gochat/api/api/user";
 
 import "validate/validate.proto";
 import "google/api/annotations.proto";
 
-// 用户服务
-service User {
+// API端用户服务
+service ApiUser {
+  // 用户注册
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option(google.api.http) = {
+      post:"/api/user/register"
+      body:"*"
+    };
+  };
+  
   // 用户登录
   rpc Login(LoginRequest) returns (LoginResponse) {
     option(google.api.http) = {
-      post:"/user/login"
+      post:"/api/login"
       body:"*"
-    };
-  };
-  
-  // 创建用户
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
-    option(google.api.http) = {
-      post:"/user/add"
-      body:"*"
-    };
-  };
-  
-  // 获取用户列表
-  rpc GetUserList(GetUserListRequest) returns (GetUserListResponse) {
-    option(google.api.http) = {
-      get:"/user/list"
     };
   };
   
   // 获取用户信息
   rpc GetUserInfo(GetUserInfoRequest) returns (GetUserInfoResponse) {
     option(google.api.http) = {
-      get:"/user/info"
+      get:"/api/user/info"
     };
   };
+}
+
+// 用户注册请求
+message RegisterRequest {
+  // @inject_tag: json:"name"
+  string name = 1[(validate.rules).string.min_len = 1];
+  // @inject_tag: json:"password"
+  string password = 2[(validate.rules).string.min_len = 6];
+  // @inject_tag: json:"phone"
+  string phone = 3;
+  // @inject_tag: json:"email"
+  string email = 4;
+  // @inject_tag: json:"client_ip"
+  string client_ip = 5;
+  // @inject_tag: json:"client_port"
+  string client_port = 6;
+  // @inject_tag: json:"device_info"
+  string device_info = 7;
+}
+
+// 用户注册响应
+message RegisterResponse {
+  int32 code = 1;
+  string message = 2;
+  UserInfo data = 3;
 }
 
 // 登录请求
@@ -54,44 +72,6 @@ message LoginResponse {
   UserInfo data = 2;
   string token = 3;
   int64 expire = 4;
-}
-
-// 创建用户请求
-message CreateUserRequest {
-  // @inject_tag: json:"name"
-  string name = 1[(validate.rules).string.min_len = 1];
-  // @inject_tag: json:"password"
-  string password = 2[(validate.rules).string.min_len = 1];
-  // @inject_tag: json:"phone"
-  string phone = 3;
-  // @inject_tag: json:"email"
-  string email = 4;
-  // @inject_tag: json:"client_ip"
-  string client_ip = 5;
-  // @inject_tag: json:"client_port"
-  string client_port = 6;
-  // @inject_tag: json:"device_info"
-  string device_info = 7;
-}
-
-// 创建用户响应
-message CreateUserResponse {
-  int32 code = 1;
-  string message = 2;
-  string data = 3;
-}
-
-// 获取用户列表请求
-message GetUserListRequest {
-  // @inject_tag: form:"page"
-  int32 page = 1;
-  // @inject_tag: form:"page_size"
-  int32 page_size = 2;
-}
-
-// 获取用户列表响应
-message GetUserListResponse {
-  repeated UserInfo data = 1;
 }
 
 // 获取用户信息请求

@@ -1,23 +1,14 @@
 package user
 
 import (
+	"gochat/api/admin/user"
 	"gochat/internal/pkg/analysis"
-	"gochat/models"
 
 	"github.com/gin-gonic/gin"
 )
 
-type GetUserListRequest struct {
-	Page     int32 `form:"page"`
-	PageSize int32 `form:"page_size"`
-}
-
-type GetUserListResponse struct {
-	Data []*models.UserBasic `json:"data"`
-}
-
 func (h *ControllerUser) GetUserList(ctx *gin.Context) {
-	req, err := analysis.BindQuery[GetUserListRequest](ctx, h.response)
+	req, err := analysis.BindQuery[user.GetUserListRequest](ctx, h.response)
 	if err != nil {
 		return
 	}
@@ -31,14 +22,28 @@ func (h *ControllerUser) GetUserList(ctx *gin.Context) {
 	h.response.JsonSuccess(ctx, resp)
 }
 
-func (h *ControllerUser) getUserListLogic(ctx *gin.Context, req *GetUserListRequest) (resp *GetUserListResponse, err error) {
+func (h *ControllerUser) getUserListLogic(ctx *gin.Context, req user.GetUserListRequest) (resp *user.GetUserListResponse, err error) {
 	users, err := h.dao.GetUserList()
 	if err != nil {
 		return nil, gin.Error{Err: gin.Error{}, Type: gin.ErrorTypePublic, Meta: "获取用户列表失败"}
 	}
 
-	resp = &GetUserListResponse{
-		Data: users,
+	// 转换为protobuf结构体
+	var userInfos []*user.UserInfo
+	for _, u := range users {
+		userInfos = append(userInfos, &user.UserInfo{
+			Id:         int64(u.ID),
+			Name:       u.Name,
+			Phone:      u.Phone,
+			Email:      u.Email,
+			ClientIp:   u.ClientIp,
+			ClientPort: u.ClientPort,
+			DeviceInfo: u.DeviceInfo,
+		})
+	}
+
+	resp = &user.GetUserListResponse{
+		Data: userInfos,
 	}
 
 	return resp, nil

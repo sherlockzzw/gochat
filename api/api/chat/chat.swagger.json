@@ -1,0 +1,273 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/chat/chat.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ChatService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "apichatUserInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "用户ID"
+        },
+        "name": {
+          "type": "string",
+          "title": "用户名"
+        },
+        "phone": {
+          "type": "string",
+          "title": "手机号"
+        },
+        "email": {
+          "type": "string",
+          "title": "邮箱"
+        },
+        "avatar": {
+          "type": "string",
+          "title": "头像URL"
+        },
+        "isOnline": {
+          "type": "boolean",
+          "title": "是否在线"
+        },
+        "lastSeen": {
+          "type": "string",
+          "format": "date-time",
+          "title": "最后在线时间"
+        }
+      },
+      "title": "用户信息"
+    },
+    "chatChatMessage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "消息ID"
+        },
+        "fromUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "发送者用户ID"
+        },
+        "toUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "接收者用户ID"
+        },
+        "messageType": {
+          "$ref": "#/definitions/chatMessageType",
+          "title": "消息类型"
+        },
+        "content": {
+          "type": "string",
+          "title": "消息内容"
+        },
+        "fileUrl": {
+          "type": "string",
+          "title": "文件URL（图片/文件消息）"
+        },
+        "fileName": {
+          "type": "string",
+          "title": "文件名"
+        },
+        "fileSize": {
+          "type": "string",
+          "format": "int64",
+          "title": "文件大小"
+        },
+        "status": {
+          "$ref": "#/definitions/chatMessageStatus",
+          "title": "消息状态"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "更新时间"
+        }
+      },
+      "title": "聊天消息"
+    },
+    "chatGetMessageHistoryResponse": {
+      "type": "object",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/chatChatMessage"
+          },
+          "title": "消息列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        },
+        "hasMore": {
+          "type": "boolean",
+          "title": "是否有更多"
+        }
+      },
+      "title": "获取消息历史响应"
+    },
+    "chatGetUnreadCountResponse": {
+      "type": "object",
+      "properties": {
+        "totalUnread": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总未读数量"
+        },
+        "unreadByUser": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": "按用户分组的未读数量"
+        }
+      },
+      "title": "获取未读消息数量响应"
+    },
+    "chatMarkMessageReadResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "markedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "标记的消息数量"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "标记消息为已读响应"
+    },
+    "chatMessageStatus": {
+      "type": "string",
+      "enum": [
+        "SENDING",
+        "SENT",
+        "DELIVERED",
+        "READ",
+        "FAILED"
+      ],
+      "default": "SENDING",
+      "description": "- SENDING: 发送中\n - SENT: 已发送\n - DELIVERED: 已送达\n - READ: 已读\n - FAILED: 发送失败",
+      "title": "消息状态枚举"
+    },
+    "chatMessageType": {
+      "type": "string",
+      "enum": [
+        "TEXT",
+        "IMAGE",
+        "FILE",
+        "SYSTEM"
+      ],
+      "default": "TEXT",
+      "description": "- TEXT: 文字消息\n - IMAGE: 图片消息\n - FILE: 文件消息\n - SYSTEM: 系统消息",
+      "title": "消息类型枚举"
+    },
+    "chatSearchUserResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apichatUserInfo"
+          },
+          "title": "用户列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        }
+      },
+      "title": "搜索用户响应"
+    },
+    "chatSendMessageResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "$ref": "#/definitions/chatChatMessage",
+          "title": "发送的消息"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "发送消息响应"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

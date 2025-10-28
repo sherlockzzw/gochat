@@ -33,8 +33,17 @@ func NewWebSocketHandler(hub *Hub) *WebSocketHandler {
 
 // HandleWebSocket 处理WebSocket连接
 func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
-	// 从查询参数获取用户ID
+	// 从查询参数获取用户ID和token
 	userIDStr := c.Query("user_id")
+	token := c.Query("token")
+
+	// 验证token（这里简化处理，实际应该验证JWT）
+	if token == "" {
+		h.logger.Error("Missing token")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing token"})
+		return
+	}
+
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
 	if err != nil {
 		h.logger.Error("Invalid user ID", zap.String("userID", userIDStr), zap.Error(err))

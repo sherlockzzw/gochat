@@ -32,6 +32,9 @@ func setup(cmd *cobra.Command, args []string) {
 	// 执行数据库迁移
 	_ = msl.Set("gorm:table_options", "COMMENT='用户基础信息表'").AutoMigrate(&models.UserBasic{})
 	_ = msl.Set("gorm:table_options", "COMMENT='管理员信息表'").AutoMigrate(&models.Admin{})
+	_ = msl.Set("gorm:table_options", "COMMENT='聊天消息表'").AutoMigrate(&models.ChatMessage{})
+	_ = msl.Set("gorm:table_options", "COMMENT='会话表'").AutoMigrate(&models.Conversation{})
+	_ = msl.Set("gorm:table_options", "COMMENT='消息已读状态表'").AutoMigrate(&models.MessageReadStatus{})
 
 }
 

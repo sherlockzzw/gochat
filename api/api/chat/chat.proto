@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package api.chat;
+
+option go_package = "gochat/api/api/chat";
+
+import "google/protobuf/timestamp.proto";
+
+// 消息类型枚举
+enum MessageType {
+  TEXT = 0;    // 文字消息
+  IMAGE = 1;   // 图片消息
+  FILE = 2;    // 文件消息
+  SYSTEM = 3;  // 系统消息
+}
+
+// 消息状态枚举
+enum MessageStatus {
+  SENDING = 0;     // 发送中
+  SENT = 1;        // 已发送
+  DELIVERED = 2;   // 已送达
+  READ = 3;        // 已读
+  FAILED = 4;      // 发送失败
+}
+
+// 聊天消息
+message ChatMessage {
+  string id = 1;                    // 消息ID
+  uint32 from_user_id = 2;          // 发送者用户ID
+  uint32 to_user_id = 3;            // 接收者用户ID
+  MessageType message_type = 4;     // 消息类型
+  string content = 5;               // 消息内容
+  string file_url = 6;              // 文件URL（图片/文件消息）
+  string file_name = 7;             // 文件名
+  int64 file_size = 8;              // 文件大小
+  MessageStatus status = 9;         // 消息状态
+  google.protobuf.Timestamp created_at = 10;  // 创建时间
+  google.protobuf.Timestamp updated_at = 11;  // 更新时间
+}
+
+// 发送消息请求
+message SendMessageRequest {
+  uint32 to_user_id = 1;            // 接收者用户ID
+  MessageType message_type = 2;     // 消息类型
+  string content = 3;               // 消息内容
+  string file_url = 4;              // 文件URL（可选）
+  string file_name = 5;             // 文件名（可选）
+  int64 file_size = 6;              // 文件大小（可选）
+}
+
+// 发送消息响应
+message SendMessageResponse {
+  ChatMessage message = 1;          // 发送的消息
+  bool success = 2;                 // 是否成功
+  string error_message = 3;         // 错误信息
+}
+
+// 获取消息历史请求
+message GetMessageHistoryRequest {
+  uint32 other_user_id = 1;         // 对方用户ID
+  int32 page = 2;                   // 页码（从1开始）
+  int32 page_size = 3;              // 每页数量
+  google.protobuf.Timestamp before_time = 4;  // 获取此时间之前的消息（可选）
+}
+
+// 获取消息历史响应
+message GetMessageHistoryResponse {
+  repeated ChatMessage messages = 1;  // 消息列表
+  int32 total_count = 2;             // 总数量
+  int32 current_page = 3;            // 当前页码
+  int32 page_size = 4;               // 每页数量
+  bool has_more = 5;                 // 是否有更多
+}
+
+// 搜索用户请求
+message SearchUserRequest {
+  string phone = 1;                  // 手机号
+  string name = 2;                   // 用户名（可选）
+}
+
+// 搜索用户响应
+message SearchUserResponse {
+  repeated UserInfo users = 1;       // 用户列表
+  int32 total_count = 2;             // 总数量
+}
+
+// 用户信息
+message UserInfo {
+  uint32 id = 1;                     // 用户ID
+  string name = 2;                    // 用户名
+  string phone = 3;                   // 手机号
+  string email = 4;                   // 邮箱
+  string avatar = 5;                  // 头像URL
+  bool is_online = 6;                 // 是否在线
+  google.protobuf.Timestamp last_seen = 7;  // 最后在线时间
+}
+
+// 标记消息为已读请求
+message MarkMessageReadRequest {
+  uint32 other_user_id = 1;          // 对方用户ID
+  string message_id = 2;             // 消息ID（可选，为空则标记所有消息）
+}
+
+// 标记消息为已读响应
+message MarkMessageReadResponse {
+  bool success = 1;                  // 是否成功
+  int32 marked_count = 2;            // 标记的消息数量
+  string error_message = 3;          // 错误信息
+}
+
+// 获取未读消息数量请求
+message GetUnreadCountRequest {
+  // 空请求，获取当前用户的所有未读消息数量
+}
+
+// 获取未读消息数量响应
+message GetUnreadCountResponse {
+  int32 total_unread = 1;            // 总未读数量
+  map<uint32, int32> unread_by_user = 2;  // 按用户分组的未读数量
+}
+
+// 聊天服务定义
+service ChatService {
+  // 搜索用户
+  rpc SearchUser(SearchUserRequest) returns (SearchUserResponse);
+  
+  // 发送消息
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  
+  // 获取消息历史
+  rpc GetMessageHistory(GetMessageHistoryRequest) returns (GetMessageHistoryResponse);
+  
+  // 标记消息为已读
+  rpc MarkMessageRead(MarkMessageReadRequest) returns (MarkMessageReadResponse);
+  
+  // 获取未读消息数量
+  rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse);
+}

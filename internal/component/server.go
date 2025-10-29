@@ -47,6 +47,7 @@ type ApiServer struct {
 
 func NewApiServer() *ApiServer {
 	initCoreServices()
+	initWebSocketService()
 
 	return &ApiServer{
 		MysqlSvc: &utils.MysqlService{DB: utils.DB},

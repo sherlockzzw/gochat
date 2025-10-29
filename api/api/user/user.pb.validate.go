@@ -832,6 +832,8 @@ func (m *UserInfo) validate(all bool) error {
 
 	// no validation rules for Email
 
+	// no validation rules for Avatar
+
 	// no validation rules for ClientIp
 
 	// no validation rules for ClientPort

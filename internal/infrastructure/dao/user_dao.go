@@ -31,7 +31,10 @@ func (d *UserDao) GetUserByName(name string) (*models.UserBasic, error) {
 	var user models.UserBasic
 	err := d.db.Where("name = ?", name).First(&user).Error
 	if err != nil {
-		return nil, err
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil // 用户不存在，返回 nil, nil
+		}
+		return nil, err // 其他数据库错误
 	}
 	return &user, nil
 }
@@ -41,7 +44,10 @@ func (d *UserDao) GetUserByID(id uint) (*models.UserBasic, error) {
 	var user models.UserBasic
 	err := d.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
-		return nil, err
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil // 用户不存在，返回 nil, nil
+		}
+		return nil, err // 其他数据库错误
 	}
 	return &user, nil
 }

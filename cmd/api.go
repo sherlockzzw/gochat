@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gochat/internal/component"
 	"gochat/internal/router"
+	"gochat/middleware"
 	"gochat/utils"
 	"os"
 	"runtime/debug"
@@ -34,6 +35,9 @@ var apiServerCmd = &cobra.Command{
 		// 创建路由
 		r := gin.New()
 		r.Use(gin.Logger(), gin.Recovery())
+
+		// 添加CORS中间件
+		r.Use(middleware.CORS())
 
 		// 注册API路由
 		router.ApiRouter(r)

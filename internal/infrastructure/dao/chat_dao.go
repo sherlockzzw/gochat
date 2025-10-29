@@ -180,14 +180,11 @@ func (d *ChatDao) MarkMessagesAsRead(fromUserID, toUserID uint, messageID string
 }
 
 // SearchUsers 搜索用户
-func (d *ChatDao) SearchUsers(phone, name string, limit int) ([]*models.UserBasic, error) {
+func (d *ChatDao) SearchUsers(keyword string, limit int) ([]*models.UserBasic, error) {
 	query := d.mysqlDB.Model(&models.UserBasic{})
 
-	if phone != "" {
-		query = query.Where("phone LIKE ?", "%"+phone+"%")
-	}
-	if name != "" {
-		query = query.Where("name LIKE ?", "%"+name+"%")
+	if keyword != "" {
+		query = query.Where("name LIKE ? OR phone LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
 	}
 
 	var users []*models.UserBasic

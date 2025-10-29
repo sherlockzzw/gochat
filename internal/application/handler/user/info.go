@@ -1,8 +1,10 @@
 package user
 
 import (
+	"fmt"
 	"gochat/api/api/user"
 	"gochat/internal/pkg/analysis"
+	globalUtils "gochat/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +32,12 @@ func (h *UserHandler) getUserInfoLogic(ctx *gin.Context, req user.GetUserInfoReq
 		return nil, gin.Error{Err: gin.Error{}, Type: gin.ErrorTypePublic, Meta: "用户不存在"}
 	}
 
+	// 获取API端口配置
+	apiPort := 8080 // 默认端口
+	if port := globalUtils.GetApiPort(); port > 0 {
+		apiPort = port
+	}
+
 	resp = &user.GetUserInfoResponse{
 		Message: "获取成功",
 		User: &user.UserInfo{
@@ -37,6 +45,7 @@ func (h *UserHandler) getUserInfoLogic(ctx *gin.Context, req user.GetUserInfoReq
 			Name:       userModel.Name,
 			Phone:      userModel.Phone,
 			Email:      userModel.Email,
+			Avatar:     globalUtils.GetAvatarFullURL(userModel.Avatar, fmt.Sprintf("http://127.0.0.1:%d", apiPort)), // 返回完整头像URL
 			ClientIp:   userModel.ClientIp,
 			ClientPort: userModel.ClientPort,
 			DeviceInfo: userModel.DeviceInfo,

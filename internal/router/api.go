@@ -11,8 +11,17 @@ func ApiRouter(r *gin.Engine) {
 	apiHandler := handler.NewApi()
 	route := r.Group("api")
 
+	// 静态资源服务
+	staticRouter(r)
+
 	publicRouter(route, apiHandler)
 	privateRouter(route, apiHandler)
+}
+
+// staticRouter 静态资源路由
+func staticRouter(r *gin.Engine) {
+	// 用户头像静态资源
+	r.Static("/static/avatar", "./resources/user/avatar")
 }
 
 func publicRouter(route *gin.RouterGroup, api *handler.API) {
@@ -43,5 +52,33 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 
 		// 文件上传
 		chatRoute.POST("upload", api.ChatHandler.UploadFile)
+	}
+
+	// 好友相关接口
+	friendRoute := r.Group("friend")
+	{
+		// 添加好友
+		friendRoute.POST("add", api.FriendHandler.AddFriend)
+
+		// 获取好友列表
+		friendRoute.GET("list", api.FriendHandler.GetFriendList)
+
+		// 获取好友申请列表
+		friendRoute.GET("requests", api.FriendHandler.GetFriendRequests)
+
+		// 处理好友申请
+		friendRoute.POST("handle-request", api.FriendHandler.HandleFriendRequest)
+
+		// 删除好友
+		friendRoute.DELETE("delete", api.FriendHandler.DeleteFriend)
+
+		// 检查好友关系
+		friendRoute.GET("check", api.FriendHandler.CheckFriend)
+
+		// 设置好友备注
+		friendRoute.POST("set-remark", api.FriendHandler.SetFriendRemark)
+
+		// 屏蔽好友
+		friendRoute.POST("block", api.FriendHandler.BlockFriend)
 	}
 }

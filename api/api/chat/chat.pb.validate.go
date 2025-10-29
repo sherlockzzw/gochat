@@ -762,9 +762,7 @@ func (m *SearchUserRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Phone
-
-	// no validation rules for Name
+	// no validation rules for Keyword
 
 	if len(errors) > 0 {
 		return SearchUserRequestMultiError(errors)

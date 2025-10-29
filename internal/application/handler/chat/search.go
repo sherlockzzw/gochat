@@ -15,7 +15,7 @@ func (h *ChatHandler) SearchUser(ctx *gin.Context) {
 		return
 	}
 
-	resp, code, err := h.searchUserLogic(ctx, req)
+	resp, code, err := h.searchUserLogic(ctx, &req)
 	if code != 0 {
 		h.response.JsonErrorFixation(ctx, code)
 		return
@@ -28,9 +28,9 @@ func (h *ChatHandler) SearchUser(ctx *gin.Context) {
 	h.response.JsonSuccess(ctx, resp)
 }
 
-func (h *ChatHandler) searchUserLogic(ctx *gin.Context, req chat.SearchUserRequest) (resp *chat.SearchUserResponse, errCode code_msg.BusinessCode, err error) {
-	// 搜索用户
-	users, err := h.dao.SearchUsers(req.GetPhone(), req.GetName(), 20)
+func (h *ChatHandler) searchUserLogic(ctx *gin.Context, req *chat.SearchUserRequest) (resp *chat.SearchUserResponse, errCode code_msg.BusinessCode, err error) {
+
+	users, err := h.dao.SearchUsers(req.GetKeyword(), 20)
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
@@ -43,7 +43,6 @@ func (h *ChatHandler) searchUserLogic(ctx *gin.Context, req chat.SearchUserReque
 			Name:  user.Name,
 			Phone: user.Phone,
 			Email: user.Email,
-			// TODO: 添加头像和在线状态
 		}
 		userInfos = append(userInfos, userInfo)
 	}

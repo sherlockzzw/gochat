@@ -35,6 +35,8 @@ func setup(cmd *cobra.Command, args []string) {
 	_ = msl.Set("gorm:table_options", "COMMENT='聊天消息表'").AutoMigrate(&models.ChatMessage{})
 	_ = msl.Set("gorm:table_options", "COMMENT='会话表'").AutoMigrate(&models.Conversation{})
 	_ = msl.Set("gorm:table_options", "COMMENT='消息已读状态表'").AutoMigrate(&models.MessageReadStatus{})
+	_ = msl.Set("gorm:table_options", "COMMENT='好友关系表'").AutoMigrate(&models.Friend{})
+	_ = msl.Set("gorm:table_options", "COMMENT='好友申请表'").AutoMigrate(&models.FriendRequest{})
 
 }
 

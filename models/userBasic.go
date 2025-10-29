@@ -2,6 +2,7 @@ package models
 
 import (
 	"gochat/utils"
+
 	"gorm.io/gorm"
 )
 
@@ -11,6 +12,7 @@ type UserBasic struct {
 	Password   string `gorm:"column:password;type:varchar(128);not null;default:'';comment:密码"`
 	Phone      string `gorm:"column:phone;type:varchar(32);not null;default:'';comment:手机号"`
 	Email      string `gorm:"column:email;type:varchar(32);not null;default:'';comment:邮箱"`
+	Avatar     string `gorm:"column:avatar;type:varchar(255);not null;default:'';comment:头像"`
 	ClientIp   string `gorm:"column:client_ip;type:varchar(32);not null;default:'';comment:客户端ip"`
 	ClientPort string `gorm:"column:client_port;type:varchar(32);not null;default:'';comment:客户端端口"`
 	LoginTime  int64  `gorm:"column:login_time;type:bigint not null;default:0;comment:登录时间"`

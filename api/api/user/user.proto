@@ -92,13 +92,14 @@ message UserInfo {
   string name = 2;
   string phone = 3;
   string email = 4;
-  string client_ip = 5;
-  string client_port = 6;
-  int64 login_time = 7;
-  string identity = 8;
-  int64 heart_time = 9;
-  int64 logout_time = 10;
-  string device_info = 11;
-  string created_at = 12;
-  string updated_at = 13;
+  string avatar = 5;
+  string client_ip = 6;
+  string client_port = 7;
+  int64 login_time = 8;
+  string identity = 9;
+  int64 heart_time = 10;
+  int64 logout_time = 11;
+  string device_info = 12;
+  string created_at = 13;
+  string updated_at = 14;
 }

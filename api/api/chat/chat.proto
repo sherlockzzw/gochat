@@ -74,8 +74,8 @@ message GetMessageHistoryResponse {
 
 // 搜索用户请求
 message SearchUserRequest {
-  string phone = 1;                  // 手机号
-  string name = 2;                   // 用户名（可选）
+  // @inject_tag: form:"keyword"
+  string keyword = 1;
 }
 
 // 搜索用户响应

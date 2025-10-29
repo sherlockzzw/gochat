@@ -228,6 +228,9 @@
         "email": {
           "type": "string"
         },
+        "avatar": {
+          "type": "string"
+        },
         "clientIp": {
           "type": "string"
         },

@@ -146,6 +146,11 @@ func InitWebSocket() {
 	fmt.Println("WebSocket Hub initialized")
 }
 
+// GetWebSocketHub 获取WebSocket Hub实例
+func GetWebSocketHub() *websocket.Hub {
+	return WSHub
+}
+
 // IsDevMode 判断是否为开发模式
 func IsDevMode() bool {
 	return viper.GetString("app.mode") == "dev"

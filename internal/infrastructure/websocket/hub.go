@@ -1,11 +1,14 @@
 package websocket
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -32,6 +35,14 @@ type Hub struct {
 	// 互斥锁
 	mutex sync.RWMutex
 
+	// 最大连接数限制，0表示无限制
+	maxConnections int
+
+	// 心跳配置
+	pingInterval time.Duration // 发送ping的间隔
+	pongWait     time.Duration // 等待pong的超时时间
+	pingMessage  []byte        // ping消息
+
 	// 日志
 	logger *zap.Logger
 }
@@ -49,6 +60,12 @@ type Client struct {
 
 	// Hub引用
 	hub *Hub
+
+	// 心跳相关
+	lastPongTime   time.Time // 最后一次收到pong的时间
+	heartbeatTimer *time.Timer
+	pingTicker     *time.Ticker
+	mu             sync.Mutex // 保护心跳相关字段
 }
 
 // UserMessage 发送给特定用户的消息
@@ -60,16 +77,49 @@ type UserMessage struct {
 // NewHub 创建新的Hub
 func NewHub() *Hub {
 	logger, _ := zap.NewProduction()
+
+	// 从配置文件读取最大连接数，默认为5000
+	maxConnections := viper.GetInt("websocket.max_connections")
+	if maxConnections <= 0 {
+		maxConnections = 5000 // 默认值
+	}
+
+	// 从配置文件读取心跳配置
+	pingIntervalSeconds := viper.GetInt("websocket.ping_interval")
+	if pingIntervalSeconds <= 0 {
+		pingIntervalSeconds = 30 // 默认30秒
+	}
+	pingInterval := time.Duration(pingIntervalSeconds) * time.Second
+
+	pongWaitSeconds := viper.GetInt("websocket.pong_wait")
+	if pongWaitSeconds <= 0 {
+		pongWaitSeconds = 60 // 默认60秒（允许2次心跳间隔）
+	}
+	pongWait := time.Duration(pongWaitSeconds) * time.Second
+
+	// 构造ping消息
+	pingMsg := map[string]interface{}{
+		"type": "pong", // 后端返回pong响应前端的ping
+	}
+	pingMessage, _ := json.Marshal(pingMsg)
+
+	logger.Info("WebSocket Hub initialized",
+		zap.Int("maxConnections", maxConnections),
+		zap.Duration("pingInterval", pingInterval),
+		zap.Duration("pongWait", pongWait))
+
 	return &Hub{
-		clients:     make(map[*Client]bool),
-		userClients: make(map[uint]*Client),
-		// 使用缓冲通道提高并发性能
-		// 每个通道缓冲1000个元素，可以处理突发流量
-		register:    make(chan *Client, 1000),
-		unregister:  make(chan *Client, 1000),
-		broadcast:   make(chan []byte, 1000),
-		sendToUser:  make(chan *UserMessage, 10000), // 消息队列需要更大的缓冲
-		logger:      logger,
+		clients:        make(map[*Client]bool),
+		userClients:    make(map[uint]*Client),
+		register:       make(chan *Client, 1000),
+		unregister:     make(chan *Client, 1000),
+		broadcast:      make(chan []byte, 1000),
+		sendToUser:     make(chan *UserMessage, 10000),
+		maxConnections: maxConnections,
+		pingInterval:   pingInterval,
+		pongWait:       pongWait,
+		pingMessage:    pingMessage,
+		logger:         logger,
 	}
 }
 
@@ -97,6 +147,36 @@ func (h *Hub) registerClient(client *Client) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
+	// 检查连接数限制
+	currentConnections := len(h.clients)
+	if h.maxConnections > 0 && currentConnections >= h.maxConnections {
+		// 如果用户已经在线，允许替换旧连接
+		if oldClient, exists := h.userClients[client.userID]; exists {
+			if oldClient != client {
+				fmt.Printf("用户 %d 已有连接，替换旧连接（连接数已达上限: %d）\n",
+					client.userID, h.maxConnections)
+				delete(h.clients, oldClient)
+				close(oldClient.send)
+				// 继续注册新连接
+			} else {
+				// 同一个客户端，直接返回
+				return
+			}
+		} else {
+			// 连接数已达上限，拒绝新连接
+			fmt.Printf("拒绝新连接：连接数已达上限 %d，当前连接数: %d\n",
+				h.maxConnections, currentConnections)
+			h.logger.Warn("Connection rejected: max connections reached",
+				zap.Int("maxConnections", h.maxConnections),
+				zap.Int("currentConnections", currentConnections),
+				zap.Uint("userID", client.userID))
+			// 关闭连接
+			close(client.send)
+			client.conn.Close()
+			return
+		}
+	}
+
 	// 如果用户已经在线，先注销旧连接（防止同一用户多个连接）
 	if oldClient, exists := h.userClients[client.userID]; exists {
 		if oldClient != client { // 避免关闭自己
@@ -112,13 +192,18 @@ func (h *Hub) registerClient(client *Client) {
 	onlineCount := len(h.clients)
 	// 只在连接数较少或特定条件下打印详细日志，避免日志过多影响性能
 	if onlineCount%100 == 0 || onlineCount < 10 {
-		fmt.Printf("用户 %d 已注册WebSocket连接，总连接数: %d\n", 
+		fmt.Printf("用户 %d 已注册WebSocket连接，总连接数: %d",
 			client.userID, onlineCount)
+		if h.maxConnections > 0 {
+			fmt.Printf(" (上限: %d)", h.maxConnections)
+		}
+		fmt.Println()
 	}
 
 	h.logger.Info("Client registered",
 		zap.Uint("userID", client.userID),
-		zap.Int("totalClients", onlineCount))
+		zap.Int("totalClients", onlineCount),
+		zap.Int("maxConnections", h.maxConnections))
 }
 
 // unregisterClient 注销客户端
@@ -170,7 +255,7 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 		// 用户不在线，记录日志但不打印所有在线用户（避免性能问题）
 		if onlineCount%100 == 0 || onlineCount < 10 {
 			// 只在特定条件下打印详细日志，避免日志过多
-			fmt.Printf("错误: 用户 %d 不在线，当前在线用户数量: %d\n", 
+			fmt.Printf("错误: 用户 %d 不在线，当前在线用户数量: %d\n",
 				userMessage.UserID, onlineCount)
 		}
 		h.logger.Warn("User not found in online clients",
@@ -184,7 +269,7 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 	case client.send <- userMessage.Message:
 		// 消息发送成功
 		if onlineCount%100 == 0 || onlineCount < 10 {
-			fmt.Printf("消息已成功发送给用户 %d，消息长度: %d\n", 
+			fmt.Printf("消息已成功发送给用户 %d，消息长度: %d\n",
 				userMessage.UserID, len(userMessage.Message))
 		}
 		h.logger.Debug("Message sent to user",
@@ -197,7 +282,7 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 		fmt.Printf("警告: 用户 %d 的发送通道已满，关闭连接\n", userMessage.UserID)
 		h.logger.Warn("Failed to send message to user, channel full",
 			zap.Uint("userID", userMessage.UserID))
-		
+
 		// 需要加写锁来删除客户端
 		h.mutex.Lock()
 		if _, exists := h.clients[client]; exists {
@@ -217,7 +302,7 @@ func (h *Hub) SendToUser(userID uint, message []byte) {
 		h.logger.Warn("Invalid userID: 0")
 		return
 	}
-	
+
 	// 检查消息大小，防止过大的消息
 	if len(message) > 1024*1024 { // 1MB限制
 		h.logger.Warn("Message too large",
@@ -225,7 +310,7 @@ func (h *Hub) SendToUser(userID uint, message []byte) {
 			zap.Int("messageLength", len(message)))
 		return
 	}
-	
+
 	select {
 	case h.sendToUser <- &UserMessage{
 		UserID:  userID,
@@ -274,7 +359,19 @@ func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
+		c.stopHeartbeat()
 	}()
+
+	// 设置读超时
+	c.conn.SetReadDeadline(time.Now().Add(c.hub.pongWait))
+	c.conn.SetPongHandler(func(string) error {
+		// 收到pong，更新最后pong时间并延长读超时
+		c.mu.Lock()
+		c.lastPongTime = time.Now()
+		c.mu.Unlock()
+		c.conn.SetReadDeadline(time.Now().Add(c.hub.pongWait))
+		return nil
+	})
 
 	for {
 		_, message, err := c.conn.ReadMessage()
@@ -284,17 +381,54 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		// 这里可以处理接收到的消息
+
+		// 处理心跳消息
+		var msg map[string]interface{}
+		if err := json.Unmarshal(message, &msg); err == nil {
+			if msgType, ok := msg["type"].(string); ok {
+				if msgType == "ping" {
+					// 前端发送ping，后端回复pong
+					c.mu.Lock()
+					c.lastPongTime = time.Now()
+					c.mu.Unlock()
+					c.conn.SetReadDeadline(time.Now().Add(c.hub.pongWait))
+					// 发送pong响应
+					pongMsg := map[string]interface{}{
+						"type": "pong",
+					}
+					pongData, _ := json.Marshal(pongMsg)
+					select {
+					case c.send <- pongData:
+					default:
+						// 发送通道已满，关闭连接
+						return
+					}
+					continue
+				}
+			}
+		}
+
+		// 其他消息可以在这里处理
 		_ = message
 	}
 }
 
 func (c *Client) writePump() {
-	defer c.conn.Close()
+	// 启动心跳定时器
+	c.startHeartbeat()
+	defer func() {
+		c.stopHeartbeat()
+		c.conn.Close()
+	}()
+
+	// 设置写超时
+	ticker := time.NewTicker(54 * time.Second) // 比ping间隔稍长，用于写超时检测
+	defer ticker.Stop()
 
 	for {
 		select {
 		case message, ok := <-c.send:
+			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
@@ -304,6 +438,62 @@ func (c *Client) writePump() {
 				log.Printf("error: %v", err)
 				return
 			}
+
+		case <-ticker.C:
+			// 定期检查写超时
+			c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
 		}
+	}
+}
+
+// startHeartbeat 启动心跳检测
+func (c *Client) startHeartbeat() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.lastPongTime = time.Now()
+
+	// 启动心跳超时检测goroutine
+	go func() {
+		ticker := time.NewTicker(c.hub.pongWait / 2) // 每半个超时时间检查一次
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				c.mu.Lock()
+				lastPong := c.lastPongTime
+				c.mu.Unlock()
+
+				// 检查是否超时
+				if time.Since(lastPong) > c.hub.pongWait {
+					c.hub.logger.Warn("Heartbeat timeout, closing connection",
+						zap.Uint("userID", c.userID),
+						zap.Duration("timeSinceLastPong", time.Since(lastPong)))
+					c.hub.unregister <- c
+					c.conn.Close()
+					return
+				}
+			}
+		}
+	}()
+}
+
+// stopHeartbeat 停止心跳检测
+func (c *Client) stopHeartbeat() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if c.pingTicker != nil {
+		c.pingTicker.Stop()
+		c.pingTicker = nil
+	}
+
+	if c.heartbeatTimer != nil {
+		c.heartbeatTimer.Stop()
+		c.heartbeatTimer = nil
 	}
 }

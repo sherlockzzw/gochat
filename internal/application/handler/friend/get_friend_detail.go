@@ -9,6 +9,7 @@ import (
 	globalUtils "gochat/utils"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // GetFriendDetail 获取好友详情
@@ -103,6 +104,7 @@ func (h *FriendHandler) getFriendDetailLogic(ctx *gin.Context, req *friend.GetFr
 		IsOnline:  isOnline,
 		Remark:    friendRelation.Remark,
 		IsBlocked: friendRelation.IsBlocked,
+		CreatedAt: timestamppb.New(friendRelation.CreatedAt),
 	}
 
 	resp = &friend.GetFriendDetailResponse{

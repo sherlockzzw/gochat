@@ -77,9 +77,11 @@ func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 	}
 
 	// 创建客户端
+	// 增加send通道缓冲大小，提高并发性能
+	// 256可能在高并发下不够，增加到1024
 	client := &Client{
 		conn:   conn,
-		send:   make(chan []byte, 256),
+		send:   make(chan []byte, 1024),
 		userID: uint(userID),
 		hub:    h.hub,
 	}

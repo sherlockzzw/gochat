@@ -31,6 +31,14 @@ service ApiUser {
       get:"/api/user/info"
     };
   };
+  
+  // 更新用户资料
+  rpc UpdateUserProfile(UpdateUserProfileRequest) returns (UpdateUserProfileResponse) {
+    option(google.api.http) = {
+      post:"/api/user/profile"
+      body:"*"
+    };
+  };
 }
 
 // 用户注册请求
@@ -102,4 +110,26 @@ message UserInfo {
   string device_info = 12;
   string created_at = 13;
   string updated_at = 14;
+  string signature = 15; // 个性签名
+}
+
+// 更新用户资料请求
+message UpdateUserProfileRequest {
+  // @inject_tag: json:"name"
+  string name = 1;        // 用户名
+  // @inject_tag: json:"phone"
+  string phone = 2;       // 手机号
+  // @inject_tag: json:"email"
+  string email = 3;       // 邮箱
+  // @inject_tag: json:"avatar"
+  string avatar = 4;      // 头像URL
+  // @inject_tag: json:"signature"
+  string signature = 5;   // 个性签名
+}
+
+// 更新用户资料响应
+message UpdateUserProfileResponse {
+  string message = 1;
+  UserInfo user = 2;
+  bool success = 3;
 }

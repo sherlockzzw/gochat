@@ -241,6 +241,29 @@
       },
       "title": "发送消息响应"
     },
+    "chatUploadFileResponse": {
+      "type": "object",
+      "properties": {
+        "fileUrl": {
+          "type": "string",
+          "title": "文件完整URL"
+        },
+        "fileName": {
+          "type": "string",
+          "title": "文件名"
+        },
+        "fileSize": {
+          "type": "string",
+          "format": "int64",
+          "title": "文件大小"
+        },
+        "fileType": {
+          "type": "string",
+          "title": "文件类型（image/document）"
+        }
+      },
+      "title": "上传文件响应"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {

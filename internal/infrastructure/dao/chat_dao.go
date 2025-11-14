@@ -33,17 +33,26 @@ func (d *ChatDao) CreateMessage(message *models.ChatMessage) error {
 	message.CreatedAt = time.Now()
 	message.UpdatedAt = time.Now()
 
+	fmt.Printf("准备存储消息: MessageID=%s, FromUserID=%d, ToUserID=%d, Content=%s\n",
+		message.MessageID, message.FromUserID, message.ToUserID, message.Content)
+
 	// 存储到MongoDB（主要存储）
 	collection := d.mongoDB.Collection("chat_messages")
-	_, err := collection.InsertOne(context.Background(), message)
+	result, err := collection.InsertOne(context.Background(), message)
 	if err != nil {
+		fmt.Printf("MongoDB存储失败: %v\n", err)
 		return fmt.Errorf("failed to insert message to MongoDB: %w", err)
 	}
+	fmt.Printf("MongoDB存储成功: InsertedID=%v\n", result.InsertedID)
 
 	// 存储到MySQL（用于快速查询和统计）
 	err = d.mysqlDB.Create(message).Error
 	if err != nil {
-		return fmt.Errorf("failed to insert message to MySQL: %w", err)
+		fmt.Printf("MySQL存储失败: %v\n", err)
+		// MySQL存储失败不影响整体流程，但记录错误
+		fmt.Printf("Warning: failed to insert message to MySQL: %v\n", err)
+	} else {
+		fmt.Printf("MySQL存储成功\n")
 	}
 
 	// 更新会话信息
@@ -56,9 +65,16 @@ func (d *ChatDao) CreateMessage(message *models.ChatMessage) error {
 	return nil
 }
 
-// GetMessageHistory 获取消息历史
+// GetMessageHistory 获取消息历史（仅从MongoDB查询）
 func (d *ChatDao) GetMessageHistory(fromUserID, toUserID uint, page, pageSize int, beforeTime *time.Time) ([]*models.ChatMessage, int64, error) {
+	// 检查MongoDB连接
+	if d.mongoDB == nil {
+		return nil, 0, fmt.Errorf("MongoDB连接未初始化")
+	}
+	
 	collection := d.mongoDB.Collection("chat_messages")
+
+	fmt.Printf("MongoDB查询: fromUserID=%d, toUserID=%d, page=%d, pageSize=%d\n", fromUserID, toUserID, page, pageSize)
 
 	// 构建查询条件
 	filter := bson.M{
@@ -73,21 +89,27 @@ func (d *ChatDao) GetMessageHistory(fromUserID, toUserID uint, page, pageSize in
 		filter["created_at"] = bson.M{"$lt": beforeTime}
 	}
 
+	fmt.Printf("MongoDB查询条件: %+v\n", filter)
+
 	// 计算总数
 	totalCount, err := collection.CountDocuments(context.Background(), filter)
 	if err != nil {
+		fmt.Printf("MongoDB计数失败: %v\n", err)
 		return nil, 0, fmt.Errorf("failed to count messages: %w", err)
 	}
 
-	// 构建查询选项
+	fmt.Printf("MongoDB查询到总数: %d\n", totalCount)
+
+	// 构建查询选项（按时间正序）
 	opts := options.Find().
-		SetSort(bson.D{{"created_at", -1}}). // 按时间倒序
+		SetSort(bson.D{{Key: "created_at", Value: 1}}). // 按时间正序（最早的在前）
 		SetSkip(int64((page - 1) * pageSize)).
 		SetLimit(int64(pageSize))
 
 	// 执行查询
 	cursor, err := collection.Find(context.Background(), filter, opts)
 	if err != nil {
+		fmt.Printf("MongoDB查询失败: %v\n", err)
 		return nil, 0, fmt.Errorf("failed to find messages: %w", err)
 	}
 	defer cursor.Close(context.Background())
@@ -96,11 +118,23 @@ func (d *ChatDao) GetMessageHistory(fromUserID, toUserID uint, page, pageSize in
 	for cursor.Next(context.Background()) {
 		var message models.ChatMessage
 		if err := cursor.Decode(&message); err != nil {
+			fmt.Printf("MongoDB解码消息失败: %v\n", err)
 			return nil, 0, fmt.Errorf("failed to decode message: %w", err)
 		}
 		messages = append(messages, &message)
+		fmt.Printf("解码消息: ID=%s, From=%d, To=%d, Content=%s, CreatedAt=%v\n", 
+			message.MessageID, message.FromUserID, message.ToUserID, message.Content, message.CreatedAt)
 	}
 
+	if err := cursor.Err(); err != nil {
+		fmt.Printf("MongoDB游标错误: %v\n", err)
+		return nil, 0, fmt.Errorf("cursor error: %w", err)
+	}
+
+	fmt.Printf("MongoDB返回消息数量: %d\n", len(messages))
+
+	// 直接返回MongoDB查询结果，不再降级到MySQL
+	// 如果MongoDB没有数据，说明确实没有消息，直接返回空数组
 	return messages, totalCount, nil
 }
 

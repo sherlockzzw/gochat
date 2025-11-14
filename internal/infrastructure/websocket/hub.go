@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"fmt"
 	"log"
 	"sync"
 
@@ -94,8 +95,23 @@ func (h *Hub) registerClient(client *Client) {
 	h.mutex.Lock()
 	defer h.mutex.Unlock()
 
+	// 如果用户已经在线，先注销旧连接
+	if oldClient, exists := h.userClients[client.userID]; exists {
+		fmt.Printf("用户 %d 已有连接，先注销旧连接\n", client.userID)
+		delete(h.clients, oldClient)
+		close(oldClient.send)
+	}
+
 	h.clients[client] = true
 	h.userClients[client.userID] = client
+
+	// 打印当前在线用户列表
+	onlineUserIDs := make([]uint, 0, len(h.userClients))
+	for uid := range h.userClients {
+		onlineUserIDs = append(onlineUserIDs, uid)
+	}
+	fmt.Printf("用户 %d 已注册WebSocket连接，当前在线用户: %v，总连接数: %d\n", 
+		client.userID, onlineUserIDs, len(h.clients))
 
 	h.logger.Info("Client registered",
 		zap.Uint("userID", client.userID),
@@ -138,26 +154,53 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 	h.mutex.RLock()
 	defer h.mutex.RUnlock()
 
+	// 打印在线用户列表用于调试
+	onlineUserIDs := make([]uint, 0, len(h.userClients))
+	for uid := range h.userClients {
+		onlineUserIDs = append(onlineUserIDs, uid)
+	}
+	fmt.Printf("尝试发送消息给用户 %d，当前在线用户: %v，在线用户数量: %d\n", 
+		userMessage.UserID, onlineUserIDs, len(h.userClients))
+
 	if client, ok := h.userClients[userMessage.UserID]; ok {
 		select {
 		case client.send <- userMessage.Message:
+			fmt.Printf("消息已成功发送给用户 %d，消息长度: %d\n", 
+				userMessage.UserID, len(userMessage.Message))
+			h.logger.Info("Message sent to user",
+				zap.Uint("userID", userMessage.UserID),
+				zap.Int("messageLength", len(userMessage.Message)))
 		default:
+			fmt.Printf("警告: 用户 %d 的发送通道已满，关闭连接\n", userMessage.UserID)
+			h.logger.Warn("Failed to send message to user, channel full",
+				zap.Uint("userID", userMessage.UserID))
 			close(client.send)
 			delete(h.clients, client)
 			delete(h.userClients, userMessage.UserID)
 		}
+	} else {
+		fmt.Printf("错误: 用户 %d 不在线，无法发送消息。当前在线用户: %v\n", 
+			userMessage.UserID, onlineUserIDs)
+		h.logger.Warn("User not found in online clients",
+			zap.Uint("userID", userMessage.UserID),
+			zap.Int("onlineUsers", len(h.userClients)))
 	}
 }
 
 // SendToUser 发送消息给特定用户
 func (h *Hub) SendToUser(userID uint, message []byte) {
+	h.logger.Info("SendToUser called",
+		zap.Uint("userID", userID),
+		zap.Int("messageLength", len(message)))
+	
 	select {
 	case h.sendToUser <- &UserMessage{
 		UserID:  userID,
 		Message: message,
 	}:
+		h.logger.Info("Message queued for user", zap.Uint("userID", userID))
 	default:
-		h.logger.Warn("Failed to send message to user",
+		h.logger.Warn("Failed to queue message for user, channel full",
 			zap.Uint("userID", userID))
 	}
 }

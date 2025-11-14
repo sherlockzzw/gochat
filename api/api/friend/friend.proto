@@ -147,6 +147,18 @@ message BlockFriendResponse {
   string message = 2;
 }
 
+// 获取好友详情请求
+message GetFriendDetailRequest {
+  uint32 friend_id = 1;
+}
+
+// 获取好友详情响应
+message GetFriendDetailResponse {
+  FriendInfo friend = 1;
+  bool success = 2;
+  string message = 3;
+}
+
 // 好友服务定义
 service FriendService {
   // 添加好友
@@ -172,4 +184,7 @@ service FriendService {
   
   // 屏蔽好友
   rpc BlockFriend(BlockFriendRequest) returns (BlockFriendResponse);
+  
+  // 获取好友详情
+  rpc GetFriendDetail(GetFriendDetailRequest) returns (GetFriendDetailResponse);
 }

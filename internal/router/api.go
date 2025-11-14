@@ -14,6 +14,9 @@ func ApiRouter(r *gin.Engine) {
 	// 静态资源服务
 	staticRouter(r)
 
+	// 注册WebSocket路由（需要在认证路由之前）
+	WebSocketRouter(r)
+
 	publicRouter(route, apiHandler)
 	privateRouter(route, apiHandler)
 }
@@ -22,6 +25,8 @@ func ApiRouter(r *gin.Engine) {
 func staticRouter(r *gin.Engine) {
 	// 用户头像静态资源
 	r.Static("/static/avatar", "./resources/user/avatar")
+	// 上传文件静态资源
+	r.Static("/static/upload", "./resources/upload")
 }
 
 func publicRouter(route *gin.RouterGroup, api *handler.API) {
@@ -37,6 +42,7 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 	// 用户相关接口
 	userRoute := r.Group("user")
 	userRoute.GET("info", api.UserHandler.GetUserInfo)
+	userRoute.POST("profile", api.UserHandler.UpdateUserProfile)
 
 	// 聊天相关接口
 	chatRoute := r.Group("chat")
@@ -80,5 +86,8 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 
 		// 屏蔽好友
 		friendRoute.POST("block", api.FriendHandler.BlockFriend)
+
+		// 获取好友详情
+		friendRoute.GET("detail/:friend_id", api.FriendHandler.GetFriendDetail)
 	}
 }

@@ -142,6 +142,21 @@
       },
       "title": "好友申请信息"
     },
+    "friendGetFriendDetailResponse": {
+      "type": "object",
+      "properties": {
+        "friend": {
+          "$ref": "#/definitions/friendFriendInfo"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "获取好友详情响应"
+    },
     "friendGetFriendListResponse": {
       "type": "object",
       "properties": {

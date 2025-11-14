@@ -6,7 +6,9 @@ import (
 	"gochat/api/api/chat"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
+	"gochat/internal/pkg/utils"
 	"gochat/models"
+	globalUtils "gochat/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -34,9 +36,11 @@ func (h *ChatHandler) SendMessage(ctx *gin.Context) {
 }
 
 func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageRequest) (resp *chat.SendMessageResponse, errCode code_msg.BusinessCode, err error) {
-	// 从JWT中获取当前用户ID（这里需要从中间件中获取）
-	// TODO: 从JWT token中获取用户ID
-	fromUserID := uint(1) // 临时硬编码，实际应该从JWT中获取
+	// 从JWT中获取当前用户ID
+	fromUserID, err := utils.GetCurrentUserID(ctx)
+	if err != nil {
+		return nil, code_msg.ServerError, err
+	}
 
 	// 创建消息模型
 	message := &models.ChatMessage{
@@ -100,13 +104,50 @@ func (h *ChatHandler) GetMessageHistory(ctx *gin.Context) {
 		return
 	}
 
-	h.response.JsonSuccess(ctx, resp)
+	// 手动构建响应结构体，确保messages字段始终存在（即使为空数组）
+	// 将protobuf消息转换为map，确保JSON序列化正确
+	messagesList := make([]map[string]interface{}, 0)
+	for _, msg := range resp.GetMessages() {
+		msgMap := map[string]interface{}{
+			"id":           msg.GetId(),
+			"from_user_id": msg.GetFromUserId(),
+			"to_user_id":   msg.GetToUserId(),
+			"message_type": msg.GetMessageType(),
+			"content":      msg.GetContent(),
+			"file_url":     msg.GetFileUrl(),
+			"file_name":    msg.GetFileName(),
+			"file_size":    msg.GetFileSize(),
+			"status":       msg.GetStatus(),
+		}
+
+		// 处理时间戳
+		if msg.GetCreatedAt() != nil {
+			msgMap["created_at"] = msg.GetCreatedAt().AsTime().Unix()
+		}
+		if msg.GetUpdatedAt() != nil {
+			msgMap["updated_at"] = msg.GetUpdatedAt().AsTime().Unix()
+		}
+
+		messagesList = append(messagesList, msgMap)
+	}
+
+	responseData := map[string]interface{}{
+		"messages":     messagesList,
+		"total_count":  resp.GetTotalCount(),
+		"current_page": resp.GetCurrentPage(),
+		"page_size":    resp.GetPageSize(),
+		"has_more":     resp.GetHasMore(),
+	}
+
+	h.response.JsonSuccess(ctx, responseData)
 }
 
 func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessageHistoryRequest) (resp *chat.GetMessageHistoryResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	// TODO: 从JWT token中获取用户ID
-	fromUserID := uint(1) // 临时硬编码
+	fromUserID, err := utils.GetCurrentUserID(ctx)
+	if err != nil {
+		return nil, code_msg.ServerError, err
+	}
 
 	// 解析时间参数
 	var beforeTime *time.Time
@@ -116,6 +157,9 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 	}
 
 	// 获取消息历史
+	fmt.Printf("准备查询消息历史: fromUserID=%d, toUserID=%d, page=%d, pageSize=%d\n",
+		fromUserID, req.GetOtherUserId(), req.GetPage(), req.GetPageSize())
+
 	messages, totalCount, err := h.dao.GetMessageHistory(
 		fromUserID,
 		uint(req.GetOtherUserId()),
@@ -124,8 +168,11 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 		beforeTime,
 	)
 	if err != nil {
+		fmt.Printf("查询消息历史失败: %v\n", err)
 		return nil, code_msg.ServerError, err
 	}
+
+	fmt.Printf("从数据库查询到 %d 条消息，总数: %d\n", len(messages), totalCount)
 
 	// 转换为响应格式
 	var chatMessages []*chat.ChatMessage
@@ -146,8 +193,16 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 		chatMessages = append(chatMessages, chatMsg)
 	}
 
+	fmt.Printf("转换后的消息数量: %d\n", len(chatMessages))
+
 	hasMore := int64(req.GetPage()*req.GetPageSize()) < totalCount
 
+	// 确保Messages不为nil
+	if chatMessages == nil {
+		chatMessages = []*chat.ChatMessage{}
+	}
+
+	// 构建响应（使用protobuf结构体）
 	resp = &chat.GetMessageHistoryResponse{
 		Messages:    chatMessages,
 		TotalCount:  int32(totalCount),
@@ -155,6 +210,13 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 		PageSize:    req.GetPageSize(),
 		HasMore:     hasMore,
 	}
+
+	fmt.Printf("构建响应: Messages数量=%d, TotalCount=%d, CurrentPage=%d, PageSize=%d\n",
+		len(resp.Messages), resp.TotalCount, resp.CurrentPage, resp.PageSize)
+
+	// 测试JSON序列化
+	respJSON, _ := json.Marshal(resp)
+	fmt.Printf("响应JSON序列化结果: %s\n", string(respJSON))
 
 	return resp, 0, nil
 }
@@ -181,8 +243,10 @@ func (h *ChatHandler) MarkMessageRead(ctx *gin.Context) {
 
 func (h *ChatHandler) markMessageReadLogic(ctx *gin.Context, req chat.MarkMessageReadRequest) (resp *chat.MarkMessageReadResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	// TODO: 从JWT token中获取用户ID
-	toUserID := uint(1) // 临时硬编码
+	toUserID, err := utils.GetCurrentUserID(ctx)
+	if err != nil {
+		return nil, code_msg.ServerError, err
+	}
 
 	// 标记消息为已读
 	markedCount, err := h.dao.MarkMessagesAsRead(
@@ -225,8 +289,10 @@ func (h *ChatHandler) GetUnreadCount(ctx *gin.Context) {
 
 func (h *ChatHandler) getUnreadCountLogic(ctx *gin.Context, req chat.GetUnreadCountRequest) (resp *chat.GetUnreadCountResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	// TODO: 从JWT token中获取用户ID
-	userID := uint(1) // 临时硬编码
+	userID, err := utils.GetCurrentUserID(ctx)
+	if err != nil {
+		return nil, code_msg.ServerError, err
+	}
 
 	// 获取未读消息数量
 	unreadByUser, err := h.dao.GetUnreadCount(userID)
@@ -276,14 +342,20 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 		return
 	}
 
-	// 发送给接收者
-	// TODO: 这里需要获取WebSocket Hub实例
-	// 暂时通过Redis Pub/Sub实现
-	h.sendMessageViaRedis(message.ToUserID, messageBytes)
-}
+	wsHub := globalUtils.GetWebSocketHub()
+	if wsHub != nil {
+		// 同时推送给接收者和发送者，确保双方都能实时看到消息
+		fmt.Printf("准备通过WebSocket推送消息给接收者 %d 和发送者 %d，消息长度: %d\n",
+			message.ToUserID, message.FromUserID, len(messageBytes))
 
-// sendMessageViaRedis 通过Redis Pub/Sub发送消息
-func (h *ChatHandler) sendMessageViaRedis(userID uint, message []byte) {
-	// TODO: 实现Redis Pub/Sub消息推送
-	fmt.Printf("Sending message to user %d via Redis: %s\n", userID, string(message))
+		// 推送给接收者
+		wsHub.SendToUser(message.ToUserID, messageBytes)
+		fmt.Printf("WebSocket消息已发送给接收者 %d\n", message.ToUserID)
+
+		// 推送给发送者（确保发送者也能实时看到自己发送的消息）
+		wsHub.SendToUser(message.FromUserID, messageBytes)
+		fmt.Printf("WebSocket消息已发送给发送者 %d\n", message.FromUserID)
+	} else {
+		fmt.Printf("WebSocket Hub未初始化，无法推送消息给用户 %d 和 %d\n", message.ToUserID, message.FromUserID)
+	}
 }

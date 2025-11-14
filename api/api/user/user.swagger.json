@@ -82,6 +82,39 @@
         ]
       }
     },
+    "/api/user/profile": {
+      "post": {
+        "summary": "更新用户资料",
+        "operationId": "ApiUser_UpdateUserProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userUpdateUserProfileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userUpdateUserProfileRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
     "/api/user/register": {
       "post": {
         "summary": "用户注册",
@@ -212,6 +245,52 @@
       },
       "title": "用户注册响应"
     },
+    "api_userUpdateUserProfileRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "用户名",
+          "title": "@inject_tag: json:\"name\""
+        },
+        "phone": {
+          "type": "string",
+          "description": "手机号",
+          "title": "@inject_tag: json:\"phone\""
+        },
+        "email": {
+          "type": "string",
+          "description": "邮箱",
+          "title": "@inject_tag: json:\"email\""
+        },
+        "avatar": {
+          "type": "string",
+          "description": "头像URL",
+          "title": "@inject_tag: json:\"avatar\""
+        },
+        "signature": {
+          "type": "string",
+          "description": "个性签名",
+          "title": "@inject_tag: json:\"signature\""
+        }
+      },
+      "title": "更新用户资料请求"
+    },
+    "api_userUpdateUserProfileResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/api_userUserInfo"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "更新用户资料响应"
+    },
     "api_userUserInfo": {
       "type": "object",
       "properties": {
@@ -260,6 +339,10 @@
         },
         "updatedAt": {
           "type": "string"
+        },
+        "signature": {
+          "type": "string",
+          "title": "个性签名"
         }
       },
       "title": "用户信息"

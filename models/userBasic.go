@@ -20,6 +20,7 @@ type UserBasic struct {
 	HeartTime  int64  `gorm:"column:heart_time;type:bigint not null;default:0;comment:心跳时间"`
 	LogoutTime int64  `gorm:"column:logout_time;type:bigint not null;default:0;comment:登出时间"`
 	DeviceInfo string `gorm:"column:device_info;type:varchar(32);not null;default:'';comment:用户设备"`
+	Signature  string `gorm:"column:signature;type:varchar(200);not null;default:'';comment:个性签名"`
 }
 
 func (table *UserBasic) TableName() string {

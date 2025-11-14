@@ -52,9 +52,9 @@ func (d *UserDao) GetUserByID(id uint) (*models.UserBasic, error) {
 	return &user, nil
 }
 
-// UpdateUser 更新用户
-func (d *UserDao) UpdateUser(user *models.UserBasic) error {
-	return d.db.Save(user).Error
+// UpdateUser 更新用户（支持部分更新）
+func (d *UserDao) UpdateUser(id uint, updates map[string]interface{}) error {
+	return d.db.Model(&models.UserBasic{}).Where("id = ?", id).Updates(updates).Error
 }
 
 // DeleteUser 删除用户

@@ -2,12 +2,15 @@ package chat
 
 import (
 	"fmt"
+	"gochat/api/api/chat"
 	"gochat/internal/pkg/code_msg"
+	globalUtils "gochat/utils"
 	"io"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -45,21 +48,32 @@ func (h *ChatHandler) UploadFile(ctx *gin.Context) {
 		return
 	}
 
+	// 获取完整URL
+	apiPort := 8080
+	if port := globalUtils.GetApiPort(); port > 0 {
+		apiPort = port
+	}
+	baseURL := fmt.Sprintf("http://127.0.0.1:%d", apiPort)
+	fullURL := h.getFileFullURL(fileInfo.RelativePath, baseURL)
+
+	// 构造protobuf响应
+	resp := &chat.UploadFileResponse{
+		FileUrl:  fullURL,
+		FileName: fileInfo.Name,
+		FileSize: fileInfo.Size,
+		FileType: fileInfo.Type,
+	}
+
 	// 返回文件信息
-	h.response.JsonSuccess(ctx, gin.H{
-		"file_url":  fileInfo.URL,
-		"file_name": fileInfo.Name,
-		"file_size": fileInfo.Size,
-		"file_type": fileInfo.Type,
-	})
+	h.response.JsonSuccess(ctx, resp)
 }
 
 // FileInfo 文件信息
 type FileInfo struct {
-	URL  string `json:"file_url"`
-	Name string `json:"file_name"`
-	Size int64  `json:"file_size"`
-	Type string `json:"file_type"`
+	RelativePath string // 相对路径（用于构造完整URL）
+	Name         string // 文件名
+	Size         int64  // 文件大小
+	Type         string // 文件类型
 }
 
 // validateFile 验证文件
@@ -89,8 +103,8 @@ func (h *ChatHandler) saveFile(file multipart.File, header *multipart.FileHeader
 	// 生成文件名
 	fileName := generateFileName(header.Filename)
 
-	// 创建目录
-	uploadDir := fmt.Sprintf("uploads/%s/%s", fileType, time.Now().Format("2006/01/02"))
+	// 创建目录（存储到resources目录下）
+	uploadDir := fmt.Sprintf("resources/upload/%s/%s", fileType, time.Now().Format("2006/01/02"))
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		return nil, code_msg.ServerError, fmt.Errorf("创建上传目录失败: %w", err)
 	}
@@ -111,15 +125,29 @@ func (h *ChatHandler) saveFile(file multipart.File, header *multipart.FileHeader
 		return nil, code_msg.ServerError, fmt.Errorf("保存文件失败: %w", err)
 	}
 
+	// 构造相对路径（用于静态资源访问）
+	relativePath := fmt.Sprintf("/static/upload/%s/%s/%s", fileType, time.Now().Format("2006/01/02"), fileName)
+
 	// 返回文件信息
 	fileInfo := &FileInfo{
-		URL:  "/" + filePath, // 相对路径，实际部署时需要配置静态文件服务
-		Name: header.Filename,
-		Size: header.Size,
-		Type: fileType,
+		RelativePath: relativePath,
+		Name:         header.Filename,
+		Size:         header.Size,
+		Type:         fileType,
 	}
 
 	return fileInfo, 0, nil
+}
+
+// getFileFullURL 获取文件完整URL
+func (h *ChatHandler) getFileFullURL(relativePath string, baseURL string) string {
+	// 如果已经是完整URL，直接返回
+	if strings.HasPrefix(relativePath, "http://") || strings.HasPrefix(relativePath, "https://") {
+		return relativePath
+	}
+
+	// 拼接完整URL
+	return fmt.Sprintf("%s%s", baseURL, relativePath)
 }
 
 // isImageFile 检查是否为图片文件

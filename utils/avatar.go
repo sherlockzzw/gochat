@@ -33,3 +33,8 @@ func GetAvatarFullURL(avatar string, baseURL string) string {
 	// 拼接完整URL
 	return fmt.Sprintf("%s%s", baseURL, relativeURL)
 }
+
+// GetDefaultGroupAvatar 获取默认群组头像
+func GetDefaultGroupAvatar() string {
+	return "/static/avatar/default_group.png"
+}

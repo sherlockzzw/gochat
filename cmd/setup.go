@@ -37,7 +37,10 @@ func setup(cmd *cobra.Command, args []string) {
 	_ = msl.Set("gorm:table_options", "COMMENT='消息已读状态表'").AutoMigrate(&models.MessageReadStatus{})
 	_ = msl.Set("gorm:table_options", "COMMENT='好友关系表'").AutoMigrate(&models.Friend{})
 	_ = msl.Set("gorm:table_options", "COMMENT='好友申请表'").AutoMigrate(&models.FriendRequest{})
+	_ = msl.Set("gorm:table_options", "COMMENT='群组表'").AutoMigrate(&models.Group{})
+	_ = msl.Set("gorm:table_options", "COMMENT='群组成员表'").AutoMigrate(&models.GroupMember{})
 
+	fmt.Println("✅ 数据库结构更新完成")
 }
 
 func init() {

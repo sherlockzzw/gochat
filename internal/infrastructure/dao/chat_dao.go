@@ -66,22 +66,46 @@ func (d *ChatDao) CreateMessage(message *models.ChatMessage) error {
 }
 
 // GetMessageHistory 获取消息历史（仅从MongoDB查询）
-func (d *ChatDao) GetMessageHistory(fromUserID, toUserID uint, page, pageSize int, beforeTime *time.Time) ([]*models.ChatMessage, int64, error) {
+func (d *ChatDao) GetMessageHistory(fromUserID, toUserID, groupID uint, page, pageSize int, beforeTime *time.Time) ([]*models.ChatMessage, int64, error) {
 	// 检查MongoDB连接
 	if d.mongoDB == nil {
 		return nil, 0, fmt.Errorf("MongoDB连接未初始化")
 	}
-	
+
 	collection := d.mongoDB.Collection("chat_messages")
 
-	fmt.Printf("MongoDB查询: fromUserID=%d, toUserID=%d, page=%d, pageSize=%d\n", fromUserID, toUserID, page, pageSize)
+	fmt.Printf("MongoDB查询: fromUserID=%d, toUserID=%d, groupID=%d, page=%d, pageSize=%d\n", fromUserID, toUserID, groupID, page, pageSize)
 
 	// 构建查询条件
-	filter := bson.M{
-		"$or": []bson.M{
-			{"from_user_id": fromUserID, "to_user_id": toUserID},
-			{"from_user_id": toUserID, "to_user_id": fromUserID},
-		},
+	var filter bson.M
+
+	if groupID > 0 {
+		// 群聊：查询该群组的所有消息
+		filter = bson.M{
+			"group_id": groupID,
+		}
+	} else {
+		// 私聊：查询双方的消息
+		// 兼容旧数据：group_id 可能不存在
+		groupFilter := []bson.M{
+			{"group_id": 0},
+			{"group_id": bson.M{"$exists": false}},
+		}
+
+		filter = bson.M{
+			"$or": []bson.M{
+				{
+					"from_user_id": fromUserID,
+					"to_user_id":   toUserID,
+					"$or":          groupFilter,
+				},
+				{
+					"from_user_id": toUserID,
+					"to_user_id":   fromUserID,
+					"$or":          groupFilter,
+				},
+			},
+		}
 	}
 
 	// 如果指定了时间，只获取该时间之前的消息
@@ -122,7 +146,7 @@ func (d *ChatDao) GetMessageHistory(fromUserID, toUserID uint, page, pageSize in
 			return nil, 0, fmt.Errorf("failed to decode message: %w", err)
 		}
 		messages = append(messages, &message)
-		fmt.Printf("解码消息: ID=%s, From=%d, To=%d, Content=%s, CreatedAt=%v\n", 
+		fmt.Printf("解码消息: ID=%s, From=%d, To=%d, Content=%s, CreatedAt=%v\n",
 			message.MessageID, message.FromUserID, message.ToUserID, message.Content, message.CreatedAt)
 	}
 
@@ -133,8 +157,6 @@ func (d *ChatDao) GetMessageHistory(fromUserID, toUserID uint, page, pageSize in
 
 	fmt.Printf("MongoDB返回消息数量: %d\n", len(messages))
 
-	// 直接返回MongoDB查询结果，不再降级到MySQL
-	// 如果MongoDB没有数据，说明确实没有消息，直接返回空数组
 	return messages, totalCount, nil
 }
 

@@ -68,7 +68,12 @@
         "toUserId": {
           "type": "integer",
           "format": "int64",
-          "title": "接收者用户ID"
+          "title": "接收者用户ID（私聊时使用，群聊时为0）"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID（群聊时使用，私聊时为0）"
         },
         "messageType": {
           "$ref": "#/definitions/chatMessageType",

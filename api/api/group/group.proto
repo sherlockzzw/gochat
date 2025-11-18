@@ -1,0 +1,170 @@
+syntax = "proto3";
+
+package api.group;
+
+option go_package = "gochat/api/api/group";
+
+import "google/protobuf/timestamp.proto";
+
+// 群组信息
+message GroupInfo {
+  uint32 id = 1;                      // 群ID
+  string name = 2;                     // 群名称
+  string avatar = 3;                   // 群头像
+  uint32 owner_id = 4;                 // 群主ID
+  string notice = 5;                   // 群公告
+  int32 member_count = 6;              // 成员数量
+  google.protobuf.Timestamp created_at = 7;  // 创建时间
+  google.protobuf.Timestamp updated_at = 8;  // 更新时间
+}
+
+// 群成员信息
+message GroupMemberInfo {
+  uint32 id = 1;                       // 成员ID
+  uint32 group_id = 2;                 // 群ID
+  uint32 user_id = 3;                  // 用户ID
+  string role = 4;                     // 角色: owner/admin/member
+  string nickname = 5;                 // 群内昵称
+  string user_name = 6;                // 用户名
+  string user_avatar = 7;              // 用户头像
+  string user_phone = 8;               // 用户手机号
+  bool is_online = 9;                  // 是否在线
+  google.protobuf.Timestamp joined_at = 10;  // 加入时间
+}
+
+// 创建群组请求
+message CreateGroupRequest {
+  string name = 1;                     // 群名称
+  string avatar = 2;                   // 群头像（可选）
+  repeated uint32 member_ids = 3;       // 初始成员ID列表（不包括创建者）
+}
+
+// 创建群组响应
+message CreateGroupResponse {
+  GroupInfo group = 1;                 // 群组信息
+  bool success = 2;                    // 是否成功
+  string error_message = 3;            // 错误信息
+}
+
+// 获取群组信息请求
+message GetGroupInfoRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                 // 群ID
+}
+
+// 获取群组信息响应
+message GetGroupInfoResponse {
+  GroupInfo group = 1;                 // 群组信息
+  repeated GroupMemberInfo members = 2; // 成员列表
+}
+
+// 获取用户群组列表请求
+message GetUserGroupsRequest {
+  // 空请求，获取当前用户的群组列表
+}
+
+// 获取用户群组列表响应
+message GetUserGroupsResponse {
+  repeated GroupInfo groups = 1;        // 群组列表
+  int32 total_count = 2;               // 总数量
+}
+
+// 添加群成员请求
+message AddGroupMembersRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                 // 群ID
+  // @inject_tag: form:"user_ids"
+  repeated uint32 user_ids = 2;         // 要添加的用户ID列表
+}
+
+// 添加群成员响应
+message AddGroupMembersResponse {
+  bool success = 1;                     // 是否成功
+  int32 added_count = 2;               // 成功添加的数量
+  repeated uint32 failed_user_ids = 3;  // 添加失败的用户ID（可能已存在）
+  string error_message = 4;            // 错误信息
+}
+
+// 移除群成员请求
+message RemoveGroupMemberRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                 // 群ID
+  // @inject_tag: form:"user_id"
+  uint32 user_id = 2;                  // 要移除的用户ID
+}
+
+// 移除群成员响应
+message RemoveGroupMemberResponse {
+  bool success = 1;                    // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 获取群成员列表请求
+message GetGroupMembersRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                 // 群ID
+}
+
+// 获取群成员列表响应
+message GetGroupMembersResponse {
+  repeated GroupMemberInfo members = 1; // 成员列表
+  int32 total_count = 2;               // 总数量
+}
+
+// 更新群组信息请求
+message UpdateGroupInfoRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                 // 群ID
+  string name = 2;                     // 群名称（可选）
+  string avatar = 3;                   // 群头像（可选）
+  string notice = 4;                   // 群公告（可选）
+}
+
+// 更新群组信息响应
+message UpdateGroupInfoResponse {
+  GroupInfo group = 1;                 // 更新后的群组信息
+  bool success = 2;                    // 是否成功
+  string error_message = 3;           // 错误信息
+}
+
+// 检查用户是否在群组中请求
+message CheckMemberInGroupRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                 // 群ID
+  // @inject_tag: form:"user_id"
+  uint32 user_id = 2;                  // 用户ID
+}
+
+// 检查用户是否在群组中响应
+message CheckMemberInGroupResponse {
+  bool is_member = 1;                  // 是否在群组中
+  string role = 2;                     // 角色（如果在群组中）
+}
+
+// 群组服务定义
+service GroupService {
+  // 创建群组
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse);
+  
+  // 获取群组信息
+  rpc GetGroupInfo(GetGroupInfoRequest) returns (GetGroupInfoResponse);
+  
+  // 获取用户群组列表
+  rpc GetUserGroups(GetUserGroupsRequest) returns (GetUserGroupsResponse);
+  
+  // 添加群成员
+  rpc AddGroupMembers(AddGroupMembersRequest) returns (AddGroupMembersResponse);
+  
+  // 移除群成员
+  rpc RemoveGroupMember(RemoveGroupMemberRequest) returns (RemoveGroupMemberResponse);
+  
+  // 获取群成员列表
+  rpc GetGroupMembers(GetGroupMembersRequest) returns (GetGroupMembersResponse);
+  
+  // 更新群组信息
+  rpc UpdateGroupInfo(UpdateGroupInfoRequest) returns (UpdateGroupInfoResponse);
+  
+  // 检查用户是否在群组中
+  rpc CheckMemberInGroup(CheckMemberInGroupRequest) returns (CheckMemberInGroupResponse);
+}
+

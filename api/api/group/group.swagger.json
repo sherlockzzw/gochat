@@ -1,0 +1,289 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/group/group.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "GroupService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "groupAddGroupMembersResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "addedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "成功添加的数量"
+        },
+        "failedUserIds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": "添加失败的用户ID（可能已存在）"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "添加群成员响应"
+    },
+    "groupCheckMemberInGroupResponse": {
+      "type": "object",
+      "properties": {
+        "isMember": {
+          "type": "boolean",
+          "title": "是否在群组中"
+        },
+        "role": {
+          "type": "string",
+          "title": "角色（如果在群组中）"
+        }
+      },
+      "title": "检查用户是否在群组中响应"
+    },
+    "groupCreateGroupResponse": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/groupGroupInfo",
+          "title": "群组信息"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "创建群组响应"
+    },
+    "groupGetGroupInfoResponse": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/groupGroupInfo",
+          "title": "群组信息"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/groupGroupMemberInfo"
+          },
+          "title": "成员列表"
+        }
+      },
+      "title": "获取群组信息响应"
+    },
+    "groupGetGroupMembersResponse": {
+      "type": "object",
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/groupGroupMemberInfo"
+          },
+          "title": "成员列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        }
+      },
+      "title": "获取群成员列表响应"
+    },
+    "groupGetUserGroupsResponse": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/groupGroupInfo"
+          },
+          "title": "群组列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        }
+      },
+      "title": "获取用户群组列表响应"
+    },
+    "groupGroupInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群ID"
+        },
+        "name": {
+          "type": "string",
+          "title": "群名称"
+        },
+        "avatar": {
+          "type": "string",
+          "title": "群头像"
+        },
+        "ownerId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群主ID"
+        },
+        "notice": {
+          "type": "string",
+          "title": "群公告"
+        },
+        "memberCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "成员数量"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "更新时间"
+        }
+      },
+      "title": "群组信息"
+    },
+    "groupGroupMemberInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "title": "成员ID"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群ID"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "用户ID"
+        },
+        "role": {
+          "type": "string",
+          "title": "角色: owner/admin/member"
+        },
+        "nickname": {
+          "type": "string",
+          "title": "群内昵称"
+        },
+        "userName": {
+          "type": "string",
+          "title": "用户名"
+        },
+        "userAvatar": {
+          "type": "string",
+          "title": "用户头像"
+        },
+        "userPhone": {
+          "type": "string",
+          "title": "用户手机号"
+        },
+        "isOnline": {
+          "type": "boolean",
+          "title": "是否在线"
+        },
+        "joinedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "加入时间"
+        }
+      },
+      "title": "群成员信息"
+    },
+    "groupRemoveGroupMemberResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "移除群成员响应"
+    },
+    "groupUpdateGroupInfoResponse": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/groupGroupInfo",
+          "title": "更新后的群组信息"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "更新群组信息响应"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

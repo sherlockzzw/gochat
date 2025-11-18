@@ -12,7 +12,8 @@ type ChatMessage struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id" gorm:"-"`                                    // MongoDB ID，MySQL中忽略
 	MessageID   string             `bson:"message_id" json:"message_id" gorm:"primaryKey;uniqueIndex;not null"` // 业务消息ID作为主键
 	FromUserID  uint               `bson:"from_user_id" json:"from_user_id" gorm:"not null;index"`
-	ToUserID    uint               `bson:"to_user_id" json:"to_user_id" gorm:"not null;index"`
+	ToUserID    uint               `bson:"to_user_id" json:"to_user_id" gorm:"index"`                          // 私聊接收者ID，群聊时为0
+	GroupID     uint               `bson:"group_id" json:"group_id" gorm:"index"`                               // 群聊群组ID，私聊时为0
 	MessageType int                `bson:"message_type" json:"message_type" gorm:"not null"` // 0:文字 1:图片 2:文件 3:系统
 	Content     string             `bson:"content" json:"content" gorm:"type:text"`
 	FileURL     string             `bson:"file_url,omitempty" json:"file_url,omitempty"`

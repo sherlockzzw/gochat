@@ -63,6 +63,8 @@ func (m *ChatMessage) validate(all bool) error {
 
 	// no validation rules for ToUserId
 
+	// no validation rules for GroupId
+
 	// no validation rules for MessageType
 
 	// no validation rules for Content
@@ -233,6 +235,8 @@ func (m *SendMessageRequest) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for ToUserId
+
+	// no validation rules for GroupId
 
 	// no validation rules for MessageType
 
@@ -482,6 +486,8 @@ func (m *GetMessageHistoryRequest) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for OtherUserId
+
+	// no validation rules for GroupId
 
 	// no validation rules for Page
 

@@ -136,7 +136,8 @@ type ChatMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                                                 // 消息ID
 	FromUserId    uint32                 `protobuf:"varint,2,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"`                            // 发送者用户ID
-	ToUserId      uint32                 `protobuf:"varint,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID
+	ToUserId      uint32                 `protobuf:"varint,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID（私聊时使用，群聊时为0）
+	GroupId       uint32                 `protobuf:"varint,12,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`                                      // 群组ID（群聊时使用，私聊时为0）
 	MessageType   MessageType            `protobuf:"varint,4,opt,name=message_type,json=messageType,proto3,enum=api.chat.MessageType" json:"message_type,omitempty"` // 消息类型
 	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                                                       // 消息内容
 	FileUrl       string                 `protobuf:"bytes,6,opt,name=file_url,json=fileUrl,proto3" json:"file_url,omitempty"`                                        // 文件URL（图片/文件消息）
@@ -200,6 +201,13 @@ func (x *ChatMessage) GetToUserId() uint32 {
 	return 0
 }
 
+func (x *ChatMessage) GetGroupId() uint32 {
+	if x != nil {
+		return x.GroupId
+	}
+	return 0
+}
+
 func (x *ChatMessage) GetMessageType() MessageType {
 	if x != nil {
 		return x.MessageType
@@ -259,7 +267,8 @@ func (x *ChatMessage) GetUpdatedAt() *timestamp.Timestamp {
 // 发送消息请求
 type SendMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ToUserId      uint32                 `protobuf:"varint,1,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID
+	ToUserId      uint32                 `protobuf:"varint,1,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID（私聊时使用）
+	GroupId       uint32                 `protobuf:"varint,7,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`                                       // 群组ID（群聊时使用，与to_user_id二选一）
 	MessageType   MessageType            `protobuf:"varint,2,opt,name=message_type,json=messageType,proto3,enum=api.chat.MessageType" json:"message_type,omitempty"` // 消息类型
 	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                       // 消息内容
 	FileUrl       string                 `protobuf:"bytes,4,opt,name=file_url,json=fileUrl,proto3" json:"file_url,omitempty"`                                        // 文件URL（可选）
@@ -302,6 +311,13 @@ func (*SendMessageRequest) Descriptor() ([]byte, []int) {
 func (x *SendMessageRequest) GetToUserId() uint32 {
 	if x != nil {
 		return x.ToUserId
+	}
+	return 0
+}
+
+func (x *SendMessageRequest) GetGroupId() uint32 {
+	if x != nil {
+		return x.GroupId
 	}
 	return 0
 }
@@ -406,7 +422,9 @@ func (x *SendMessageResponse) GetErrorMessage() string {
 type GetMessageHistoryRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// @inject_tag: form:"other_user_id"
-	OtherUserId uint32 `protobuf:"varint,1,opt,name=other_user_id,json=otherUserId,proto3" json:"other_user_id,omitempty" form:"other_user_id"` // 对方用户ID
+	OtherUserId uint32 `protobuf:"varint,1,opt,name=other_user_id,json=otherUserId,proto3" json:"other_user_id,omitempty" form:"other_user_id"` // 对方用户ID（私聊时使用）
+	// @inject_tag: form:"group_id"
+	GroupId uint32 `protobuf:"varint,5,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty" form:"group_id"` // 群组ID（群聊时使用，与other_user_id二选一）
 	// @inject_tag: form:"page"
 	Page int32 `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty" form:"page"` // 页码（从1开始）
 	// @inject_tag: form:"page_size"
@@ -450,6 +468,13 @@ func (*GetMessageHistoryRequest) Descriptor() ([]byte, []int) {
 func (x *GetMessageHistoryRequest) GetOtherUserId() uint32 {
 	if x != nil {
 		return x.OtherUserId
+	}
+	return 0
+}
+
+func (x *GetMessageHistoryRequest) GetGroupId() uint32 {
+	if x != nil {
+		return x.GroupId
 	}
 	return 0
 }
@@ -1066,13 +1091,14 @@ var File_api_chat_chat_proto protoreflect.FileDescriptor
 
 const file_api_chat_chat_proto_rawDesc = "" +
 	"\n" +
-	"\x13api/chat/chat.proto\x12\bapi.chat\x1a\x1fgoogle/protobuf/timestamp.proto\"\xad\x03\n" +
+	"\x13api/chat/chat.proto\x12\bapi.chat\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x03\n" +
 	"\vChatMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
 	"\ffrom_user_id\x18\x02 \x01(\rR\n" +
 	"fromUserId\x12\x1c\n" +
 	"\n" +
-	"to_user_id\x18\x03 \x01(\rR\btoUserId\x128\n" +
+	"to_user_id\x18\x03 \x01(\rR\btoUserId\x12\x19\n" +
+	"\bgroup_id\x18\f \x01(\rR\agroupId\x128\n" +
 	"\fmessage_type\x18\x04 \x01(\x0e2\x15.api.chat.MessageTypeR\vmessageType\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x19\n" +
 	"\bfile_url\x18\x06 \x01(\tR\afileUrl\x12\x1b\n" +
@@ -1083,10 +1109,11 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"created_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xdb\x01\n" +
+	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xf6\x01\n" +
 	"\x12SendMessageRequest\x12\x1c\n" +
 	"\n" +
-	"to_user_id\x18\x01 \x01(\rR\btoUserId\x128\n" +
+	"to_user_id\x18\x01 \x01(\rR\btoUserId\x12\x19\n" +
+	"\bgroup_id\x18\a \x01(\rR\agroupId\x128\n" +
 	"\fmessage_type\x18\x02 \x01(\x0e2\x15.api.chat.MessageTypeR\vmessageType\x12\x18\n" +
 	"\acontent\x18\x03 \x01(\tR\acontent\x12\x19\n" +
 	"\bfile_url\x18\x04 \x01(\tR\afileUrl\x12\x1b\n" +
@@ -1095,9 +1122,10 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\x13SendMessageResponse\x12/\n" +
 	"\amessage\x18\x01 \x01(\v2\x15.api.chat.ChatMessageR\amessage\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xac\x01\n" +
+	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xc7\x01\n" +
 	"\x18GetMessageHistoryRequest\x12\"\n" +
-	"\rother_user_id\x18\x01 \x01(\rR\votherUserId\x12\x12\n" +
+	"\rother_user_id\x18\x01 \x01(\rR\votherUserId\x12\x19\n" +
+	"\bgroup_id\x18\x05 \x01(\rR\agroupId\x12\x12\n" +
 	"\x04page\x18\x02 \x01(\x05R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\x12;\n" +
 	"\vbefore_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +

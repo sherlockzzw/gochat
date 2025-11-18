@@ -90,4 +90,26 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 		// 获取好友详情
 		friendRoute.GET("detail/:friend_id", api.FriendHandler.GetFriendDetail)
 	}
+
+	// 群组相关接口
+	groupRoute := r.Group("group")
+	{
+		// 创建群组
+		groupRoute.POST("create", api.GroupHandler.CreateGroup)
+
+		// 获取群组信息
+		groupRoute.GET("info", api.GroupHandler.GetGroupInfo)
+
+		// 获取用户群组列表
+		groupRoute.GET("list", api.GroupHandler.GetUserGroups)
+
+		// 添加群成员
+		groupRoute.POST("members/add", api.GroupHandler.AddGroupMembers)
+
+		// 移除群成员
+		groupRoute.DELETE("members/remove", api.GroupHandler.RemoveGroupMember)
+
+		// 检查用户是否在群组中
+		groupRoute.GET("members/check", api.GroupHandler.CheckMemberInGroup)
+	}
 }

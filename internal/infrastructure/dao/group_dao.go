@@ -1,0 +1,218 @@
+package dao
+
+import (
+	"fmt"
+	"time"
+
+	"gochat/models"
+
+	"gorm.io/gorm"
+)
+
+type GroupDao struct {
+	db *gorm.DB
+}
+
+func NewGroupDao(db *gorm.DB) *GroupDao {
+	return &GroupDao{db: db}
+}
+
+// CreateGroup 创建群组
+func (d *GroupDao) CreateGroup(group *models.Group) error {
+	return d.db.Create(group).Error
+}
+
+// GetGroupByID 根据ID获取群组
+func (d *GroupDao) GetGroupByID(groupID uint) (*models.Group, error) {
+	var group models.Group
+	err := d.db.Where("id = ?", groupID).First(&group).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &group, nil
+}
+
+// GetUserGroups 获取用户加入的群组列表
+func (d *GroupDao) GetUserGroups(userID uint) ([]*models.Group, error) {
+	var groups []*models.Group
+	err := d.db.Table("`groups` AS g").
+		Select("g.*").
+		Joins("INNER JOIN group_members gm ON g.id = gm.group_id").
+		Where("gm.user_id = ? AND gm.deleted_at IS NULL", userID).
+		Order("g.updated_at DESC").
+		Find(&groups).Error
+	return groups, err
+}
+
+// UpdateGroup 更新群组信息
+func (d *GroupDao) UpdateGroup(group *models.Group) error {
+	return d.db.Model(group).Updates(group).Error
+}
+
+// AddMember 添加群成员（如果已存在则返回错误）
+func (d *GroupDao) AddMember(groupID, userID uint, role string, nickname string) error {
+	// 检查成员是否已存在
+	var existingMember models.GroupMember
+	err := d.db.Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
+		First(&existingMember).Error
+	
+	if err == nil {
+		// 成员已存在
+		return fmt.Errorf("用户已在群组中")
+	}
+	
+	if err != gorm.ErrRecordNotFound {
+		// 其他错误
+		return err
+	}
+
+	// 创建新成员
+	member := &models.GroupMember{
+		GroupID:  groupID,
+		UserID:   userID,
+		Role:     role,
+		Nickname: nickname,
+		JoinedAt: time.Now(),
+	}
+	
+	if err := d.db.Create(member).Error; err != nil {
+		return err
+	}
+
+	// 更新群组成员数量
+	return d.db.Model(&models.Group{}).
+		Where("id = ?", groupID).
+		UpdateColumn("member_count", gorm.Expr("member_count + 1")).Error
+}
+
+// AddMembers 批量添加群成员
+func (d *GroupDao) AddMembers(groupID uint, userIDs []uint, inviterID uint) error {
+	// 开始事务
+	tx := d.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	addedCount := 0
+	for _, userID := range userIDs {
+		// 检查成员是否已存在
+		var existingMember models.GroupMember
+		err := tx.Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
+			First(&existingMember).Error
+		
+		if err == nil {
+			// 成员已存在，跳过
+			continue
+		}
+		
+		if err != gorm.ErrRecordNotFound {
+			tx.Rollback()
+			return err
+		}
+
+		// 创建新成员
+		member := &models.GroupMember{
+			GroupID:  groupID,
+			UserID:   userID,
+			Role:     models.GroupRoleMember,
+			Nickname: "",
+			JoinedAt: time.Now(),
+		}
+		
+		if err := tx.Create(member).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+		addedCount++
+	}
+
+	// 更新群组成员数量
+	if addedCount > 0 {
+		if err := tx.Model(&models.Group{}).
+			Where("id = ?", groupID).
+			UpdateColumn("member_count", gorm.Expr("member_count + ?", addedCount)).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit().Error
+}
+
+// RemoveMember 移除群成员
+func (d *GroupDao) RemoveMember(groupID, userID uint) error {
+	// 软删除成员
+	result := d.db.Model(&models.GroupMember{}).
+		Where("group_id = ? AND user_id = ?", groupID, userID).
+		Update("deleted_at", time.Now())
+	
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("成员不存在")
+	}
+
+	// 更新群组成员数量
+	return d.db.Model(&models.Group{}).
+		Where("id = ?", groupID).
+		UpdateColumn("member_count", gorm.Expr("member_count - 1")).Error
+}
+
+// GetGroupMembers 获取群成员列表
+func (d *GroupDao) GetGroupMembers(groupID uint) ([]*models.GroupMemberInfo, error) {
+	var members []*models.GroupMemberInfo
+	err := d.db.Table("group_members gm").
+		Select("gm.*, ub.name as user_name, ub.avatar as user_avatar, ub.phone as user_phone").
+		Joins("LEFT JOIN user_basic ub ON gm.user_id = ub.id").
+		Where("gm.group_id = ? AND gm.deleted_at IS NULL", groupID).
+		Order("gm.role DESC, gm.joined_at ASC").
+		Scan(&members).Error
+	return members, err
+}
+
+// IsMemberInGroup 检查用户是否在群组中
+func (d *GroupDao) IsMemberInGroup(groupID, userID uint) (bool, error) {
+	var count int64
+	err := d.db.Model(&models.GroupMember{}).
+		Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
+		Count(&count).Error
+	return count > 0, err
+}
+
+// GetMemberRole 获取成员角色
+func (d *GroupDao) GetMemberRole(groupID, userID uint) (string, error) {
+	var member models.GroupMember
+	err := d.db.Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
+		First(&member).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return "", fmt.Errorf("用户不在群组中")
+		}
+		return "", err
+	}
+	return member.Role, nil
+}
+
+// UpdateMemberNickname 更新成员群内昵称
+func (d *GroupDao) UpdateMemberNickname(groupID, userID uint, nickname string) error {
+	return d.db.Model(&models.GroupMember{}).
+		Where("group_id = ? AND user_id = ?", groupID, userID).
+		Update("nickname", nickname).Error
+}
+
+// GetGroupMemberCount 获取群成员数量
+func (d *GroupDao) GetGroupMemberCount(groupID uint) (int64, error) {
+	var count int64
+	err := d.db.Model(&models.GroupMember{}).
+		Where("group_id = ? AND deleted_at IS NULL", groupID).
+		Count(&count).Error
+	return count, err
+}
+

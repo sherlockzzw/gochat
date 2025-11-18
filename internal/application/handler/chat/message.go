@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gochat/api/api/chat"
+	"gochat/internal/infrastructure/dao"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
@@ -42,10 +43,44 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 		return nil, code_msg.ServerError, err
 	}
 
+	// 验证消息类型：私聊或群聊二选一
+	groupID := uint(req.GetGroupId())
+	toUserID := uint(req.GetToUserId())
+	
+	if groupID == 0 && toUserID == 0 {
+		return &chat.SendMessageResponse{
+			Success:      false,
+			ErrorMessage: "请指定接收者或群组",
+		}, 0, nil
+	}
+	
+	if groupID > 0 && toUserID > 0 {
+		return &chat.SendMessageResponse{
+			Success:      false,
+			ErrorMessage: "不能同时指定接收者和群组",
+		}, 0, nil
+	}
+
+	// 如果是群聊，验证用户是否在群组中
+	if groupID > 0 {
+		groupDao := dao.NewGroupDao(globalUtils.DB)
+		isMember, err := groupDao.IsMemberInGroup(groupID, fromUserID)
+		if err != nil {
+			return nil, code_msg.ServerError, err
+		}
+		if !isMember {
+			return &chat.SendMessageResponse{
+				Success:      false,
+				ErrorMessage: "您不在该群组中",
+			}, 0, nil
+		}
+	}
+
 	// 创建消息模型
 	message := &models.ChatMessage{
 		FromUserID:  fromUserID,
-		ToUserID:    uint(req.GetToUserId()),
+		ToUserID:    toUserID,
+		GroupID:     groupID,
 		MessageType: int(req.GetMessageType()),
 		Content:     req.GetContent(),
 		FileURL:     req.GetFileUrl(),
@@ -68,6 +103,7 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 		Id:          message.MessageID,
 		FromUserId:  uint32(message.FromUserID),
 		ToUserId:    uint32(message.ToUserID),
+		GroupId:     uint32(message.GroupID),
 		MessageType: chat.MessageType(message.MessageType),
 		Content:     message.Content,
 		FileUrl:     message.FileURL,
@@ -112,6 +148,7 @@ func (h *ChatHandler) GetMessageHistory(ctx *gin.Context) {
 			"id":           msg.GetId(),
 			"from_user_id": msg.GetFromUserId(),
 			"to_user_id":   msg.GetToUserId(),
+			"group_id":     msg.GetGroupId(),
 			"message_type": msg.GetMessageType(),
 			"content":      msg.GetContent(),
 			"file_url":     msg.GetFileUrl(),
@@ -156,13 +193,46 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 		beforeTime = &t
 	}
 
+	// 判断是私聊还是群聊
+	groupID := uint(req.GetGroupId())
+	otherUserID := uint(req.GetOtherUserId())
+	
+	if groupID == 0 && otherUserID == 0 {
+		return &chat.GetMessageHistoryResponse{
+			Messages:    []*chat.ChatMessage{},
+			TotalCount:  0,
+			CurrentPage: req.GetPage(),
+			PageSize:    req.GetPageSize(),
+			HasMore:     false,
+		}, 0, nil
+	}
+
+	// 如果是群聊，验证用户是否在群组中
+	if groupID > 0 {
+		groupDao := dao.NewGroupDao(globalUtils.DB)
+		isMember, err := groupDao.IsMemberInGroup(groupID, fromUserID)
+		if err != nil {
+			return nil, code_msg.ServerError, err
+		}
+		if !isMember {
+			return &chat.GetMessageHistoryResponse{
+				Messages:    []*chat.ChatMessage{},
+				TotalCount:  0,
+				CurrentPage: req.GetPage(),
+				PageSize:    req.GetPageSize(),
+				HasMore:     false,
+			}, 0, nil
+		}
+	}
+
 	// 获取消息历史
-	fmt.Printf("准备查询消息历史: fromUserID=%d, toUserID=%d, page=%d, pageSize=%d\n",
-		fromUserID, req.GetOtherUserId(), req.GetPage(), req.GetPageSize())
+	fmt.Printf("准备查询消息历史: fromUserID=%d, otherUserID=%d, groupID=%d, page=%d, pageSize=%d\n",
+		fromUserID, otherUserID, groupID, req.GetPage(), req.GetPageSize())
 
 	messages, totalCount, err := h.dao.GetMessageHistory(
 		fromUserID,
-		uint(req.GetOtherUserId()),
+		otherUserID,
+		groupID,
 		int(req.GetPage()),
 		int(req.GetPageSize()),
 		beforeTime,
@@ -181,6 +251,7 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 			Id:          msg.MessageID,
 			FromUserId:  uint32(msg.FromUserID),
 			ToUserId:    uint32(msg.ToUserID),
+			GroupId:     uint32(msg.GroupID),
 			MessageType: chat.MessageType(msg.MessageType),
 			Content:     msg.Content,
 			FileUrl:     msg.FileURL,
@@ -325,6 +396,7 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 			"id":           message.MessageID,
 			"from_user_id": message.FromUserID,
 			"to_user_id":   message.ToUserID,
+			"group_id":     message.GroupID,
 			"message_type": message.MessageType,
 			"content":      message.Content,
 			"file_url":     message.FileURL,
@@ -343,9 +415,81 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 	}
 
 	wsHub := globalUtils.GetWebSocketHub()
-	if wsHub != nil {
-		// 同时推送给接收者和发送者，确保双方都能实时看到消息
-		fmt.Printf("准备通过WebSocket推送消息给接收者 %d 和发送者 %d，消息长度: %d\n",
+	if wsHub == nil {
+		fmt.Printf("WebSocket Hub未初始化，无法推送消息\n")
+		return
+	}
+
+	// 判断是私聊还是群聊
+	if message.GroupID > 0 {
+		// 群聊：推送给所有群成员（包括发送者自己）
+		groupDao := dao.NewGroupDao(globalUtils.DB)
+		members, err := groupDao.GetGroupMembers(message.GroupID)
+		if err != nil {
+			fmt.Printf("获取群成员失败: %v\n", err)
+			return
+		}
+		
+		if len(members) == 0 {
+			fmt.Printf("警告: 群组 %d 没有成员，无法推送消息\n", message.GroupID)
+			return
+		}
+		
+		fmt.Printf("准备通过WebSocket推送群聊消息给群组 %d 的 %d 个成员，消息长度: %d\n",
+			message.GroupID, len(members), len(messageBytes))
+		
+		// 统计推送结果
+		successCount := 0
+		onlineCount := 0
+		offlineCount := 0
+		
+		// 获取在线用户列表
+		onlineUserIDs := make(map[uint]bool)
+		onlineIDs := wsHub.GetOnlineUserIDs()
+		for _, uid := range onlineIDs {
+			onlineUserIDs[uid] = true
+		}
+		
+		// 遍历所有成员，推送给每个人（包括发送者自己）
+		for _, member := range members {
+			userID := member.UserID
+			
+			// 检查用户是否在线
+			isOnline := onlineUserIDs[userID]
+			if isOnline {
+				onlineCount++
+			} else {
+				offlineCount++
+			}
+			
+			// 发送消息给每个成员（无论在线与否都尝试发送）
+			// SendToUser会检查用户是否在线，如果不在线会记录日志但不阻塞
+			// 消息已经保存到数据库，离线用户上线后可以通过历史消息获取
+			wsHub.SendToUser(userID, messageBytes)
+			
+			// 记录日志（只记录前10个成员，避免日志过多）
+			if successCount < 10 {
+				status := "离线"
+				if isOnline {
+					status = "在线"
+				}
+				fmt.Printf("  - 推送消息给成员 %d (用户ID: %d, 状态: %s)\n", 
+					member.ID, userID, status)
+			}
+			successCount++
+		}
+		
+		fmt.Printf("群聊消息推送完成: 群组ID=%d, 总成员数=%d, 在线=%d, 离线=%d, 消息ID=%s\n",
+			message.GroupID, len(members), onlineCount, offlineCount, message.MessageID)
+		
+		// 如果所有成员都离线，记录警告
+		if onlineCount == 0 && len(members) > 0 {
+			fmt.Printf("警告: 群组 %d 的所有 %d 个成员都不在线，消息已保存但无法实时推送\n",
+				message.GroupID, len(members))
+		}
+	} else {
+		// 私聊：同时推送给接收者和发送者
+		fmt.Printf("准备通过WebSocket推送私聊消息给接收者 %d 和发送者 %d，消息长度: %d\n",
 			message.ToUserID, message.FromUserID, len(messageBytes))
 
 		// 推送给接收者
@@ -355,7 +499,5 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 		// 推送给发送者（确保发送者也能实时看到自己发送的消息）
 		wsHub.SendToUser(message.FromUserID, messageBytes)
 		fmt.Printf("WebSocket消息已发送给发送者 %d\n", message.FromUserID)
-	} else {
-		fmt.Printf("WebSocket Hub未初始化，无法推送消息给用户 %d 和 %d\n", message.ToUserID, message.FromUserID)
 	}
 }

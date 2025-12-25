@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"gochat/api/api/group"
+	"gochat/internal/application/handler/common"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
-	"gochat/utils"
 
 	"github.com/gin-gonic/gin"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -52,11 +52,9 @@ func (h *GroupHandler) getGroupInfoLogic(ctx *gin.Context, req *group.GetGroupIn
 
 	// 获取在线用户列表（从WebSocket Hub）
 	onlineUserIDs := make(map[int64]bool)
-	if utils.WSHub != nil {
-		onlineIDs := utils.WSHub.GetOnlineUserIDs()
-		for _, uid := range onlineIDs {
-			onlineUserIDs[uid] = true
-		}
+	onlineIDs := common.GetOnlineUserIDs()
+	for _, uid := range onlineIDs {
+		onlineUserIDs[uid] = true
 	}
 
 	// 构造群组信息

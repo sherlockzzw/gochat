@@ -15,7 +15,7 @@ import (
 
 // GetFriendRequests 获取好友申请列表
 func (h *FriendHandler) GetFriendRequests(ctx *gin.Context) {
-	req, err := analysis.BindParameter[friend.GetFriendRequestsRequest](ctx, h.response)
+	req, err := analysis.BindQuery[friend.GetFriendRequestsRequest](ctx, h.response)
 	if err != nil {
 		return
 	}

@@ -104,7 +104,6 @@ func (h *UserHandler) updateUserProfileLogic(ctx *gin.Context, req *user.UpdateU
 
 	resp = &user.UpdateUserProfileResponse{
 		Success: true,
-		Message: "更新成功",
 		User:    userInfoProto,
 	}
 

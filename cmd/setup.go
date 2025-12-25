@@ -56,6 +56,11 @@ func setup(cmd *cobra.Command, args []string) {
 	_ = msl.Set("gorm:table_options", "COMMENT='会话设置表'").AutoMigrate(&models.ConversationSetting{})
 	_ = msl.Set("gorm:table_options", "COMMENT='通知消息表'").AutoMigrate(&models.NotificationMessage{})
 
+	// 通话相关表
+	_ = msl.Set("gorm:table_options", "COMMENT='通话房间表'").AutoMigrate(&models.CallRoom{})
+	_ = msl.Set("gorm:table_options", "COMMENT='通话参与者表'").AutoMigrate(&models.CallParticipant{})
+	_ = msl.Set("gorm:table_options", "COMMENT='通话记录表'").AutoMigrate(&models.CallRecord{})
+
 	fmt.Println("✅ 数据库结构更新完成")
 }
 

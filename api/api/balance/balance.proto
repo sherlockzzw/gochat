@@ -27,7 +27,9 @@ message RechargeResponse {
 
 // 获取充值申请列表请求
 message GetRechargeRequestsRequest {
+  // @inject_tag: form:"page"
   int32 page = 1 [(validate.rules).int32 = {gt: 0}];      // 页码
+  // @inject_tag: form:"page_size"
   int32 page_size = 2 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
 }
 
@@ -66,7 +68,9 @@ message WithdrawResponse {
 
 // 获取提现申请列表请求
 message GetWithdrawRequestsRequest {
+  // @inject_tag: form:"page"
   int32 page = 1 [(validate.rules).int32 = {gt: 0}];      // 页码
+  // @inject_tag: form:"page_size"
   int32 page_size = 2 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
 }
 
@@ -139,6 +143,7 @@ message ReceiveRedPacketResponse {
 
 // 获取红包详情请求
 message GetRedPacketDetailRequest {
+  // @inject_tag: form:"red_packet_id"
   int64 red_packet_id = 1 [(validate.rules).int64 = {gt: 0}];  // 红包ID
 }
 
@@ -223,6 +228,7 @@ message CancelTransferResponse {
 
 // 获取转账详情请求
 message GetTransferDetailRequest {
+  // @inject_tag: form:"transfer_id"
   int64 transfer_id = 1 [(validate.rules).int64 = {gt: 0}];  // 转账ID
 }
 
@@ -246,8 +252,11 @@ message GetTransferDetailResponse {
 
 // 获取资金流水请求
 message GetBalanceFlowsRequest {
+  // @inject_tag: form:"flow_type"
   string flow_type = 1;   // 流水类型(可选,为空则查询所有)
+  // @inject_tag: form:"page"
   int32 page = 2 [(validate.rules).int32 = {gt: 0}];      // 页码
+  // @inject_tag: form:"page_size"
   int32 page_size = 3 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
 }
 

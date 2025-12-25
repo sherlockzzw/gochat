@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gochat/api/api/chat"
+	"gochat/internal/application/handler/common"
 	"gochat/internal/infrastructure/dao"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
@@ -467,12 +468,6 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 		return
 	}
 
-	wsHub := globalUtils.GetWebSocketHub()
-	if wsHub == nil {
-		fmt.Printf("WebSocket Hub未初始化，无法推送消息\n")
-		return
-	}
-
 	// 判断是私聊还是群聊
 	if message.GroupID > 0 {
 		// 群聊：推送给所有群成员（包括发送者自己）
@@ -498,7 +493,7 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 		
 		// 获取在线用户列表
 		onlineUserIDs := make(map[int64]bool)
-		onlineIDs := wsHub.GetOnlineUserIDs()
+		onlineIDs := common.GetOnlineUserIDs()
 		for _, uid := range onlineIDs {
 			onlineUserIDs[uid] = true
 		}
@@ -518,7 +513,7 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 			// 发送消息给每个成员（无论在线与否都尝试发送）
 			// SendToUser会检查用户是否在线，如果不在线会记录日志但不阻塞
 			// 消息已经保存到数据库，离线用户上线后可以通过历史消息获取
-			wsHub.SendToUser(userID, messageBytes)
+			common.SendToUser(userID, messageBytes)
 			
 			// 记录日志（只记录前10个成员，避免日志过多）
 			if successCount < 10 {
@@ -546,11 +541,11 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 			message.ToUserID, message.FromUserID, len(messageBytes))
 
 		// 推送给接收者
-		wsHub.SendToUser(message.ToUserID, messageBytes)
+		common.SendToUser(message.ToUserID, messageBytes)
 		fmt.Printf("WebSocket消息已发送给接收者 %d\n", message.ToUserID)
 
 		// 推送给发送者（确保发送者也能实时看到自己发送的消息）
-		wsHub.SendToUser(message.FromUserID, messageBytes)
+		common.SendToUser(message.FromUserID, messageBytes)
 		fmt.Printf("WebSocket消息已发送给发送者 %d\n", message.FromUserID)
 	}
 }

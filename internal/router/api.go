@@ -90,7 +90,7 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 		friendRoute.POST("block", api.FriendHandler.BlockFriend)
 
 		// 获取好友详情
-		friendRoute.GET("detail/:friend_id", api.FriendHandler.GetFriendDetail)
+		friendRoute.GET("detail", api.FriendHandler.GetFriendDetail)
 	}
 
 	// 群组相关接口
@@ -144,5 +144,27 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 
 		// 资金流水
 		balanceRoute.GET("flows", api.BalanceHandler.GetBalanceFlows)
+	}
+
+	// 通话相关接口
+	callRoute := r.Group("call")
+	{
+		// 发起私聊通话
+		callRoute.POST("start-private", api.CallHandler.StartPrivateCall)
+
+		// 接受通话
+		callRoute.POST("accept", api.CallHandler.AcceptCall)
+
+		// 拒绝通话
+		callRoute.POST("reject", api.CallHandler.RejectCall)
+
+		// 取消通话
+		callRoute.POST("cancel", api.CallHandler.CancelCall)
+
+		// 结束通话
+		callRoute.POST("end", api.CallHandler.EndCall)
+
+		// 获取通话记录
+		callRoute.GET("records", api.CallHandler.GetCallRecords)
 	}
 }

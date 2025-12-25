@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"gochat/api/api/friend"
+	"gochat/internal/application/handler/common"
 	"gochat/internal/infrastructure/dao"
+	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
 	globalUtils "gochat/utils"
@@ -16,25 +18,12 @@ import (
 
 // GetFriendDetail 获取好友详情
 func (h *FriendHandler) GetFriendDetail(ctx *gin.Context) {
-	// 从URL参数获取friend_id
-	friendIDStr := ctx.Param("friend_id")
-	if friendIDStr == "" {
-		h.response.JsonErrorFixation(ctx, code_msg.BadRequest)
-		return
-	}
-
-	// 创建请求对象
-	req := &friend.GetFriendDetailRequest{}
-	// 这里需要手动解析friend_id，因为它是路径参数
-	var friendID uint32
-	_, err := fmt.Sscanf(friendIDStr, "%d", &friendID)
+	req, err := analysis.BindQuery[friend.GetFriendDetailRequest](ctx, h.response)
 	if err != nil {
-		h.response.JsonError(ctx, err, "无效的好友ID")
 		return
 	}
-	req.FriendId = friendID
 
-	resp, code, err := h.getFriendDetailLogic(ctx, req)
+	resp, code, err := h.getFriendDetailLogic(ctx, &req)
 	if code != 0 {
 		h.response.JsonErrorFixation(ctx, code)
 		return
@@ -63,10 +52,7 @@ func (h *FriendHandler) getFriendDetailLogic(ctx *gin.Context, req *friend.GetFr
 	}
 
 	if friendRelation == nil {
-		return &friend.GetFriendDetailResponse{
-			Success: false,
-			Message: "好友关系不存在",
-		}, 0, nil
+		return nil, code_msg.FriendRelationNotExists, nil
 	}
 
 	// 获取好友的用户信息（通过UserDao）
@@ -77,18 +63,11 @@ func (h *FriendHandler) getFriendDetailLogic(ctx *gin.Context, req *friend.GetFr
 	}
 
 	if userInfo == nil {
-		return &friend.GetFriendDetailResponse{
-			Success: false,
-			Message: "用户不存在",
-		}, 0, nil
+		return nil, code_msg.UserNotExists, nil
 	}
 
 	// 检查在线状态
-	wsHub := globalUtils.GetWebSocketHub()
-	isOnline := false
-	if wsHub != nil {
-		isOnline = wsHub.IsUserOnline(friendID)
-	}
+	isOnline := common.IsUserOnline(friendID)
 
 	// 获取API端口配置
 	apiPort := 8080 // 默认端口
@@ -112,9 +91,7 @@ func (h *FriendHandler) getFriendDetailLogic(ctx *gin.Context, req *friend.GetFr
 	resp = &friend.GetFriendDetailResponse{
 		Friend:  friendInfo,
 		Success: true,
-		Message: "获取成功",
 	}
 
 	return resp, 0, nil
 }
-

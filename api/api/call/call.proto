@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package api.call;
+
+option go_package = "gochat/api/api/call";
+
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+// 通话服务
+service CallService {
+  // 发起私聊通话
+  rpc StartPrivateCall(StartPrivateCallRequest) returns (StartPrivateCallResponse) {
+    option(google.api.http) = {
+      post:"/api/call/start-private"
+      body:"*"
+    };
+  };
+
+  // 接受通话
+  rpc AcceptCall(AcceptCallRequest) returns (AcceptCallResponse) {
+    option(google.api.http) = {
+      post:"/api/call/accept"
+      body:"*"
+    };
+  };
+
+  // 拒绝通话
+  rpc RejectCall(RejectCallRequest) returns (RejectCallResponse) {
+    option(google.api.http) = {
+      post:"/api/call/reject"
+      body:"*"
+    };
+  };
+
+  // 取消通话（发起者取消）
+  rpc CancelCall(CancelCallRequest) returns (CancelCallResponse) {
+    option(google.api.http) = {
+      post:"/api/call/cancel"
+      body:"*"
+    };
+  };
+
+  // 结束通话
+  rpc EndCall(EndCallRequest) returns (EndCallResponse) {
+    option(google.api.http) = {
+      post:"/api/call/end"
+      body:"*"
+    };
+  };
+
+  // 获取通话记录
+  rpc GetCallRecords(GetCallRecordsRequest) returns (GetCallRecordsResponse) {
+    option(google.api.http) = {
+      get:"/api/call/records"
+    };
+  };
+}
+
+// 发起私聊通话请求
+message StartPrivateCallRequest {
+  uint32 receiver_id = 1 [(validate.rules).uint32.gt = 0]; // 接收者ID
+  string type = 2 [(validate.rules).string = {in: ["voice", "video"]}]; // voice/video
+}
+
+// 发起私聊通话响应
+message StartPrivateCallResponse {
+  uint64 room_id = 1;      // 房间ID
+  string room_token = 2;   // 房间令牌
+  bool success = 3;        // 是否成功
+  string error_message = 4; // 错误信息
+}
+
+// 接受通话请求
+message AcceptCallRequest {
+  uint64 room_id = 1 [(validate.rules).uint64.gt = 0]; // 房间ID
+}
+
+// 接受通话响应
+message AcceptCallResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+// 拒绝通话请求
+message RejectCallRequest {
+  uint64 room_id = 1 [(validate.rules).uint64.gt = 0]; // 房间ID
+  string reason = 2; // 拒绝原因（可选）
+}
+
+// 拒绝通话响应
+message RejectCallResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+// 取消通话请求
+message CancelCallRequest {
+  uint64 room_id = 1 [(validate.rules).uint64.gt = 0]; // 房间ID
+  string reason = 2; // 取消原因（可选）
+}
+
+// 取消通话响应
+message CancelCallResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+// 结束通话请求
+message EndCallRequest {
+  uint64 room_id = 1 [(validate.rules).uint64.gt = 0]; // 房间ID
+}
+
+// 结束通话响应
+message EndCallResponse {
+  bool success = 1;
+  string error_message = 2;
+}
+
+// 获取通话记录请求
+message GetCallRecordsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1; // 页码（从1开始）
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2; // 每页数量
+  // @inject_tag: form:"type"
+  string type = 3; // voice/video/all
+}
+
+// 获取通话记录响应
+message GetCallRecordsResponse {
+  repeated CallRecord records = 1; // 通话记录列表
+  int32 total_count = 2;           // 总数量
+  int32 current_page = 3;          // 当前页码
+  int32 page_size = 4;             // 每页数量
+}
+
+// 通话记录
+message CallRecord {
+  uint64 id = 1;                    // 记录ID
+  uint64 room_id = 2;               // 房间ID
+  uint32 user_id = 3;               // 用户ID
+  string type = 4;                  // 类型(voice/video)
+  string call_type = 5;             // 通话类型(private/group)
+  uint32 other_user_id = 6;         // 对方用户ID(私聊时使用)
+  uint32 group_id = 7;              // 群组ID(群聊时使用)
+  string direction = 8;             // 方向(incoming/outgoing)
+  string status = 9;                // 状态(missed/answered/rejected)
+  int64 duration = 10;              // 通话时长(秒)
+  google.protobuf.Timestamp started_at = 11; // 开始时间
+  google.protobuf.Timestamp ended_at = 12;   // 结束时间
+  google.protobuf.Timestamp created_at = 13; // 创建时间
+}
+

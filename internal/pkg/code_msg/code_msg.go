@@ -55,6 +55,15 @@ const (
 	NoPermission         BusinessCode = 4403 // 没有权限
 	CannotRemoveOwner    BusinessCode = 4404 // 不能移除群主
 	CannotRemoveAdmin    BusinessCode = 4405 // 管理员不能移除其他管理员
+
+	// 好友相关
+	NotFriend            BusinessCode = 4501 // 不是好友关系
+	FriendRelationNotExists BusinessCode = 4502 // 好友关系不存在
+	FriendRequestNotExists BusinessCode = 4503 // 好友申请不存在
+	AlreadyFriend        BusinessCode = 4504 // 已经是好友
+	FriendRequestExists  BusinessCode = 4505 // 已发送过好友申请
+	CannotAddSelf        BusinessCode = 4506 // 不能添加自己为好友
+	InvalidOperation     BusinessCode = 4507 // 无效的操作类型
 )
 
 // GetMsg 获取错误消息
@@ -98,6 +107,15 @@ func GetMsg(code BusinessCode) string {
 		NoPermission:         "没有权限",
 		CannotRemoveOwner:    "不能移除群主",
 		CannotRemoveAdmin:    "管理员不能移除其他管理员",
+
+		// 好友相关
+		NotFriend:            "不是好友关系",
+		FriendRelationNotExists: "好友关系不存在",
+		FriendRequestNotExists: "好友申请不存在",
+		AlreadyFriend:        "已经是好友",
+		FriendRequestExists:  "已发送过好友申请，请等待对方处理",
+		CannotAddSelf:        "不能添加自己为好友",
+		InvalidOperation:     "无效的操作类型",
 	}
 
 	if msg, ok := msgMap[code]; ok {

@@ -44,10 +44,7 @@ func (h *FriendHandler) deleteFriendLogic(ctx *gin.Context, req *friend.DeleteFr
 		return nil, code_msg.ServerError, err
 	}
 	if existingFriend == nil {
-		return &friend.DeleteFriendResponse{
-			Success: false,
-			Message: "不是好友关系",
-		}, 0, nil
+		return nil, code_msg.NotFriend, nil
 	}
 
 	// 删除好友关系
@@ -58,6 +55,5 @@ func (h *FriendHandler) deleteFriendLogic(ctx *gin.Context, req *friend.DeleteFr
 
 	return &friend.DeleteFriendResponse{
 		Success: true,
-		Message: "删除好友成功",
 	}, 0, nil
 }

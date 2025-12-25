@@ -28,4 +28,13 @@ var CodeMsg = map[BusinessCode]string{
 		ParameterError:       "参数错误",
 		CodeError:            "验证码错误或已过期",
 		CodeExpired:          "验证码已过期",
+
+		// 好友相关
+		NotFriend:            "不是好友关系",
+		FriendRelationNotExists: "好友关系不存在",
+		FriendRequestNotExists: "好友申请不存在",
+		AlreadyFriend:        "已经是好友",
+		FriendRequestExists:  "已发送过好友申请，请等待对方处理",
+		CannotAddSelf:        "不能添加自己为好友",
+		InvalidOperation:     "无效的操作类型",
 	}

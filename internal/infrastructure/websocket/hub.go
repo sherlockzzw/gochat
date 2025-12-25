@@ -382,11 +382,12 @@ func (c *Client) readPump() {
 			break
 		}
 
-		// 处理心跳消息
+		// 处理消息
 		var msg map[string]interface{}
 		if err := json.Unmarshal(message, &msg); err == nil {
 			if msgType, ok := msg["type"].(string); ok {
-				if msgType == "ping" {
+				switch msgType {
+				case "ping":
 					// 前端发送ping，后端回复pong
 					c.mu.Lock()
 					c.lastPongTime = time.Now()
@@ -403,6 +404,15 @@ func (c *Client) readPump() {
 						// 发送通道已满，关闭连接
 						return
 					}
+					continue
+
+				case "call_accept", "call_reject", "call_cancel", "call_end",
+					"offer", "answer", "ice_candidate",
+					"call_joined", "call_left",
+					"call_mute", "call_unmute",
+					"call_video_on", "call_video_off":
+					// 处理通话信令消息
+					c.HandleCallSignal(message)
 					continue
 				}
 			}

@@ -8,8 +8,6 @@ import (
 	"os"
 	"time"
 
-	"gochat/internal/infrastructure/websocket"
-
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,7 +21,8 @@ var (
 	DB      *gorm.DB
 	RDB     *redis.Client
 	MongoDB *mongo.Database
-	WSHub   *websocket.Hub
+	WSHub   interface{} // 使用interface{}避免循环依赖
+	CallTimeoutMgr interface{} // 使用interface{}避免循环依赖
 )
 
 // MysqlService MySQL服务
@@ -144,14 +143,36 @@ func InitMongoDB() {
 
 // InitWebSocket 初始化WebSocket Hub
 func InitWebSocket() {
-	WSHub = websocket.NewHub()
-	go WSHub.Run()
-	fmt.Println("WebSocket Hub initialized")
+	// 避免循环依赖，使用延迟导入
+	// 实际创建Hub的逻辑在websocket包中
+	if WSHub == nil {
+		// 动态导入websocket包来创建Hub
+		// 由于循环依赖问题，我们需要在component层初始化
+		// 这里只做检查，实际初始化在component/server.go中完成
+		fmt.Println("WebSocket Hub will be initialized in component layer")
+	}
 }
 
 // GetWebSocketHub 获取WebSocket Hub实例
-func GetWebSocketHub() *websocket.Hub {
+func GetWebSocketHub() interface{} {
 	return WSHub
+}
+
+// InitCallTimeoutManager 初始化通话超时管理器（已废弃，在handler层初始化）
+// 保留此函数以保持向后兼容
+func InitCallTimeoutManager() {
+	// 超时管理器现在在CallHandler初始化时创建
+	fmt.Println("Call timeout manager will be initialized in CallHandler")
+}
+
+// GetCallTimeoutManager 获取通话超时管理器实例
+func GetCallTimeoutManager() interface{} {
+	return CallTimeoutMgr
+}
+
+// SetCallTimeoutManager 设置通话超时管理器实例
+func SetCallTimeoutManager(manager interface{}) {
+	CallTimeoutMgr = manager
 }
 
 // IsDevMode 判断是否为开发模式

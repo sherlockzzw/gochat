@@ -21,7 +21,7 @@ func (h *ChatHandler) UploadFile(ctx *gin.Context) {
 	// 获取上传的文件
 	file, header, err := ctx.Request.FormFile("file")
 	if err != nil {
-		h.response.JsonError(ctx, err, "获取上传文件失败")
+		h.response.JsonErrorFixation(ctx, code_msg.BadRequest)
 		return
 	}
 	defer file.Close()

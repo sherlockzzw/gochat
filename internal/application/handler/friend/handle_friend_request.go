@@ -42,10 +42,7 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 
 	// 验证操作类型
 	if action != "accept" && action != "reject" {
-		return &friend.HandleFriendRequestResponse{
-			Success: false,
-			Message: "无效的操作类型",
-		}, 0, nil
+		return nil, code_msg.InvalidOperation, nil
 	}
 
 	// 更新申请状态
@@ -69,10 +66,7 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 			return nil, code_msg.ServerError, err
 		}
 		if friendRequest == nil {
-			return &friend.HandleFriendRequestResponse{
-				Success: false,
-				Message: "好友申请不存在",
-			}, 0, nil
+			return nil, code_msg.FriendRequestNotExists, nil
 		}
 
 		fromUserID := friendRequest.FromUserID
@@ -96,13 +90,7 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 		}
 	}
 
-	message := "已拒绝好友申请"
-	if action == "accept" {
-		message = "已同意好友申请"
-	}
-
 	return &friend.HandleFriendRequestResponse{
 		Success: true,
-		Message: message,
 	}, 0, nil
 }

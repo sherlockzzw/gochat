@@ -3,6 +3,7 @@ package friend
 import (
 	"fmt"
 	"gochat/api/api/friend"
+	"gochat/internal/application/handler/common"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
@@ -13,7 +14,7 @@ import (
 
 // GetFriendList 获取好友列表
 func (h *FriendHandler) GetFriendList(ctx *gin.Context) {
-	req, err := analysis.BindParameter[friend.GetFriendListRequest](ctx, h.response)
+	req, err := analysis.BindQuery[friend.GetFriendListRequest](ctx, h.response)
 	if err != nil {
 		return
 	}
@@ -48,14 +49,7 @@ func (h *FriendHandler) getFriendListLogic(ctx *gin.Context, req *friend.GetFrie
 	}
 
 	// 获取在线用户ID列表
-	wsHub := globalUtils.GetWebSocketHub()
-	var onlineUserIDs []int64
-	if wsHub != nil {
-		onlineUserIDs = wsHub.GetOnlineUserIDs()
-	} else {
-		// WebSocket Hub未初始化，返回空列表
-		onlineUserIDs = []int64{}
-	}
+	onlineUserIDs := common.GetOnlineUserIDs()
 
 	// 获取好友列表（包含用户信息和在线状态）
 	friends, err := h.dao.GetFriendListWithUserInfoAndOnlineStatus(userID, page, pageSize, onlineUserIDs)

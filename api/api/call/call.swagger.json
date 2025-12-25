@@ -1,0 +1,497 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/call/call.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "CallService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/call/accept": {
+      "post": {
+        "summary": "接受通话",
+        "operationId": "CallService_AcceptCall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/callAcceptCallResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/callAcceptCallRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CallService"
+        ]
+      }
+    },
+    "/api/call/cancel": {
+      "post": {
+        "summary": "取消通话（发起者取消）",
+        "operationId": "CallService_CancelCall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/callCancelCallResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/callCancelCallRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CallService"
+        ]
+      }
+    },
+    "/api/call/end": {
+      "post": {
+        "summary": "结束通话",
+        "operationId": "CallService_EndCall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/callEndCallResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/callEndCallRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CallService"
+        ]
+      }
+    },
+    "/api/call/records": {
+      "get": {
+        "summary": "获取通话记录",
+        "operationId": "CallService_GetCallRecords",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/callGetCallRecordsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "description": "@inject_tag: form:\"page\"\n\n页码（从1开始）",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "description": "@inject_tag: form:\"page_size\"\n\n每页数量",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "type",
+            "description": "@inject_tag: form:\"type\"\n\nvoice/video/all",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "CallService"
+        ]
+      }
+    },
+    "/api/call/reject": {
+      "post": {
+        "summary": "拒绝通话",
+        "operationId": "CallService_RejectCall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/callRejectCallResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/callRejectCallRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CallService"
+        ]
+      }
+    },
+    "/api/call/start-private": {
+      "post": {
+        "summary": "发起私聊通话",
+        "operationId": "CallService_StartPrivateCall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/callStartPrivateCallResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/callStartPrivateCallRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CallService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "callAcceptCallRequest": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "房间ID"
+        }
+      },
+      "title": "接受通话请求"
+    },
+    "callAcceptCallResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      },
+      "title": "接受通话响应"
+    },
+    "callCallRecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "title": "记录ID"
+        },
+        "roomId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "房间ID"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "用户ID"
+        },
+        "type": {
+          "type": "string",
+          "title": "类型(voice/video)"
+        },
+        "callType": {
+          "type": "string",
+          "title": "通话类型(private/group)"
+        },
+        "otherUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "对方用户ID(私聊时使用)"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID(群聊时使用)"
+        },
+        "direction": {
+          "type": "string",
+          "title": "方向(incoming/outgoing)"
+        },
+        "status": {
+          "type": "string",
+          "title": "状态(missed/answered/rejected)"
+        },
+        "duration": {
+          "type": "string",
+          "format": "int64",
+          "title": "通话时长(秒)"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "开始时间"
+        },
+        "endedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "结束时间"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "创建时间"
+        }
+      },
+      "title": "通话记录"
+    },
+    "callCancelCallRequest": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "房间ID"
+        },
+        "reason": {
+          "type": "string",
+          "title": "取消原因（可选）"
+        }
+      },
+      "title": "取消通话请求"
+    },
+    "callCancelCallResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      },
+      "title": "取消通话响应"
+    },
+    "callEndCallRequest": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "房间ID"
+        }
+      },
+      "title": "结束通话请求"
+    },
+    "callEndCallResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      },
+      "title": "结束通话响应"
+    },
+    "callGetCallRecordsResponse": {
+      "type": "object",
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/callCallRecord"
+          },
+          "title": "通话记录列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        }
+      },
+      "title": "获取通话记录响应"
+    },
+    "callRejectCallRequest": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "房间ID"
+        },
+        "reason": {
+          "type": "string",
+          "title": "拒绝原因（可选）"
+        }
+      },
+      "title": "拒绝通话请求"
+    },
+    "callRejectCallResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      },
+      "title": "拒绝通话响应"
+    },
+    "callStartPrivateCallRequest": {
+      "type": "object",
+      "properties": {
+        "receiverId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "接收者ID"
+        },
+        "type": {
+          "type": "string",
+          "title": "voice/video"
+        }
+      },
+      "title": "发起私聊通话请求"
+    },
+    "callStartPrivateCallResponse": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "房间ID"
+        },
+        "roomToken": {
+          "type": "string",
+          "title": "房间令牌"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "发起私聊通话响应"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

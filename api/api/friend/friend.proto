@@ -149,6 +149,7 @@ message BlockFriendResponse {
 
 // 获取好友详情请求
 message GetFriendDetailRequest {
+  // @inject_tag: form:"friend_id"
   uint32 friend_id = 1;
 }
 

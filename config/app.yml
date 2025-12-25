@@ -28,6 +28,9 @@ websocket:
   ping_interval: 30      # 心跳ping间隔（秒），前端发送ping的间隔
   pong_wait: 60          # 心跳超时时间（秒），超过此时间未收到pong则断开连接
 
+call:
+    timeout_seconds: 60  # 超时时间（秒）
+
 token:
   encryptionKey: examplekey946666
   expire: 24 # token过期时间，单位小时

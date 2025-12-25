@@ -1,6 +1,8 @@
 package router
 
 import (
+	"fmt"
+	"gochat/internal/component"
 	"gochat/internal/infrastructure/websocket"
 	"gochat/utils"
 
@@ -9,8 +11,20 @@ import (
 
 // WebSocketRouter 注册WebSocket路由
 func WebSocketRouter(r *gin.Engine) {
+	hub, ok := utils.WSHub.(*websocket.Hub)
+	if !ok || hub == nil {
+
+		fmt.Println("Warning: WebSocket Hub not initialized, attempting to initialize...")
+		component.GetApiServer()
+		hub, ok = utils.WSHub.(*websocket.Hub)
+		if !ok || hub == nil {
+			fmt.Println("Error: Failed to initialize WebSocket Hub")
+			return
+		}
+	}
+
 	// 创建WebSocket处理器
-	wsHandler := websocket.NewWebSocketHandler(utils.WSHub)
+	wsHandler := websocket.NewWebSocketHandler(hub)
 
 	// WebSocket路由组
 	ws := r.Group("/ws")
@@ -29,7 +43,7 @@ func WebSocketRouter(r *gin.Engine) {
 			c.JSON(200, gin.H{
 				"status":       "ok",
 				"service":      "websocket",
-				"online_users": utils.WSHub.GetOnlineUsers(),
+				"online_users": hub.GetOnlineUsers(),
 			})
 		})
 	}

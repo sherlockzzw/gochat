@@ -351,7 +351,7 @@
         },
         "fileType": {
           "type": "string",
-          "title": "文件类型（image/document）"
+          "title": "文件类型（image/document/video/voice/emoji）"
         }
       },
       "title": "上传文件响应"

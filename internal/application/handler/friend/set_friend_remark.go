@@ -45,10 +45,7 @@ func (h *FriendHandler) setFriendRemarkLogic(ctx *gin.Context, req *friend.SetFr
 		return nil, code_msg.ServerError, err
 	}
 	if existingFriend == nil {
-		return &friend.SetFriendRemarkResponse{
-			Success: false,
-			Message: "不是好友关系",
-		}, 0, nil
+		return nil, code_msg.NotFriend, nil
 	}
 
 	// 设置好友备注
@@ -59,6 +56,5 @@ func (h *FriendHandler) setFriendRemarkLogic(ctx *gin.Context, req *friend.SetFr
 
 	return &friend.SetFriendRemarkResponse{
 		Success: true,
-		Message: "设置备注成功",
 	}, 0, nil
 }

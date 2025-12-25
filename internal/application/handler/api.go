@@ -2,6 +2,7 @@ package handler
 
 import (
 	"gochat/internal/application/handler/balance"
+	"gochat/internal/application/handler/call"
 	"gochat/internal/application/handler/chat"
 	"gochat/internal/application/handler/friend"
 	"gochat/internal/application/handler/group"
@@ -15,6 +16,7 @@ type API struct {
 	FriendHandler  *friend.FriendHandler
 	GroupHandler   *group.GroupHandler
 	BalanceHandler *balance.BalanceHandler
+	CallHandler    *call.CallHandler
 }
 
 // NewApi 用户端接口注册
@@ -26,5 +28,6 @@ func NewApi() *API {
 		FriendHandler:  friend.NewFriendHandler(server),
 		GroupHandler:   group.NewGroupHandler(server),
 		BalanceHandler: balance.NewBalanceHandler(server),
+		CallHandler:    call.NewCallHandler(server),
 	}
 }

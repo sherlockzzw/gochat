@@ -45,10 +45,7 @@ func (h *FriendHandler) blockFriendLogic(ctx *gin.Context, req *friend.BlockFrie
 		return nil, code_msg.ServerError, err
 	}
 	if existingFriend == nil {
-		return &friend.BlockFriendResponse{
-			Success: false,
-			Message: "不是好友关系",
-		}, 0, nil
+		return nil, code_msg.NotFriend, nil
 	}
 
 	// 屏蔽/取消屏蔽好友
@@ -57,13 +54,7 @@ func (h *FriendHandler) blockFriendLogic(ctx *gin.Context, req *friend.BlockFrie
 		return nil, code_msg.ServerError, err
 	}
 
-	action := "屏蔽"
-	if !isBlock {
-		action = "取消屏蔽"
-	}
-
 	return &friend.BlockFriendResponse{
 		Success: true,
-		Message: action + "成功",
 	}, 0, nil
 }

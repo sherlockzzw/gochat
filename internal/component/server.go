@@ -1,6 +1,8 @@
 package component
 
 import (
+	"fmt"
+	"gochat/internal/infrastructure/websocket"
 	"gochat/internal/pkg/response"
 	"gochat/utils"
 
@@ -33,7 +35,14 @@ func initCoreServicesForSetup() {
 
 // initWebSocketService 初始化WebSocket服务
 func initWebSocketService() {
-	utils.InitWebSocket()
+	// 实际创建WebSocket Hub
+	if utils.WSHub == nil {
+		hub := websocket.NewHub()
+		utils.WSHub = hub
+		// 启动Hub的goroutine
+		go hub.Run()
+		fmt.Println("WebSocket Hub initialized and started")
+	}
 }
 
 // createLogger 创建日志实例

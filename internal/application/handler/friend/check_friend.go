@@ -11,7 +11,7 @@ import (
 
 // CheckFriend 检查好友关系
 func (h *FriendHandler) CheckFriend(ctx *gin.Context) {
-	req, err := analysis.BindParameter[friend.CheckFriendRequest](ctx, h.response)
+	req, err := analysis.BindQuery[friend.CheckFriendRequest](ctx, h.response)
 	if err != nil {
 		return
 	}

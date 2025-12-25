@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gochat/api/api/user"
 	"gochat/internal/pkg/analysis"
+	"gochat/internal/pkg/code_msg"
 	globalUtils "gochat/utils"
 
 	"github.com/gin-gonic/gin"
@@ -28,8 +29,12 @@ func (h *UserHandler) getUserInfoLogic(ctx *gin.Context, req user.GetUserInfoReq
 	// 获取用户信息
 	userModel, err := h.dao.GetUserByID(int64(req.GetId()))
 	if err != nil {
-		h.response.JsonNotFound(ctx, "用户不存在")
-		return nil, gin.Error{Err: gin.Error{}, Type: gin.ErrorTypePublic, Meta: "用户不存在"}
+		h.response.JsonErrorFixation(ctx, code_msg.ServerError)
+		return nil, err
+	}
+	if userModel == nil {
+		h.response.JsonErrorFixation(ctx, code_msg.UserNotExists)
+		return nil, fmt.Errorf("user not found")
 	}
 
 	// 获取API端口配置
@@ -39,7 +44,6 @@ func (h *UserHandler) getUserInfoLogic(ctx *gin.Context, req user.GetUserInfoReq
 	}
 
 	resp = &user.GetUserInfoResponse{
-		Message: "获取成功",
 		User: &user.UserInfo{
 			Id:         int64(userModel.ID),
 			Name:       userModel.Name,

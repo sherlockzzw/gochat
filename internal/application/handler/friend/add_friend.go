@@ -39,10 +39,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 
 	// 检查不能添加自己为好友
 	if userID == int64(req.GetFriendId()) {
-		return &friend.AddFriendResponse{
-			Success: false,
-			Message: "不能添加自己为好友",
-		}, 0, nil
+		return nil, code_msg.CannotAddSelf, nil
 	}
 
 	// 检查是否已经是好友
@@ -51,10 +48,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 		return nil, code_msg.ServerError, err
 	}
 	if existingFriend != nil {
-		return &friend.AddFriendResponse{
-			Success: false,
-			Message: "已经是好友了",
-		}, 0, nil
+		return nil, code_msg.AlreadyFriend, nil
 	}
 
 	// 检查是否已有待处理的申请
@@ -63,10 +57,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 		return nil, code_msg.ServerError, err
 	}
 	if existingRequest != nil {
-		return &friend.AddFriendResponse{
-			Success: false,
-			Message: "已发送过好友申请，请等待对方处理",
-		}, 0, nil
+		return nil, code_msg.FriendRequestExists, nil
 	}
 
 	// 创建好友申请
@@ -84,6 +75,5 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 
 	return &friend.AddFriendResponse{
 		Success: true,
-		Message: "好友申请已发送",
 	}, 0, nil
 }

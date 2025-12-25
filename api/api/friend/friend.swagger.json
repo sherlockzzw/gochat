@@ -97,6 +97,10 @@
         "remark": {
           "type": "string"
         },
+        "groupName": {
+          "type": "string",
+          "title": "自定义分组名称"
+        },
         "isBlocked": {
           "type": "boolean"
         },
@@ -224,6 +228,18 @@
         }
       },
       "title": "处理好友申请响应"
+    },
+    "friendSetFriendGroupResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "设置好友分组响应"
     },
     "friendSetFriendRemarkResponse": {
       "type": "object",

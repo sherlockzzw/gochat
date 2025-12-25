@@ -28,6 +28,7 @@ const (
 	FriendService_SetFriendRemark_FullMethodName     = "/api.friend.FriendService/SetFriendRemark"
 	FriendService_BlockFriend_FullMethodName         = "/api.friend.FriendService/BlockFriend"
 	FriendService_GetFriendDetail_FullMethodName     = "/api.friend.FriendService/GetFriendDetail"
+	FriendService_SetFriendGroup_FullMethodName      = "/api.friend.FriendService/SetFriendGroup"
 )
 
 // FriendServiceClient is the client API for FriendService service.
@@ -54,6 +55,8 @@ type FriendServiceClient interface {
 	BlockFriend(ctx context.Context, in *BlockFriendRequest, opts ...grpc.CallOption) (*BlockFriendResponse, error)
 	// 获取好友详情
 	GetFriendDetail(ctx context.Context, in *GetFriendDetailRequest, opts ...grpc.CallOption) (*GetFriendDetailResponse, error)
+	// 设置好友分组
+	SetFriendGroup(ctx context.Context, in *SetFriendGroupRequest, opts ...grpc.CallOption) (*SetFriendGroupResponse, error)
 }
 
 type friendServiceClient struct {
@@ -154,6 +157,16 @@ func (c *friendServiceClient) GetFriendDetail(ctx context.Context, in *GetFriend
 	return out, nil
 }
 
+func (c *friendServiceClient) SetFriendGroup(ctx context.Context, in *SetFriendGroupRequest, opts ...grpc.CallOption) (*SetFriendGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetFriendGroupResponse)
+	err := c.cc.Invoke(ctx, FriendService_SetFriendGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FriendServiceServer is the server API for FriendService service.
 // All implementations must embed UnimplementedFriendServiceServer
 // for forward compatibility.
@@ -178,6 +191,8 @@ type FriendServiceServer interface {
 	BlockFriend(context.Context, *BlockFriendRequest) (*BlockFriendResponse, error)
 	// 获取好友详情
 	GetFriendDetail(context.Context, *GetFriendDetailRequest) (*GetFriendDetailResponse, error)
+	// 设置好友分组
+	SetFriendGroup(context.Context, *SetFriendGroupRequest) (*SetFriendGroupResponse, error)
 	mustEmbedUnimplementedFriendServiceServer()
 }
 
@@ -214,6 +229,9 @@ func (UnimplementedFriendServiceServer) BlockFriend(context.Context, *BlockFrien
 }
 func (UnimplementedFriendServiceServer) GetFriendDetail(context.Context, *GetFriendDetailRequest) (*GetFriendDetailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFriendDetail not implemented")
+}
+func (UnimplementedFriendServiceServer) SetFriendGroup(context.Context, *SetFriendGroupRequest) (*SetFriendGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetFriendGroup not implemented")
 }
 func (UnimplementedFriendServiceServer) mustEmbedUnimplementedFriendServiceServer() {}
 func (UnimplementedFriendServiceServer) testEmbeddedByValue()                       {}
@@ -398,6 +416,24 @@ func _FriendService_GetFriendDetail_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FriendService_SetFriendGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetFriendGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FriendServiceServer).SetFriendGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FriendService_SetFriendGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FriendServiceServer).SetFriendGroup(ctx, req.(*SetFriendGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FriendService_ServiceDesc is the grpc.ServiceDesc for FriendService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -440,6 +476,10 @@ var FriendService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFriendDetail",
 			Handler:    _FriendService_GetFriendDetail_Handler,
+		},
+		{
+			MethodName: "SetFriendGroup",
+			Handler:    _FriendService_SetFriendGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

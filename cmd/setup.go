@@ -55,6 +55,7 @@ func setup(cmd *cobra.Command, args []string) {
 	// 会话管理和通知消息表
 	_ = msl.Set("gorm:table_options", "COMMENT='会话设置表'").AutoMigrate(&models.ConversationSetting{})
 	_ = msl.Set("gorm:table_options", "COMMENT='通知消息表'").AutoMigrate(&models.NotificationMessage{})
+	_ = msl.Set("gorm:table_options", "COMMENT='消息收藏表'").AutoMigrate(&models.MessageFavorite{})
 
 	// 通话相关表
 	_ = msl.Set("gorm:table_options", "COMMENT='通话房间表'").AutoMigrate(&models.CallRoom{})

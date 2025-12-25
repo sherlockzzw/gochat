@@ -814,6 +814,10 @@ func (m *SearchUserRequest) validate(all bool) error {
 
 	// no validation rules for Keyword
 
+	// no validation rules for LoginAccount
+
+	// no validation rules for OnlineOnly
+
 	if len(errors) > 0 {
 		return SearchUserRequestMultiError(errors)
 	}
@@ -2243,3 +2247,965 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DeleteMessageResponseValidationError{}
+
+// Validate checks the field values on ForwardMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ForwardMessageRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ForwardMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ForwardMessageRequestMultiError, or nil if none found.
+func (m *ForwardMessageRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ForwardMessageRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if l := len(m.GetMessageIds()); l < 1 || l > 100 {
+		err := ForwardMessageRequestValidationError{
+			field:  "MessageIds",
+			reason: "value must contain between 1 and 100 items, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for ToUserId
+
+	// no validation rules for GroupId
+
+	// no validation rules for Content
+
+	if len(errors) > 0 {
+		return ForwardMessageRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ForwardMessageRequestMultiError is an error wrapping multiple validation
+// errors returned by ForwardMessageRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ForwardMessageRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ForwardMessageRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ForwardMessageRequestMultiError) AllErrors() []error { return m }
+
+// ForwardMessageRequestValidationError is the validation error returned by
+// ForwardMessageRequest.Validate if the designated constraints aren't met.
+type ForwardMessageRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ForwardMessageRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ForwardMessageRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ForwardMessageRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ForwardMessageRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ForwardMessageRequestValidationError) ErrorName() string {
+	return "ForwardMessageRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ForwardMessageRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sForwardMessageRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ForwardMessageRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ForwardMessageRequestValidationError{}
+
+// Validate checks the field values on ForwardMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ForwardMessageResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ForwardMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ForwardMessageResponseMultiError, or nil if none found.
+func (m *ForwardMessageResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ForwardMessageResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetMessages() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ForwardMessageResponseValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ForwardMessageResponseValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ForwardMessageResponseValidationError{
+					field:  fmt.Sprintf("Messages[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for ForwardedCount
+
+	// no validation rules for Success
+
+	// no validation rules for ErrorMessage
+
+	if len(errors) > 0 {
+		return ForwardMessageResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ForwardMessageResponseMultiError is an error wrapping multiple validation
+// errors returned by ForwardMessageResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ForwardMessageResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ForwardMessageResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ForwardMessageResponseMultiError) AllErrors() []error { return m }
+
+// ForwardMessageResponseValidationError is the validation error returned by
+// ForwardMessageResponse.Validate if the designated constraints aren't met.
+type ForwardMessageResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ForwardMessageResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ForwardMessageResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ForwardMessageResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ForwardMessageResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ForwardMessageResponseValidationError) ErrorName() string {
+	return "ForwardMessageResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ForwardMessageResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sForwardMessageResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ForwardMessageResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ForwardMessageResponseValidationError{}
+
+// Validate checks the field values on FavoriteMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FavoriteMessageRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FavoriteMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FavoriteMessageRequestMultiError, or nil if none found.
+func (m *FavoriteMessageRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FavoriteMessageRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetMessageId()) < 1 {
+		err := FavoriteMessageRequestValidationError{
+			field:  "MessageId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return FavoriteMessageRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// FavoriteMessageRequestMultiError is an error wrapping multiple validation
+// errors returned by FavoriteMessageRequest.ValidateAll() if the designated
+// constraints aren't met.
+type FavoriteMessageRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FavoriteMessageRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FavoriteMessageRequestMultiError) AllErrors() []error { return m }
+
+// FavoriteMessageRequestValidationError is the validation error returned by
+// FavoriteMessageRequest.Validate if the designated constraints aren't met.
+type FavoriteMessageRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FavoriteMessageRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FavoriteMessageRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FavoriteMessageRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FavoriteMessageRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FavoriteMessageRequestValidationError) ErrorName() string {
+	return "FavoriteMessageRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FavoriteMessageRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFavoriteMessageRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FavoriteMessageRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FavoriteMessageRequestValidationError{}
+
+// Validate checks the field values on FavoriteMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FavoriteMessageResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FavoriteMessageResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FavoriteMessageResponseMultiError, or nil if none found.
+func (m *FavoriteMessageResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FavoriteMessageResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return FavoriteMessageResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// FavoriteMessageResponseMultiError is an error wrapping multiple validation
+// errors returned by FavoriteMessageResponse.ValidateAll() if the designated
+// constraints aren't met.
+type FavoriteMessageResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FavoriteMessageResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FavoriteMessageResponseMultiError) AllErrors() []error { return m }
+
+// FavoriteMessageResponseValidationError is the validation error returned by
+// FavoriteMessageResponse.Validate if the designated constraints aren't met.
+type FavoriteMessageResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FavoriteMessageResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FavoriteMessageResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FavoriteMessageResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FavoriteMessageResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FavoriteMessageResponseValidationError) ErrorName() string {
+	return "FavoriteMessageResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FavoriteMessageResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFavoriteMessageResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FavoriteMessageResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FavoriteMessageResponseValidationError{}
+
+// Validate checks the field values on UnfavoriteMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UnfavoriteMessageRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UnfavoriteMessageRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UnfavoriteMessageRequestMultiError, or nil if none found.
+func (m *UnfavoriteMessageRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UnfavoriteMessageRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetMessageId()) < 1 {
+		err := UnfavoriteMessageRequestValidationError{
+			field:  "MessageId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return UnfavoriteMessageRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UnfavoriteMessageRequestMultiError is an error wrapping multiple validation
+// errors returned by UnfavoriteMessageRequest.ValidateAll() if the designated
+// constraints aren't met.
+type UnfavoriteMessageRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UnfavoriteMessageRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UnfavoriteMessageRequestMultiError) AllErrors() []error { return m }
+
+// UnfavoriteMessageRequestValidationError is the validation error returned by
+// UnfavoriteMessageRequest.Validate if the designated constraints aren't met.
+type UnfavoriteMessageRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UnfavoriteMessageRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UnfavoriteMessageRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UnfavoriteMessageRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UnfavoriteMessageRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UnfavoriteMessageRequestValidationError) ErrorName() string {
+	return "UnfavoriteMessageRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UnfavoriteMessageRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUnfavoriteMessageRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UnfavoriteMessageRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UnfavoriteMessageRequestValidationError{}
+
+// Validate checks the field values on UnfavoriteMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UnfavoriteMessageResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UnfavoriteMessageResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UnfavoriteMessageResponseMultiError, or nil if none found.
+func (m *UnfavoriteMessageResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UnfavoriteMessageResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return UnfavoriteMessageResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UnfavoriteMessageResponseMultiError is an error wrapping multiple validation
+// errors returned by UnfavoriteMessageResponse.ValidateAll() if the
+// designated constraints aren't met.
+type UnfavoriteMessageResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UnfavoriteMessageResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UnfavoriteMessageResponseMultiError) AllErrors() []error { return m }
+
+// UnfavoriteMessageResponseValidationError is the validation error returned by
+// UnfavoriteMessageResponse.Validate if the designated constraints aren't met.
+type UnfavoriteMessageResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UnfavoriteMessageResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UnfavoriteMessageResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UnfavoriteMessageResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UnfavoriteMessageResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UnfavoriteMessageResponseValidationError) ErrorName() string {
+	return "UnfavoriteMessageResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UnfavoriteMessageResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUnfavoriteMessageResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UnfavoriteMessageResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UnfavoriteMessageResponseValidationError{}
+
+// Validate checks the field values on GetFavoriteMessagesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetFavoriteMessagesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetFavoriteMessagesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetFavoriteMessagesRequestMultiError, or nil if none found.
+func (m *GetFavoriteMessagesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetFavoriteMessagesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetPage() <= 0 {
+		err := GetFavoriteMessagesRequestValidationError{
+			field:  "Page",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if val := m.GetPageSize(); val <= 0 || val > 100 {
+		err := GetFavoriteMessagesRequestValidationError{
+			field:  "PageSize",
+			reason: "value must be inside range (0, 100]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetFavoriteMessagesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetFavoriteMessagesRequestMultiError is an error wrapping multiple
+// validation errors returned by GetFavoriteMessagesRequest.ValidateAll() if
+// the designated constraints aren't met.
+type GetFavoriteMessagesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetFavoriteMessagesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetFavoriteMessagesRequestMultiError) AllErrors() []error { return m }
+
+// GetFavoriteMessagesRequestValidationError is the validation error returned
+// by GetFavoriteMessagesRequest.Validate if the designated constraints aren't met.
+type GetFavoriteMessagesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetFavoriteMessagesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetFavoriteMessagesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetFavoriteMessagesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetFavoriteMessagesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetFavoriteMessagesRequestValidationError) ErrorName() string {
+	return "GetFavoriteMessagesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetFavoriteMessagesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetFavoriteMessagesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetFavoriteMessagesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetFavoriteMessagesRequestValidationError{}
+
+// Validate checks the field values on GetFavoriteMessagesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetFavoriteMessagesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetFavoriteMessagesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetFavoriteMessagesResponseMultiError, or nil if none found.
+func (m *GetFavoriteMessagesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetFavoriteMessagesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetMessages() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetFavoriteMessagesResponseValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetFavoriteMessagesResponseValidationError{
+						field:  fmt.Sprintf("Messages[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetFavoriteMessagesResponseValidationError{
+					field:  fmt.Sprintf("Messages[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for TotalCount
+
+	// no validation rules for CurrentPage
+
+	// no validation rules for PageSize
+
+	if len(errors) > 0 {
+		return GetFavoriteMessagesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetFavoriteMessagesResponseMultiError is an error wrapping multiple
+// validation errors returned by GetFavoriteMessagesResponse.ValidateAll() if
+// the designated constraints aren't met.
+type GetFavoriteMessagesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetFavoriteMessagesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetFavoriteMessagesResponseMultiError) AllErrors() []error { return m }
+
+// GetFavoriteMessagesResponseValidationError is the validation error returned
+// by GetFavoriteMessagesResponse.Validate if the designated constraints
+// aren't met.
+type GetFavoriteMessagesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetFavoriteMessagesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetFavoriteMessagesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetFavoriteMessagesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetFavoriteMessagesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetFavoriteMessagesResponseValidationError) ErrorName() string {
+	return "GetFavoriteMessagesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetFavoriteMessagesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetFavoriteMessagesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetFavoriteMessagesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetFavoriteMessagesResponseValidationError{}

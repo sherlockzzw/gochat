@@ -1,6 +1,7 @@
 package friend
 
 import (
+	"fmt"
 	"gochat/api/api/friend"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
@@ -47,13 +48,24 @@ func (h *FriendHandler) deleteFriendLogic(ctx *gin.Context, req *friend.DeleteFr
 		return nil, code_msg.NotFriend, nil
 	}
 
-	// 删除好友关系
+	// 删除双向好友关系（互移列表）
 	err = h.dao.DeleteFriend(userID, friendID)
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
 
+	// 同时删除对方的好友关系
+	err = h.dao.DeleteFriend(friendID, userID)
+	if err != nil {
+		// 记录错误但不影响主流程
+		fmt.Printf("Failed to delete reverse friend relation: %v\n", err)
+	}
+
+	// 注意：历史消息保留在数据库中，不会被删除
+	// 中断新消息接收：通过删除好友关系，后续发送消息时会检查好友关系，从而阻止新消息
+
 	return &friend.DeleteFriendResponse{
 		Success: true,
+		Message: "删除成功，历史记录已保留",
 	}, 0, nil
 }

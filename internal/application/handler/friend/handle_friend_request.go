@@ -10,6 +10,7 @@ import (
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
 	globalUtils "gochat/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -75,16 +76,25 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 
 	// 如果同意申请，创建好友关系
 	if action == "accept" {
+		now := time.Now().Unix()
 		// 创建双向好友关系
 		friend1 := &models.Friend{
 			UserID:    userID,
 			FriendID:  fromUserID,
-			IsBlocked: false, // 正常状态
+			Remark:    "",
+			GroupName: "", // 接收者可以后续设置分组
+			IsBlocked: false,
+			CreatedAt: now,
+			UpdatedAt: now,
 		}
 		friend2 := &models.Friend{
 			UserID:    fromUserID,
 			FriendID:  userID,
-			IsBlocked: false, // 正常状态
+			Remark:    "",
+			GroupName: "", // 申请者可以后续设置分组
+			IsBlocked: false,
+			CreatedAt: now,
+			UpdatedAt: now,
 		}
 
 		// 使用事务确保两条记录都创建成功

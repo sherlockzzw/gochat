@@ -56,6 +56,22 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 		return nil, code_msg.BadRequest, nil
 	}
 
+	// 如果是私聊，验证是否为好友关系（删除好友后不能发送新消息）
+	if toUserID > 0 {
+		friendDao := dao.NewFriendDao(globalUtils.DB)
+		friendRelation, err := friendDao.CheckIsFriend(fromUserID, toUserID)
+		if err != nil {
+			return nil, code_msg.ServerError, err
+		}
+		if friendRelation == nil {
+			return nil, code_msg.NotFriend, nil
+		}
+		// 检查是否被屏蔽
+		if friendRelation.IsBlocked {
+			return nil, code_msg.BadRequest, nil
+		}
+	}
+
 	// 如果是群聊，验证用户是否在群组中
 	if groupID > 0 {
 		groupDao := dao.NewGroupDao(globalUtils.DB)

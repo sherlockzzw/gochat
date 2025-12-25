@@ -352,11 +352,21 @@ func (d *ChatDao) MarkMessagesAsRead(fromUserID, toUserID int64, messageID strin
 }
 
 // SearchUsers 搜索用户
-func (d *ChatDao) SearchUsers(keyword string, limit int) ([]*models.UserBasic, error) {
+func (d *ChatDao) SearchUsers(keyword string, loginAccount string, onlineOnly bool, onlineUserIDs []int64, limit int) ([]*models.UserBasic, error) {
 	query := d.mysqlDB.Model(&models.UserBasic{})
 
-	if keyword != "" {
-		query = query.Where("name LIKE ? OR phone LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+	// 精准搜索登录账号（优先级最高）
+	if loginAccount != "" {
+		query = query.Where("login_account = ?", loginAccount)
+	} else if keyword != "" {
+		// 关键词搜索：昵称/手机号/邮箱
+		query = query.Where("name LIKE ? OR phone LIKE ? OR email LIKE ? OR email1 LIKE ? OR email2 LIKE ?",
+			"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
+	}
+
+	// 在线状态筛选
+	if onlineOnly && len(onlineUserIDs) > 0 {
+		query = query.Where("id IN ?", onlineUserIDs)
 	}
 
 	var users []*models.UserBasic
@@ -465,6 +475,42 @@ func (d *ChatDao) updateConversationUnreadCount(fromUserID, toUserID int64) erro
 	return d.mysqlDB.Model(&models.Conversation{}).
 		Where("user_id = ? AND other_user_id = ?", toUserID, fromUserID).
 		Update("unread_count", unreadCount[fromUserID]).Error
+}
+
+// GetMessagesByIDs 根据消息ID列表获取消息
+func (d *ChatDao) GetMessagesByIDs(messageIDs []string) ([]*models.ChatMessage, error) {
+	if len(messageIDs) == 0 {
+		return nil, fmt.Errorf("message IDs list is empty")
+	}
+
+	collection := d.mongoDB.Collection("chat_messages")
+
+	// 构建查询条件
+	filter := bson.M{
+		"message_id": bson.M{"$in": messageIDs},
+	}
+
+	// 执行查询
+	cursor, err := collection.Find(context.Background(), filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find messages: %w", err)
+	}
+	defer cursor.Close(context.Background())
+
+	var messages []*models.ChatMessage
+	for cursor.Next(context.Background()) {
+		var message models.ChatMessage
+		if err := cursor.Decode(&message); err != nil {
+			return nil, fmt.Errorf("failed to decode message: %w", err)
+		}
+		messages = append(messages, &message)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("cursor error: %w", err)
+	}
+
+	return messages, nil
 }
 
 // generateMessageID 生成消息ID

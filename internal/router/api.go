@@ -57,6 +57,10 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 		chatRoute.GET("message/unread", api.ChatHandler.GetUnreadCount)
 		chatRoute.POST("message/recall", api.ChatHandler.RecallMessage)
 		chatRoute.POST("message/delete", api.ChatHandler.DeleteMessage)
+		chatRoute.POST("message/forward", api.ChatHandler.ForwardMessage)
+		chatRoute.POST("message/favorite", api.ChatHandler.FavoriteMessage)
+		chatRoute.POST("message/unfavorite", api.ChatHandler.UnfavoriteMessage)
+		chatRoute.GET("message/favorites", api.ChatHandler.GetFavoriteMessages)
 
 		// 文件上传
 		chatRoute.POST("upload", api.ChatHandler.UploadFile)
@@ -91,6 +95,9 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 
 		// 获取好友详情
 		friendRoute.GET("detail", api.FriendHandler.GetFriendDetail)
+
+		// 设置好友分组
+		friendRoute.POST("set-group", api.FriendHandler.SetFriendGroup)
 	}
 
 	// 群组相关接口

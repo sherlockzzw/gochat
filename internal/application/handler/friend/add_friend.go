@@ -10,6 +10,7 @@ import (
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
 	globalUtils "gochat/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,6 +56,20 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 		return nil, code_msg.AlreadyFriend, nil
 	}
 
+	// 检查目标用户是否存在
+	userDao := dao.NewUserDao(globalUtils.DB)
+	targetUser, err := userDao.GetUserByID(int64(req.GetFriendId()))
+	if err != nil {
+		return nil, code_msg.ServerError, err
+	}
+	if targetUser == nil {
+		return nil, code_msg.BadRequest, nil
+	}
+
+	// 检查目标用户的隐私设置：是否需要验证
+	// TODO: 从 targetUser.PrivacySettings JSON 中读取 add_friend_need_verify 字段
+	// 这里暂时使用默认值（需要验证）
+
 	// 检查是否已有待处理的申请
 	existingRequest, err := h.dao.GetFriendRequest(userID, int64(req.GetFriendId()))
 	if err != nil {
@@ -64,7 +79,60 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 		return nil, code_msg.FriendRequestExists, nil
 	}
 
-	// 创建好友申请
+	// 检查目标用户是否允许直接添加（从隐私设置中读取，默认需要验证）
+	needVerify := true // 默认需要验证
+	// TODO: 从 targetUser.PrivacySettings JSON 中读取 add_friend_need_verify 字段
+	// 这里暂时使用默认值，后续可以从隐私设置中读取
+
+	if !needVerify {
+		// 直接添加为好友，不需要验证
+		now := time.Now().Unix()
+		friend1 := &models.Friend{
+			UserID:    userID,
+			FriendID:  int64(req.GetFriendId()),
+			Remark:    "",
+			GroupName: req.GetGroupName(),
+			IsBlocked: false,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}
+		friend2 := &models.Friend{
+			UserID:    int64(req.GetFriendId()),
+			FriendID:  userID,
+			Remark:    "",
+			GroupName: "", // 对方的分组由对方自己设置
+			IsBlocked: false,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}
+
+		err = h.dao.CreateFriendsInTransaction(friend1, friend2)
+		if err != nil {
+			return nil, code_msg.ServerError, err
+		}
+
+		// 创建通知：通知对方已添加为好友
+		go func() {
+			sender, _ := userDao.GetUserByID(userID)
+			senderName := "用户"
+			if sender != nil {
+				senderName = sender.Name
+			}
+			_ = common.CreateSystemNotification(
+				int64(req.GetFriendId()),
+				"新好友",
+				fmt.Sprintf("%s 添加你为好友", senderName),
+				0,
+			)
+		}()
+
+		return &friend.AddFriendResponse{
+			Success: true,
+			Message: "添加成功",
+		}, 0, nil
+	}
+
+	// 需要验证：创建好友申请
 	friendRequest := &models.FriendRequest{
 		FromUserID: userID,
 		ToUserID:   int64(req.GetFriendId()),
@@ -78,7 +146,6 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 	}
 
 	// 创建通知：给接收者发送好友申请通知
-	userDao := dao.NewUserDao(globalUtils.DB)
 	sender, _ := userDao.GetUserByID(userID)
 	senderName := "用户"
 	if sender != nil {

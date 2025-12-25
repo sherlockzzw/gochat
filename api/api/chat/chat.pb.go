@@ -793,7 +793,11 @@ func (x *GetMessageHistoryResponse) GetHasMore() bool {
 type SearchUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// @inject_tag: form:"keyword"
-	Keyword       string `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty" form:"keyword"`
+	Keyword string `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty" form:"keyword"` // 关键词（昵称/手机号/邮箱/登录账号）
+	// @inject_tag: form:"login_account"
+	LoginAccount string `protobuf:"bytes,2,opt,name=login_account,json=loginAccount,proto3" json:"login_account,omitempty" form:"login_account"` // 精准搜索登录账号（优先级高于keyword）
+	// @inject_tag: form:"online_only"
+	OnlineOnly    bool `protobuf:"varint,3,opt,name=online_only,json=onlineOnly,proto3" json:"online_only,omitempty" form:"online_only"` // 是否只显示在线用户
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -833,6 +837,20 @@ func (x *SearchUserRequest) GetKeyword() string {
 		return x.Keyword
 	}
 	return ""
+}
+
+func (x *SearchUserRequest) GetLoginAccount() string {
+	if x != nil {
+		return x.LoginAccount
+	}
+	return ""
+}
+
+func (x *SearchUserRequest) GetOnlineOnly() bool {
+	if x != nil {
+		return x.OnlineOnly
+	}
+	return false
 }
 
 // 搜索用户响应
@@ -1487,6 +1505,448 @@ func (x *DeleteMessageResponse) GetSuccess() bool {
 	return false
 }
 
+// 转发消息请求
+type ForwardMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MessageIds    []string               `protobuf:"bytes,1,rep,name=message_ids,json=messageIds,proto3" json:"message_ids,omitempty"` // 要转发的消息ID列表（1-100条）
+	ToUserId      uint32                 `protobuf:"varint,2,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`    // 接收者用户ID（私聊时使用）
+	GroupId       uint32                 `protobuf:"varint,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`         // 群组ID（群聊时使用，与to_user_id二选一）
+	Content       string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                         // 转发时的附加内容（可选）
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForwardMessageRequest) Reset() {
+	*x = ForwardMessageRequest{}
+	mi := &file_api_chat_chat_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardMessageRequest) ProtoMessage() {}
+
+func (x *ForwardMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardMessageRequest.ProtoReflect.Descriptor instead.
+func (*ForwardMessageRequest) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ForwardMessageRequest) GetMessageIds() []string {
+	if x != nil {
+		return x.MessageIds
+	}
+	return nil
+}
+
+func (x *ForwardMessageRequest) GetToUserId() uint32 {
+	if x != nil {
+		return x.ToUserId
+	}
+	return 0
+}
+
+func (x *ForwardMessageRequest) GetGroupId() uint32 {
+	if x != nil {
+		return x.GroupId
+	}
+	return 0
+}
+
+func (x *ForwardMessageRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+// 转发消息响应
+type ForwardMessageResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Messages       []*ChatMessage         `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`                                    // 转发后的消息列表
+	ForwardedCount int32                  `protobuf:"varint,2,opt,name=forwarded_count,json=forwardedCount,proto3" json:"forwarded_count,omitempty"` // 成功转发的消息数量
+	Success        bool                   `protobuf:"varint,3,opt,name=success,proto3" json:"success,omitempty"`                                     // 是否成功
+	ErrorMessage   string                 `protobuf:"bytes,4,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`        // 错误信息
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ForwardMessageResponse) Reset() {
+	*x = ForwardMessageResponse{}
+	mi := &file_api_chat_chat_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardMessageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardMessageResponse) ProtoMessage() {}
+
+func (x *ForwardMessageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardMessageResponse.ProtoReflect.Descriptor instead.
+func (*ForwardMessageResponse) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ForwardMessageResponse) GetMessages() []*ChatMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+func (x *ForwardMessageResponse) GetForwardedCount() int32 {
+	if x != nil {
+		return x.ForwardedCount
+	}
+	return 0
+}
+
+func (x *ForwardMessageResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ForwardMessageResponse) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
+// 收藏消息请求
+type FavoriteMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 消息ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FavoriteMessageRequest) Reset() {
+	*x = FavoriteMessageRequest{}
+	mi := &file_api_chat_chat_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FavoriteMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FavoriteMessageRequest) ProtoMessage() {}
+
+func (x *FavoriteMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FavoriteMessageRequest.ProtoReflect.Descriptor instead.
+func (*FavoriteMessageRequest) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *FavoriteMessageRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+// 收藏消息响应
+type FavoriteMessageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // 是否成功
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FavoriteMessageResponse) Reset() {
+	*x = FavoriteMessageResponse{}
+	mi := &file_api_chat_chat_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FavoriteMessageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FavoriteMessageResponse) ProtoMessage() {}
+
+func (x *FavoriteMessageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FavoriteMessageResponse.ProtoReflect.Descriptor instead.
+func (*FavoriteMessageResponse) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *FavoriteMessageResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+// 取消收藏消息请求
+type UnfavoriteMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 消息ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnfavoriteMessageRequest) Reset() {
+	*x = UnfavoriteMessageRequest{}
+	mi := &file_api_chat_chat_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnfavoriteMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnfavoriteMessageRequest) ProtoMessage() {}
+
+func (x *UnfavoriteMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnfavoriteMessageRequest.ProtoReflect.Descriptor instead.
+func (*UnfavoriteMessageRequest) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *UnfavoriteMessageRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+// 取消收藏消息响应
+type UnfavoriteMessageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // 是否成功
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UnfavoriteMessageResponse) Reset() {
+	*x = UnfavoriteMessageResponse{}
+	mi := &file_api_chat_chat_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnfavoriteMessageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnfavoriteMessageResponse) ProtoMessage() {}
+
+func (x *UnfavoriteMessageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnfavoriteMessageResponse.ProtoReflect.Descriptor instead.
+func (*UnfavoriteMessageResponse) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *UnfavoriteMessageResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+// 获取收藏消息列表请求
+type GetFavoriteMessagesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// @inject_tag: form:"page"
+	Page int32 `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty" form:"page"` // 页码
+	// @inject_tag: form:"page_size"
+	PageSize      int32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty" form:"page_size"` // 每页数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFavoriteMessagesRequest) Reset() {
+	*x = GetFavoriteMessagesRequest{}
+	mi := &file_api_chat_chat_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFavoriteMessagesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFavoriteMessagesRequest) ProtoMessage() {}
+
+func (x *GetFavoriteMessagesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFavoriteMessagesRequest.ProtoReflect.Descriptor instead.
+func (*GetFavoriteMessagesRequest) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *GetFavoriteMessagesRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GetFavoriteMessagesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// 获取收藏消息列表响应
+type GetFavoriteMessagesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Messages      []*ChatMessage         `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`                           // 收藏的消息列表
+	TotalCount    int32                  `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`    // 总数量
+	CurrentPage   int32                  `protobuf:"varint,3,opt,name=current_page,json=currentPage,proto3" json:"current_page,omitempty"` // 当前页码
+	PageSize      int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`          // 每页数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetFavoriteMessagesResponse) Reset() {
+	*x = GetFavoriteMessagesResponse{}
+	mi := &file_api_chat_chat_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetFavoriteMessagesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetFavoriteMessagesResponse) ProtoMessage() {}
+
+func (x *GetFavoriteMessagesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetFavoriteMessagesResponse.ProtoReflect.Descriptor instead.
+func (*GetFavoriteMessagesResponse) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *GetFavoriteMessagesResponse) GetMessages() []*ChatMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+func (x *GetFavoriteMessagesResponse) GetTotalCount() int32 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
+func (x *GetFavoriteMessagesResponse) GetCurrentPage() int32 {
+	if x != nil {
+		return x.CurrentPage
+	}
+	return 0
+}
+
+func (x *GetFavoriteMessagesResponse) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
 var File_api_chat_chat_proto protoreflect.FileDescriptor
 
 const file_api_chat_chat_proto_rawDesc = "" +
@@ -1566,9 +2026,12 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"totalCount\x12!\n" +
 	"\fcurrent_page\x18\x03 \x01(\x05R\vcurrentPage\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\x12\x19\n" +
-	"\bhas_more\x18\x05 \x01(\bR\ahasMore\"-\n" +
+	"\bhas_more\x18\x05 \x01(\bR\ahasMore\"s\n" +
 	"\x11SearchUserRequest\x12\x18\n" +
-	"\akeyword\x18\x01 \x01(\tR\akeyword\"_\n" +
+	"\akeyword\x18\x01 \x01(\tR\akeyword\x12#\n" +
+	"\rlogin_account\x18\x02 \x01(\tR\floginAccount\x12\x1f\n" +
+	"\vonline_only\x18\x03 \x01(\bR\n" +
+	"onlineOnly\"_\n" +
 	"\x12SearchUserResponse\x12(\n" +
 	"\x05users\x18\x01 \x03(\v2\x12.api.chat.UserInfoR\x05users\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
@@ -1613,7 +2076,39 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"message_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tmessageId\x12&\n" +
 	"\x0fdelete_for_both\x18\x02 \x01(\bR\rdeleteForBoth\"1\n" +
 	"\x15DeleteMessageResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess*\x9a\x01\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x97\x01\n" +
+	"\x15ForwardMessageRequest\x12+\n" +
+	"\vmessage_ids\x18\x01 \x03(\tB\n" +
+	"\xfaB\a\x92\x01\x04\b\x01\x10dR\n" +
+	"messageIds\x12\x1c\n" +
+	"\n" +
+	"to_user_id\x18\x02 \x01(\rR\btoUserId\x12\x19\n" +
+	"\bgroup_id\x18\x03 \x01(\rR\agroupId\x12\x18\n" +
+	"\acontent\x18\x04 \x01(\tR\acontent\"\xb3\x01\n" +
+	"\x16ForwardMessageResponse\x121\n" +
+	"\bmessages\x18\x01 \x03(\v2\x15.api.chat.ChatMessageR\bmessages\x12'\n" +
+	"\x0fforwarded_count\x18\x02 \x01(\x05R\x0eforwardedCount\x12\x18\n" +
+	"\asuccess\x18\x03 \x01(\bR\asuccess\x12#\n" +
+	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"@\n" +
+	"\x16FavoriteMessageRequest\x12&\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tmessageId\"3\n" +
+	"\x17FavoriteMessageResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"B\n" +
+	"\x18UnfavoriteMessageRequest\x12&\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tmessageId\"5\n" +
+	"\x19UnfavoriteMessageResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"a\n" +
+	"\x1aGetFavoriteMessagesRequest\x12\x1b\n" +
+	"\x04page\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x04page\x12&\n" +
+	"\tpage_size\x18\x02 \x01(\x05B\t\xfaB\x06\x1a\x04\x18d \x00R\bpageSize\"\xb1\x01\n" +
+	"\x1bGetFavoriteMessagesResponse\x121\n" +
+	"\bmessages\x18\x01 \x03(\v2\x15.api.chat.ChatMessageR\bmessages\x12\x1f\n" +
+	"\vtotal_count\x18\x02 \x01(\x05R\n" +
+	"totalCount\x12!\n" +
+	"\fcurrent_page\x18\x03 \x01(\x05R\vcurrentPage\x12\x1b\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize*\x9a\x01\n" +
 	"\vMessageType\x12\b\n" +
 	"\x04TEXT\x10\x00\x12\t\n" +
 	"\x05IMAGE\x10\x01\x12\b\n" +
@@ -1636,7 +2131,7 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\tDELIVERED\x10\x02\x12\b\n" +
 	"\x04READ\x10\x03\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x042\x9a\x05\n" +
+	"\x06FAILED\x10\x042\x89\b\n" +
 	"\vChatService\x12G\n" +
 	"\n" +
 	"SearchUser\x12\x1b.api.chat.SearchUserRequest\x1a\x1c.api.chat.SearchUserResponse\x12J\n" +
@@ -1647,7 +2142,11 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\n" +
 	"UploadFile\x12\x1b.api.chat.UploadFileRequest\x1a\x1c.api.chat.UploadFileResponse\x12P\n" +
 	"\rRecallMessage\x12\x1e.api.chat.RecallMessageRequest\x1a\x1f.api.chat.RecallMessageResponse\x12P\n" +
-	"\rDeleteMessage\x12\x1e.api.chat.DeleteMessageRequest\x1a\x1f.api.chat.DeleteMessageResponseB\x15Z\x13gochat/api/api/chatb\x06proto3"
+	"\rDeleteMessage\x12\x1e.api.chat.DeleteMessageRequest\x1a\x1f.api.chat.DeleteMessageResponse\x12S\n" +
+	"\x0eForwardMessage\x12\x1f.api.chat.ForwardMessageRequest\x1a .api.chat.ForwardMessageResponse\x12V\n" +
+	"\x0fFavoriteMessage\x12 .api.chat.FavoriteMessageRequest\x1a!.api.chat.FavoriteMessageResponse\x12\\\n" +
+	"\x11UnfavoriteMessage\x12\".api.chat.UnfavoriteMessageRequest\x1a#.api.chat.UnfavoriteMessageResponse\x12b\n" +
+	"\x13GetFavoriteMessages\x12$.api.chat.GetFavoriteMessagesRequest\x1a%.api.chat.GetFavoriteMessagesResponseB\x15Z\x13gochat/api/api/chatb\x06proto3"
 
 var (
 	file_api_chat_chat_proto_rawDescOnce sync.Once
@@ -1662,64 +2161,82 @@ func file_api_chat_chat_proto_rawDescGZIP() []byte {
 }
 
 var file_api_chat_chat_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_chat_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_api_chat_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_api_chat_chat_proto_goTypes = []any{
-	(MessageType)(0),                  // 0: api.chat.MessageType
-	(MessageStatus)(0),                // 1: api.chat.MessageStatus
-	(*ChatMessage)(nil),               // 2: api.chat.ChatMessage
-	(*SendMessageRequest)(nil),        // 3: api.chat.SendMessageRequest
-	(*SendMessageResponse)(nil),       // 4: api.chat.SendMessageResponse
-	(*GetMessageHistoryRequest)(nil),  // 5: api.chat.GetMessageHistoryRequest
-	(*GetMessageHistoryResponse)(nil), // 6: api.chat.GetMessageHistoryResponse
-	(*SearchUserRequest)(nil),         // 7: api.chat.SearchUserRequest
-	(*SearchUserResponse)(nil),        // 8: api.chat.SearchUserResponse
-	(*UserInfo)(nil),                  // 9: api.chat.UserInfo
-	(*MarkMessageReadRequest)(nil),    // 10: api.chat.MarkMessageReadRequest
-	(*MarkMessageReadResponse)(nil),   // 11: api.chat.MarkMessageReadResponse
-	(*GetUnreadCountRequest)(nil),     // 12: api.chat.GetUnreadCountRequest
-	(*GetUnreadCountResponse)(nil),    // 13: api.chat.GetUnreadCountResponse
-	(*UploadFileRequest)(nil),         // 14: api.chat.UploadFileRequest
-	(*UploadFileResponse)(nil),        // 15: api.chat.UploadFileResponse
-	(*RecallMessageRequest)(nil),      // 16: api.chat.RecallMessageRequest
-	(*RecallMessageResponse)(nil),     // 17: api.chat.RecallMessageResponse
-	(*DeleteMessageRequest)(nil),      // 18: api.chat.DeleteMessageRequest
-	(*DeleteMessageResponse)(nil),     // 19: api.chat.DeleteMessageResponse
-	nil,                               // 20: api.chat.GetUnreadCountResponse.UnreadByUserEntry
-	(*timestamp.Timestamp)(nil),       // 21: google.protobuf.Timestamp
+	(MessageType)(0),                    // 0: api.chat.MessageType
+	(MessageStatus)(0),                  // 1: api.chat.MessageStatus
+	(*ChatMessage)(nil),                 // 2: api.chat.ChatMessage
+	(*SendMessageRequest)(nil),          // 3: api.chat.SendMessageRequest
+	(*SendMessageResponse)(nil),         // 4: api.chat.SendMessageResponse
+	(*GetMessageHistoryRequest)(nil),    // 5: api.chat.GetMessageHistoryRequest
+	(*GetMessageHistoryResponse)(nil),   // 6: api.chat.GetMessageHistoryResponse
+	(*SearchUserRequest)(nil),           // 7: api.chat.SearchUserRequest
+	(*SearchUserResponse)(nil),          // 8: api.chat.SearchUserResponse
+	(*UserInfo)(nil),                    // 9: api.chat.UserInfo
+	(*MarkMessageReadRequest)(nil),      // 10: api.chat.MarkMessageReadRequest
+	(*MarkMessageReadResponse)(nil),     // 11: api.chat.MarkMessageReadResponse
+	(*GetUnreadCountRequest)(nil),       // 12: api.chat.GetUnreadCountRequest
+	(*GetUnreadCountResponse)(nil),      // 13: api.chat.GetUnreadCountResponse
+	(*UploadFileRequest)(nil),           // 14: api.chat.UploadFileRequest
+	(*UploadFileResponse)(nil),          // 15: api.chat.UploadFileResponse
+	(*RecallMessageRequest)(nil),        // 16: api.chat.RecallMessageRequest
+	(*RecallMessageResponse)(nil),       // 17: api.chat.RecallMessageResponse
+	(*DeleteMessageRequest)(nil),        // 18: api.chat.DeleteMessageRequest
+	(*DeleteMessageResponse)(nil),       // 19: api.chat.DeleteMessageResponse
+	(*ForwardMessageRequest)(nil),       // 20: api.chat.ForwardMessageRequest
+	(*ForwardMessageResponse)(nil),      // 21: api.chat.ForwardMessageResponse
+	(*FavoriteMessageRequest)(nil),      // 22: api.chat.FavoriteMessageRequest
+	(*FavoriteMessageResponse)(nil),     // 23: api.chat.FavoriteMessageResponse
+	(*UnfavoriteMessageRequest)(nil),    // 24: api.chat.UnfavoriteMessageRequest
+	(*UnfavoriteMessageResponse)(nil),   // 25: api.chat.UnfavoriteMessageResponse
+	(*GetFavoriteMessagesRequest)(nil),  // 26: api.chat.GetFavoriteMessagesRequest
+	(*GetFavoriteMessagesResponse)(nil), // 27: api.chat.GetFavoriteMessagesResponse
+	nil,                                 // 28: api.chat.GetUnreadCountResponse.UnreadByUserEntry
+	(*timestamp.Timestamp)(nil),         // 29: google.protobuf.Timestamp
 }
 var file_api_chat_chat_proto_depIdxs = []int32{
 	0,  // 0: api.chat.ChatMessage.message_type:type_name -> api.chat.MessageType
 	1,  // 1: api.chat.ChatMessage.status:type_name -> api.chat.MessageStatus
-	21, // 2: api.chat.ChatMessage.created_at:type_name -> google.protobuf.Timestamp
-	21, // 3: api.chat.ChatMessage.updated_at:type_name -> google.protobuf.Timestamp
+	29, // 2: api.chat.ChatMessage.created_at:type_name -> google.protobuf.Timestamp
+	29, // 3: api.chat.ChatMessage.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: api.chat.SendMessageRequest.message_type:type_name -> api.chat.MessageType
 	2,  // 5: api.chat.SendMessageResponse.message:type_name -> api.chat.ChatMessage
-	21, // 6: api.chat.GetMessageHistoryRequest.before_time:type_name -> google.protobuf.Timestamp
+	29, // 6: api.chat.GetMessageHistoryRequest.before_time:type_name -> google.protobuf.Timestamp
 	2,  // 7: api.chat.GetMessageHistoryResponse.messages:type_name -> api.chat.ChatMessage
 	9,  // 8: api.chat.SearchUserResponse.users:type_name -> api.chat.UserInfo
-	21, // 9: api.chat.UserInfo.last_seen:type_name -> google.protobuf.Timestamp
-	20, // 10: api.chat.GetUnreadCountResponse.unread_by_user:type_name -> api.chat.GetUnreadCountResponse.UnreadByUserEntry
-	7,  // 11: api.chat.ChatService.SearchUser:input_type -> api.chat.SearchUserRequest
-	3,  // 12: api.chat.ChatService.SendMessage:input_type -> api.chat.SendMessageRequest
-	5,  // 13: api.chat.ChatService.GetMessageHistory:input_type -> api.chat.GetMessageHistoryRequest
-	10, // 14: api.chat.ChatService.MarkMessageRead:input_type -> api.chat.MarkMessageReadRequest
-	12, // 15: api.chat.ChatService.GetUnreadCount:input_type -> api.chat.GetUnreadCountRequest
-	14, // 16: api.chat.ChatService.UploadFile:input_type -> api.chat.UploadFileRequest
-	16, // 17: api.chat.ChatService.RecallMessage:input_type -> api.chat.RecallMessageRequest
-	18, // 18: api.chat.ChatService.DeleteMessage:input_type -> api.chat.DeleteMessageRequest
-	8,  // 19: api.chat.ChatService.SearchUser:output_type -> api.chat.SearchUserResponse
-	4,  // 20: api.chat.ChatService.SendMessage:output_type -> api.chat.SendMessageResponse
-	6,  // 21: api.chat.ChatService.GetMessageHistory:output_type -> api.chat.GetMessageHistoryResponse
-	11, // 22: api.chat.ChatService.MarkMessageRead:output_type -> api.chat.MarkMessageReadResponse
-	13, // 23: api.chat.ChatService.GetUnreadCount:output_type -> api.chat.GetUnreadCountResponse
-	15, // 24: api.chat.ChatService.UploadFile:output_type -> api.chat.UploadFileResponse
-	17, // 25: api.chat.ChatService.RecallMessage:output_type -> api.chat.RecallMessageResponse
-	19, // 26: api.chat.ChatService.DeleteMessage:output_type -> api.chat.DeleteMessageResponse
-	19, // [19:27] is the sub-list for method output_type
-	11, // [11:19] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	29, // 9: api.chat.UserInfo.last_seen:type_name -> google.protobuf.Timestamp
+	28, // 10: api.chat.GetUnreadCountResponse.unread_by_user:type_name -> api.chat.GetUnreadCountResponse.UnreadByUserEntry
+	2,  // 11: api.chat.ForwardMessageResponse.messages:type_name -> api.chat.ChatMessage
+	2,  // 12: api.chat.GetFavoriteMessagesResponse.messages:type_name -> api.chat.ChatMessage
+	7,  // 13: api.chat.ChatService.SearchUser:input_type -> api.chat.SearchUserRequest
+	3,  // 14: api.chat.ChatService.SendMessage:input_type -> api.chat.SendMessageRequest
+	5,  // 15: api.chat.ChatService.GetMessageHistory:input_type -> api.chat.GetMessageHistoryRequest
+	10, // 16: api.chat.ChatService.MarkMessageRead:input_type -> api.chat.MarkMessageReadRequest
+	12, // 17: api.chat.ChatService.GetUnreadCount:input_type -> api.chat.GetUnreadCountRequest
+	14, // 18: api.chat.ChatService.UploadFile:input_type -> api.chat.UploadFileRequest
+	16, // 19: api.chat.ChatService.RecallMessage:input_type -> api.chat.RecallMessageRequest
+	18, // 20: api.chat.ChatService.DeleteMessage:input_type -> api.chat.DeleteMessageRequest
+	20, // 21: api.chat.ChatService.ForwardMessage:input_type -> api.chat.ForwardMessageRequest
+	22, // 22: api.chat.ChatService.FavoriteMessage:input_type -> api.chat.FavoriteMessageRequest
+	24, // 23: api.chat.ChatService.UnfavoriteMessage:input_type -> api.chat.UnfavoriteMessageRequest
+	26, // 24: api.chat.ChatService.GetFavoriteMessages:input_type -> api.chat.GetFavoriteMessagesRequest
+	8,  // 25: api.chat.ChatService.SearchUser:output_type -> api.chat.SearchUserResponse
+	4,  // 26: api.chat.ChatService.SendMessage:output_type -> api.chat.SendMessageResponse
+	6,  // 27: api.chat.ChatService.GetMessageHistory:output_type -> api.chat.GetMessageHistoryResponse
+	11, // 28: api.chat.ChatService.MarkMessageRead:output_type -> api.chat.MarkMessageReadResponse
+	13, // 29: api.chat.ChatService.GetUnreadCount:output_type -> api.chat.GetUnreadCountResponse
+	15, // 30: api.chat.ChatService.UploadFile:output_type -> api.chat.UploadFileResponse
+	17, // 31: api.chat.ChatService.RecallMessage:output_type -> api.chat.RecallMessageResponse
+	19, // 32: api.chat.ChatService.DeleteMessage:output_type -> api.chat.DeleteMessageResponse
+	21, // 33: api.chat.ChatService.ForwardMessage:output_type -> api.chat.ForwardMessageResponse
+	23, // 34: api.chat.ChatService.FavoriteMessage:output_type -> api.chat.FavoriteMessageResponse
+	25, // 35: api.chat.ChatService.UnfavoriteMessage:output_type -> api.chat.UnfavoriteMessageResponse
+	27, // 36: api.chat.ChatService.GetFavoriteMessages:output_type -> api.chat.GetFavoriteMessagesResponse
+	25, // [25:37] is the sub-list for method output_type
+	13, // [13:25] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_api_chat_chat_proto_init() }
@@ -1733,7 +2250,7 @@ func file_api_chat_chat_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_chat_chat_proto_rawDesc), len(file_api_chat_chat_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   19,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

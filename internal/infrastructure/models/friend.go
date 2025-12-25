@@ -6,6 +6,7 @@ type Friend struct {
 	UserID    int64     `gorm:"not null;index" json:"user_id"`   // 用户ID
 	FriendID  int64     `gorm:"not null;index" json:"friend_id"` // 好友ID
 	Remark    string    `gorm:"size:100" json:"remark"`          // 备注
+	GroupName string    `gorm:"size:50;default:''" json:"group_name"` // 自定义分组名称
 	IsBlocked bool      `gorm:"default:false" json:"is_blocked"` // 是否屏蔽
 	CreatedAt int64 `gorm:"column:created_at;type:bigint;not null;default:0;comment:创建时间(时间戳)" json:"created_at"`
 	UpdatedAt int64 `gorm:"column:updated_at;type:bigint;not null;default:0;comment:更新时间(时间戳)" json:"updated_at"`

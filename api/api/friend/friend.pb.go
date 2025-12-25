@@ -28,7 +28,9 @@ type AddFriendRequest struct {
 	// @inject_tag: form:"friend_id"
 	FriendId uint32 `protobuf:"varint,1,opt,name=friend_id,json=friendId,proto3" json:"friend_id,omitempty" form:"friend_id"`
 	// @inject_tag: form:"message"
-	Message       string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty" form:"message"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty" form:"message"`
+	// @inject_tag: form:"group_name"
+	GroupName     string `protobuf:"bytes,3,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty" form:"group_name"` // 自定义分组名称（可选）
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,6 +75,13 @@ func (x *AddFriendRequest) GetFriendId() uint32 {
 func (x *AddFriendRequest) GetMessage() string {
 	if x != nil {
 		return x.Message
+	}
+	return ""
+}
+
+func (x *AddFriendRequest) GetGroupName() string {
+	if x != nil {
+		return x.GroupName
 	}
 	return ""
 }
@@ -280,9 +289,10 @@ type FriendInfo struct {
 	Avatar        string                 `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	IsOnline      bool                   `protobuf:"varint,6,opt,name=is_online,json=isOnline,proto3" json:"is_online,omitempty"`
 	Remark        string                 `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`
-	IsBlocked     bool                   `protobuf:"varint,8,opt,name=is_blocked,json=isBlocked,proto3" json:"is_blocked,omitempty"`
-	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	LastSeen      *timestamp.Timestamp   `protobuf:"bytes,10,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
+	GroupName     string                 `protobuf:"bytes,8,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"` // 自定义分组名称
+	IsBlocked     bool                   `protobuf:"varint,9,opt,name=is_blocked,json=isBlocked,proto3" json:"is_blocked,omitempty"`
+	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	LastSeen      *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=last_seen,json=lastSeen,proto3" json:"last_seen,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -362,6 +372,13 @@ func (x *FriendInfo) GetIsOnline() bool {
 func (x *FriendInfo) GetRemark() string {
 	if x != nil {
 		return x.Remark
+	}
+	return ""
+}
+
+func (x *FriendInfo) GetGroupName() string {
+	if x != nil {
+		return x.GroupName
 	}
 	return ""
 }
@@ -1249,15 +1266,125 @@ func (x *GetFriendDetailResponse) GetMessage() string {
 	return ""
 }
 
+// 设置好友分组请求
+type SetFriendGroupRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// @inject_tag: form:"friend_id"
+	FriendId uint32 `protobuf:"varint,1,opt,name=friend_id,json=friendId,proto3" json:"friend_id,omitempty" form:"friend_id"`
+	// @inject_tag: form:"group_name"
+	GroupName     string `protobuf:"bytes,2,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty" form:"group_name"` // 分组名称，空字符串表示移除分组
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetFriendGroupRequest) Reset() {
+	*x = SetFriendGroupRequest{}
+	mi := &file_api_friend_friend_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetFriendGroupRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetFriendGroupRequest) ProtoMessage() {}
+
+func (x *SetFriendGroupRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_friend_friend_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetFriendGroupRequest.ProtoReflect.Descriptor instead.
+func (*SetFriendGroupRequest) Descriptor() ([]byte, []int) {
+	return file_api_friend_friend_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *SetFriendGroupRequest) GetFriendId() uint32 {
+	if x != nil {
+		return x.FriendId
+	}
+	return 0
+}
+
+func (x *SetFriendGroupRequest) GetGroupName() string {
+	if x != nil {
+		return x.GroupName
+	}
+	return ""
+}
+
+// 设置好友分组响应
+type SetFriendGroupResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetFriendGroupResponse) Reset() {
+	*x = SetFriendGroupResponse{}
+	mi := &file_api_friend_friend_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetFriendGroupResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetFriendGroupResponse) ProtoMessage() {}
+
+func (x *SetFriendGroupResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_friend_friend_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetFriendGroupResponse.ProtoReflect.Descriptor instead.
+func (*SetFriendGroupResponse) Descriptor() ([]byte, []int) {
+	return file_api_friend_friend_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *SetFriendGroupResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *SetFriendGroupResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_api_friend_friend_proto protoreflect.FileDescriptor
 
 const file_api_friend_friend_proto_rawDesc = "" +
 	"\n" +
 	"\x17api/friend/friend.proto\x12\n" +
-	"api.friend\x1a\x1fgoogle/protobuf/timestamp.proto\"I\n" +
+	"api.friend\x1a\x1fgoogle/protobuf/timestamp.proto\"h\n" +
 	"\x10AddFriendRequest\x12\x1b\n" +
 	"\tfriend_id\x18\x01 \x01(\rR\bfriendId\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"f\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x1d\n" +
+	"\n" +
+	"group_name\x18\x03 \x01(\tR\tgroupName\"f\n" +
 	"\x11AddFriendResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x1d\n" +
@@ -1272,7 +1399,7 @@ const file_api_friend_friend_proto_rawDesc = "" +
 	"totalCount\x12!\n" +
 	"\fcurrent_page\x18\x03 \x01(\x05R\vcurrentPage\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\x12\x19\n" +
-	"\bhas_more\x18\x05 \x01(\bR\ahasMore\"\xbc\x02\n" +
+	"\bhas_more\x18\x05 \x01(\bR\ahasMore\"\xdb\x02\n" +
 	"\n" +
 	"FriendInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
@@ -1283,11 +1410,13 @@ const file_api_friend_friend_proto_rawDesc = "" +
 	"\tis_online\x18\x06 \x01(\bR\bisOnline\x12\x16\n" +
 	"\x06remark\x18\a \x01(\tR\x06remark\x12\x1d\n" +
 	"\n" +
-	"is_blocked\x18\b \x01(\bR\tisBlocked\x129\n" +
+	"group_name\x18\b \x01(\tR\tgroupName\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
-	"\tlast_seen\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\"K\n" +
+	"is_blocked\x18\t \x01(\bR\tisBlocked\x129\n" +
+	"\n" +
+	"created_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x127\n" +
+	"\tlast_seen\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\blastSeen\"K\n" +
 	"\x18GetFriendRequestsRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\"\xd2\x01\n" +
@@ -1344,7 +1473,14 @@ const file_api_friend_friend_proto_rawDesc = "" +
 	"\x17GetFriendDetailResponse\x12.\n" +
 	"\x06friend\x18\x01 \x01(\v2\x16.api.friend.FriendInfoR\x06friend\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage2\xa4\x06\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"S\n" +
+	"\x15SetFriendGroupRequest\x12\x1b\n" +
+	"\tfriend_id\x18\x01 \x01(\rR\bfriendId\x12\x1d\n" +
+	"\n" +
+	"group_name\x18\x02 \x01(\tR\tgroupName\"L\n" +
+	"\x16SetFriendGroupResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2\xfd\x06\n" +
 	"\rFriendService\x12H\n" +
 	"\tAddFriend\x12\x1c.api.friend.AddFriendRequest\x1a\x1d.api.friend.AddFriendResponse\x12T\n" +
 	"\rGetFriendList\x12 .api.friend.GetFriendListRequest\x1a!.api.friend.GetFriendListResponse\x12`\n" +
@@ -1354,7 +1490,8 @@ const file_api_friend_friend_proto_rawDesc = "" +
 	"\vCheckFriend\x12\x1e.api.friend.CheckFriendRequest\x1a\x1f.api.friend.CheckFriendResponse\x12Z\n" +
 	"\x0fSetFriendRemark\x12\".api.friend.SetFriendRemarkRequest\x1a#.api.friend.SetFriendRemarkResponse\x12N\n" +
 	"\vBlockFriend\x12\x1e.api.friend.BlockFriendRequest\x1a\x1f.api.friend.BlockFriendResponse\x12Z\n" +
-	"\x0fGetFriendDetail\x12\".api.friend.GetFriendDetailRequest\x1a#.api.friend.GetFriendDetailResponseB\x17Z\x15gochat/api/api/friendb\x06proto3"
+	"\x0fGetFriendDetail\x12\".api.friend.GetFriendDetailRequest\x1a#.api.friend.GetFriendDetailResponse\x12W\n" +
+	"\x0eSetFriendGroup\x12!.api.friend.SetFriendGroupRequest\x1a\".api.friend.SetFriendGroupResponseB\x17Z\x15gochat/api/api/friendb\x06proto3"
 
 var (
 	file_api_friend_friend_proto_rawDescOnce sync.Once
@@ -1368,7 +1505,7 @@ func file_api_friend_friend_proto_rawDescGZIP() []byte {
 	return file_api_friend_friend_proto_rawDescData
 }
 
-var file_api_friend_friend_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_api_friend_friend_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_api_friend_friend_proto_goTypes = []any{
 	(*AddFriendRequest)(nil),            // 0: api.friend.AddFriendRequest
 	(*AddFriendResponse)(nil),           // 1: api.friend.AddFriendResponse
@@ -1390,12 +1527,14 @@ var file_api_friend_friend_proto_goTypes = []any{
 	(*BlockFriendResponse)(nil),         // 17: api.friend.BlockFriendResponse
 	(*GetFriendDetailRequest)(nil),      // 18: api.friend.GetFriendDetailRequest
 	(*GetFriendDetailResponse)(nil),     // 19: api.friend.GetFriendDetailResponse
-	(*timestamp.Timestamp)(nil),         // 20: google.protobuf.Timestamp
+	(*SetFriendGroupRequest)(nil),       // 20: api.friend.SetFriendGroupRequest
+	(*SetFriendGroupResponse)(nil),      // 21: api.friend.SetFriendGroupResponse
+	(*timestamp.Timestamp)(nil),         // 22: google.protobuf.Timestamp
 }
 var file_api_friend_friend_proto_depIdxs = []int32{
 	4,  // 0: api.friend.GetFriendListResponse.friends:type_name -> api.friend.FriendInfo
-	20, // 1: api.friend.FriendInfo.created_at:type_name -> google.protobuf.Timestamp
-	20, // 2: api.friend.FriendInfo.last_seen:type_name -> google.protobuf.Timestamp
+	22, // 1: api.friend.FriendInfo.created_at:type_name -> google.protobuf.Timestamp
+	22, // 2: api.friend.FriendInfo.last_seen:type_name -> google.protobuf.Timestamp
 	7,  // 3: api.friend.GetFriendRequestsResponse.requests:type_name -> api.friend.FriendRequestInfo
 	4,  // 4: api.friend.GetFriendDetailResponse.friend:type_name -> api.friend.FriendInfo
 	0,  // 5: api.friend.FriendService.AddFriend:input_type -> api.friend.AddFriendRequest
@@ -1407,17 +1546,19 @@ var file_api_friend_friend_proto_depIdxs = []int32{
 	14, // 11: api.friend.FriendService.SetFriendRemark:input_type -> api.friend.SetFriendRemarkRequest
 	16, // 12: api.friend.FriendService.BlockFriend:input_type -> api.friend.BlockFriendRequest
 	18, // 13: api.friend.FriendService.GetFriendDetail:input_type -> api.friend.GetFriendDetailRequest
-	1,  // 14: api.friend.FriendService.AddFriend:output_type -> api.friend.AddFriendResponse
-	3,  // 15: api.friend.FriendService.GetFriendList:output_type -> api.friend.GetFriendListResponse
-	6,  // 16: api.friend.FriendService.GetFriendRequests:output_type -> api.friend.GetFriendRequestsResponse
-	9,  // 17: api.friend.FriendService.HandleFriendRequest:output_type -> api.friend.HandleFriendRequestResponse
-	11, // 18: api.friend.FriendService.DeleteFriend:output_type -> api.friend.DeleteFriendResponse
-	13, // 19: api.friend.FriendService.CheckFriend:output_type -> api.friend.CheckFriendResponse
-	15, // 20: api.friend.FriendService.SetFriendRemark:output_type -> api.friend.SetFriendRemarkResponse
-	17, // 21: api.friend.FriendService.BlockFriend:output_type -> api.friend.BlockFriendResponse
-	19, // 22: api.friend.FriendService.GetFriendDetail:output_type -> api.friend.GetFriendDetailResponse
-	14, // [14:23] is the sub-list for method output_type
-	5,  // [5:14] is the sub-list for method input_type
+	20, // 14: api.friend.FriendService.SetFriendGroup:input_type -> api.friend.SetFriendGroupRequest
+	1,  // 15: api.friend.FriendService.AddFriend:output_type -> api.friend.AddFriendResponse
+	3,  // 16: api.friend.FriendService.GetFriendList:output_type -> api.friend.GetFriendListResponse
+	6,  // 17: api.friend.FriendService.GetFriendRequests:output_type -> api.friend.GetFriendRequestsResponse
+	9,  // 18: api.friend.FriendService.HandleFriendRequest:output_type -> api.friend.HandleFriendRequestResponse
+	11, // 19: api.friend.FriendService.DeleteFriend:output_type -> api.friend.DeleteFriendResponse
+	13, // 20: api.friend.FriendService.CheckFriend:output_type -> api.friend.CheckFriendResponse
+	15, // 21: api.friend.FriendService.SetFriendRemark:output_type -> api.friend.SetFriendRemarkResponse
+	17, // 22: api.friend.FriendService.BlockFriend:output_type -> api.friend.BlockFriendResponse
+	19, // 23: api.friend.FriendService.GetFriendDetail:output_type -> api.friend.GetFriendDetailResponse
+	21, // 24: api.friend.FriendService.SetFriendGroup:output_type -> api.friend.SetFriendGroupResponse
+	15, // [15:25] is the sub-list for method output_type
+	5,  // [5:15] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -1434,7 +1575,7 @@ func file_api_friend_friend_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_friend_friend_proto_rawDesc), len(file_api_friend_friend_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

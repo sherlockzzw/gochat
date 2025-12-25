@@ -201,6 +201,72 @@
       },
       "title": "删除消息响应"
     },
+    "chatFavoriteMessageResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "收藏消息响应"
+    },
+    "chatForwardMessageResponse": {
+      "type": "object",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/chatChatMessage"
+          },
+          "title": "转发后的消息列表"
+        },
+        "forwardedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "成功转发的消息数量"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "转发消息响应"
+    },
+    "chatGetFavoriteMessagesResponse": {
+      "type": "object",
+      "properties": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/chatChatMessage"
+          },
+          "title": "收藏的消息列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        }
+      },
+      "title": "获取收藏消息列表响应"
+    },
     "chatGetMessageHistoryResponse": {
       "type": "object",
       "properties": {
@@ -332,6 +398,16 @@
         }
       },
       "title": "发送消息响应"
+    },
+    "chatUnfavoriteMessageResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "取消收藏消息响应"
     },
     "chatUploadFileResponse": {
       "type": "object",

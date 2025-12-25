@@ -118,7 +118,11 @@ message GetMessageHistoryResponse {
 // 搜索用户请求
 message SearchUserRequest {
   // @inject_tag: form:"keyword"
-  string keyword = 1;
+  string keyword = 1;                // 关键词（昵称/手机号/邮箱/登录账号）
+  // @inject_tag: form:"login_account"
+  string login_account = 2;          // 精准搜索登录账号（优先级高于keyword）
+  // @inject_tag: form:"online_only"
+  bool online_only = 3;               // 是否只显示在线用户
 }
 
 // 搜索用户响应
@@ -196,6 +200,58 @@ message DeleteMessageResponse {
   bool success = 1;  // 是否成功
 }
 
+// 转发消息请求
+message ForwardMessageRequest {
+  repeated string message_ids = 1 [(validate.rules).repeated = {min_items: 1, max_items: 100}];  // 要转发的消息ID列表（1-100条）
+  uint32 to_user_id = 2;            // 接收者用户ID（私聊时使用）
+  uint32 group_id = 3;              // 群组ID（群聊时使用，与to_user_id二选一）
+  string content = 4;               // 转发时的附加内容（可选）
+}
+
+// 转发消息响应
+message ForwardMessageResponse {
+  repeated ChatMessage messages = 1;  // 转发后的消息列表
+  int32 forwarded_count = 2;         // 成功转发的消息数量
+  bool success = 3;                 // 是否成功
+  string error_message = 4;          // 错误信息
+}
+
+// 收藏消息请求
+message FavoriteMessageRequest {
+  string message_id = 1 [(validate.rules).string.min_len = 1];  // 消息ID
+}
+
+// 收藏消息响应
+message FavoriteMessageResponse {
+  bool success = 1;  // 是否成功
+}
+
+// 取消收藏消息请求
+message UnfavoriteMessageRequest {
+  string message_id = 1 [(validate.rules).string.min_len = 1];  // 消息ID
+}
+
+// 取消收藏消息响应
+message UnfavoriteMessageResponse {
+  bool success = 1;  // 是否成功
+}
+
+// 获取收藏消息列表请求
+message GetFavoriteMessagesRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1 [(validate.rules).int32 = {gt: 0}];      // 页码
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
+}
+
+// 获取收藏消息列表响应
+message GetFavoriteMessagesResponse {
+  repeated ChatMessage messages = 1;  // 收藏的消息列表
+  int32 total_count = 2;             // 总数量
+  int32 current_page = 3;            // 当前页码
+  int32 page_size = 4;               // 每页数量
+}
+
 // 聊天服务定义
 service ChatService {
   // 搜索用户
@@ -221,4 +277,16 @@ service ChatService {
   
   // 删除消息
   rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
+  
+  // 转发消息
+  rpc ForwardMessage(ForwardMessageRequest) returns (ForwardMessageResponse);
+  
+  // 收藏消息
+  rpc FavoriteMessage(FavoriteMessageRequest) returns (FavoriteMessageResponse);
+  
+  // 取消收藏消息
+  rpc UnfavoriteMessage(UnfavoriteMessageRequest) returns (UnfavoriteMessageResponse);
+  
+  // 获取收藏消息列表
+  rpc GetFavoriteMessages(GetFavoriteMessagesRequest) returns (GetFavoriteMessagesResponse);
 }

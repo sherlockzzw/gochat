@@ -19,14 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ChatService_SearchUser_FullMethodName        = "/api.chat.ChatService/SearchUser"
-	ChatService_SendMessage_FullMethodName       = "/api.chat.ChatService/SendMessage"
-	ChatService_GetMessageHistory_FullMethodName = "/api.chat.ChatService/GetMessageHistory"
-	ChatService_MarkMessageRead_FullMethodName   = "/api.chat.ChatService/MarkMessageRead"
-	ChatService_GetUnreadCount_FullMethodName    = "/api.chat.ChatService/GetUnreadCount"
-	ChatService_UploadFile_FullMethodName        = "/api.chat.ChatService/UploadFile"
-	ChatService_RecallMessage_FullMethodName     = "/api.chat.ChatService/RecallMessage"
-	ChatService_DeleteMessage_FullMethodName     = "/api.chat.ChatService/DeleteMessage"
+	ChatService_SearchUser_FullMethodName          = "/api.chat.ChatService/SearchUser"
+	ChatService_SendMessage_FullMethodName         = "/api.chat.ChatService/SendMessage"
+	ChatService_GetMessageHistory_FullMethodName   = "/api.chat.ChatService/GetMessageHistory"
+	ChatService_MarkMessageRead_FullMethodName     = "/api.chat.ChatService/MarkMessageRead"
+	ChatService_GetUnreadCount_FullMethodName      = "/api.chat.ChatService/GetUnreadCount"
+	ChatService_UploadFile_FullMethodName          = "/api.chat.ChatService/UploadFile"
+	ChatService_RecallMessage_FullMethodName       = "/api.chat.ChatService/RecallMessage"
+	ChatService_DeleteMessage_FullMethodName       = "/api.chat.ChatService/DeleteMessage"
+	ChatService_ForwardMessage_FullMethodName      = "/api.chat.ChatService/ForwardMessage"
+	ChatService_FavoriteMessage_FullMethodName     = "/api.chat.ChatService/FavoriteMessage"
+	ChatService_UnfavoriteMessage_FullMethodName   = "/api.chat.ChatService/UnfavoriteMessage"
+	ChatService_GetFavoriteMessages_FullMethodName = "/api.chat.ChatService/GetFavoriteMessages"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -51,6 +55,14 @@ type ChatServiceClient interface {
 	RecallMessage(ctx context.Context, in *RecallMessageRequest, opts ...grpc.CallOption) (*RecallMessageResponse, error)
 	// 删除消息
 	DeleteMessage(ctx context.Context, in *DeleteMessageRequest, opts ...grpc.CallOption) (*DeleteMessageResponse, error)
+	// 转发消息
+	ForwardMessage(ctx context.Context, in *ForwardMessageRequest, opts ...grpc.CallOption) (*ForwardMessageResponse, error)
+	// 收藏消息
+	FavoriteMessage(ctx context.Context, in *FavoriteMessageRequest, opts ...grpc.CallOption) (*FavoriteMessageResponse, error)
+	// 取消收藏消息
+	UnfavoriteMessage(ctx context.Context, in *UnfavoriteMessageRequest, opts ...grpc.CallOption) (*UnfavoriteMessageResponse, error)
+	// 获取收藏消息列表
+	GetFavoriteMessages(ctx context.Context, in *GetFavoriteMessagesRequest, opts ...grpc.CallOption) (*GetFavoriteMessagesResponse, error)
 }
 
 type chatServiceClient struct {
@@ -141,6 +153,46 @@ func (c *chatServiceClient) DeleteMessage(ctx context.Context, in *DeleteMessage
 	return out, nil
 }
 
+func (c *chatServiceClient) ForwardMessage(ctx context.Context, in *ForwardMessageRequest, opts ...grpc.CallOption) (*ForwardMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ForwardMessageResponse)
+	err := c.cc.Invoke(ctx, ChatService_ForwardMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) FavoriteMessage(ctx context.Context, in *FavoriteMessageRequest, opts ...grpc.CallOption) (*FavoriteMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FavoriteMessageResponse)
+	err := c.cc.Invoke(ctx, ChatService_FavoriteMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) UnfavoriteMessage(ctx context.Context, in *UnfavoriteMessageRequest, opts ...grpc.CallOption) (*UnfavoriteMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UnfavoriteMessageResponse)
+	err := c.cc.Invoke(ctx, ChatService_UnfavoriteMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) GetFavoriteMessages(ctx context.Context, in *GetFavoriteMessagesRequest, opts ...grpc.CallOption) (*GetFavoriteMessagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetFavoriteMessagesResponse)
+	err := c.cc.Invoke(ctx, ChatService_GetFavoriteMessages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility.
@@ -163,6 +215,14 @@ type ChatServiceServer interface {
 	RecallMessage(context.Context, *RecallMessageRequest) (*RecallMessageResponse, error)
 	// 删除消息
 	DeleteMessage(context.Context, *DeleteMessageRequest) (*DeleteMessageResponse, error)
+	// 转发消息
+	ForwardMessage(context.Context, *ForwardMessageRequest) (*ForwardMessageResponse, error)
+	// 收藏消息
+	FavoriteMessage(context.Context, *FavoriteMessageRequest) (*FavoriteMessageResponse, error)
+	// 取消收藏消息
+	UnfavoriteMessage(context.Context, *UnfavoriteMessageRequest) (*UnfavoriteMessageResponse, error)
+	// 获取收藏消息列表
+	GetFavoriteMessages(context.Context, *GetFavoriteMessagesRequest) (*GetFavoriteMessagesResponse, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -196,6 +256,18 @@ func (UnimplementedChatServiceServer) RecallMessage(context.Context, *RecallMess
 }
 func (UnimplementedChatServiceServer) DeleteMessage(context.Context, *DeleteMessageRequest) (*DeleteMessageResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMessage not implemented")
+}
+func (UnimplementedChatServiceServer) ForwardMessage(context.Context, *ForwardMessageRequest) (*ForwardMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ForwardMessage not implemented")
+}
+func (UnimplementedChatServiceServer) FavoriteMessage(context.Context, *FavoriteMessageRequest) (*FavoriteMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FavoriteMessage not implemented")
+}
+func (UnimplementedChatServiceServer) UnfavoriteMessage(context.Context, *UnfavoriteMessageRequest) (*UnfavoriteMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnfavoriteMessage not implemented")
+}
+func (UnimplementedChatServiceServer) GetFavoriteMessages(context.Context, *GetFavoriteMessagesRequest) (*GetFavoriteMessagesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFavoriteMessages not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 func (UnimplementedChatServiceServer) testEmbeddedByValue()                     {}
@@ -362,6 +434,78 @@ func _ChatService_DeleteMessage_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ChatService_ForwardMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ForwardMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).ForwardMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_ForwardMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).ForwardMessage(ctx, req.(*ForwardMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_FavoriteMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FavoriteMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).FavoriteMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_FavoriteMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).FavoriteMessage(ctx, req.(*FavoriteMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_UnfavoriteMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnfavoriteMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).UnfavoriteMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_UnfavoriteMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).UnfavoriteMessage(ctx, req.(*UnfavoriteMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_GetFavoriteMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFavoriteMessagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).GetFavoriteMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_GetFavoriteMessages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).GetFavoriteMessages(ctx, req.(*GetFavoriteMessagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -400,6 +544,22 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteMessage",
 			Handler:    _ChatService_DeleteMessage_Handler,
+		},
+		{
+			MethodName: "ForwardMessage",
+			Handler:    _ChatService_ForwardMessage_Handler,
+		},
+		{
+			MethodName: "FavoriteMessage",
+			Handler:    _ChatService_FavoriteMessage_Handler,
+		},
+		{
+			MethodName: "UnfavoriteMessage",
+			Handler:    _ChatService_UnfavoriteMessage_Handler,
+		},
+		{
+			MethodName: "GetFavoriteMessages",
+			Handler:    _ChatService_GetFavoriteMessages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

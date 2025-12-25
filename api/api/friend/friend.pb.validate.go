@@ -61,6 +61,8 @@ func (m *AddFriendRequest) validate(all bool) error {
 
 	// no validation rules for Message
 
+	// no validation rules for GroupName
+
 	if len(errors) > 0 {
 		return AddFriendRequestMultiError(errors)
 	}
@@ -532,6 +534,8 @@ func (m *FriendInfo) validate(all bool) error {
 	// no validation rules for IsOnline
 
 	// no validation rules for Remark
+
+	// no validation rules for GroupName
 
 	// no validation rules for IsBlocked
 
@@ -2333,3 +2337,215 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetFriendDetailResponseValidationError{}
+
+// Validate checks the field values on SetFriendGroupRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetFriendGroupRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetFriendGroupRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetFriendGroupRequestMultiError, or nil if none found.
+func (m *SetFriendGroupRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetFriendGroupRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for FriendId
+
+	// no validation rules for GroupName
+
+	if len(errors) > 0 {
+		return SetFriendGroupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetFriendGroupRequestMultiError is an error wrapping multiple validation
+// errors returned by SetFriendGroupRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SetFriendGroupRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetFriendGroupRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetFriendGroupRequestMultiError) AllErrors() []error { return m }
+
+// SetFriendGroupRequestValidationError is the validation error returned by
+// SetFriendGroupRequest.Validate if the designated constraints aren't met.
+type SetFriendGroupRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetFriendGroupRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetFriendGroupRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetFriendGroupRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetFriendGroupRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetFriendGroupRequestValidationError) ErrorName() string {
+	return "SetFriendGroupRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetFriendGroupRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetFriendGroupRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetFriendGroupRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetFriendGroupRequestValidationError{}
+
+// Validate checks the field values on SetFriendGroupResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetFriendGroupResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetFriendGroupResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetFriendGroupResponseMultiError, or nil if none found.
+func (m *SetFriendGroupResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetFriendGroupResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	// no validation rules for Message
+
+	if len(errors) > 0 {
+		return SetFriendGroupResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetFriendGroupResponseMultiError is an error wrapping multiple validation
+// errors returned by SetFriendGroupResponse.ValidateAll() if the designated
+// constraints aren't met.
+type SetFriendGroupResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetFriendGroupResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetFriendGroupResponseMultiError) AllErrors() []error { return m }
+
+// SetFriendGroupResponseValidationError is the validation error returned by
+// SetFriendGroupResponse.Validate if the designated constraints aren't met.
+type SetFriendGroupResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetFriendGroupResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetFriendGroupResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetFriendGroupResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetFriendGroupResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetFriendGroupResponseValidationError) ErrorName() string {
+	return "SetFriendGroupResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetFriendGroupResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetFriendGroupResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SetFriendGroupResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetFriendGroupResponseValidationError{}

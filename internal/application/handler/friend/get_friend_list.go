@@ -74,6 +74,7 @@ func (h *FriendHandler) getFriendListLogic(ctx *gin.Context, req *friend.GetFrie
 			Avatar:    globalUtils.GetAvatarFullURL(f.FriendAvatar, fmt.Sprintf("http://127.0.0.1:%d", apiPort)), // 返回完整头像URL
 			IsOnline:  f.IsOnline,                                                                                // 使用WebSocket Hub查询的在线状态
 			Remark:    f.Remark,
+			GroupName: f.GroupName, // 分组名称
 			IsBlocked: f.IsBlocked,
 		}
 		friendInfos = append(friendInfos, friendInfo)

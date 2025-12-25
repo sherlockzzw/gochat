@@ -212,3 +212,10 @@ func (d *FriendDao) BlockFriend(userID, friendID int64, isBlocked bool) error {
 		Where("user_id = ? AND friend_id = ?", userID, friendID).
 		Update("is_blocked", isBlocked).Error
 }
+
+// SetFriendGroup 设置好友分组
+func (d *FriendDao) SetFriendGroup(userID, friendID int64, groupName string) error {
+	return d.db.Model(&models.Friend{}).
+		Where("user_id = ? AND friend_id = ?", userID, friendID).
+		Update("group_name", groupName).Error
+}

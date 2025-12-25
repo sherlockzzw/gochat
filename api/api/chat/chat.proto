@@ -5,13 +5,22 @@ package api.chat;
 option go_package = "gochat/api/api/chat";
 
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 // 消息类型枚举
 enum MessageType {
-  TEXT = 0;    // 文字消息
-  IMAGE = 1;   // 图片消息
-  FILE = 2;    // 文件消息
-  SYSTEM = 3;  // 系统消息
+  TEXT = 0;        // 文字消息
+  IMAGE = 1;       // 图片消息
+  FILE = 2;        // 文件消息
+  SYSTEM = 3;      // 系统消息
+  VIDEO = 4;       // 视频消息
+  VOICE = 5;       // 语音条消息
+  EMOJI = 6;       // 表情包消息
+  MERGE = 7;       // 合并消息
+  QUOTE = 8;       // 引用消息
+  CONTACT = 9;     // 联系人分享消息
+  RED_PACKET = 10; // 红包消息
+  TRANSFER = 11;   // 转账消息
 }
 
 // 消息状态枚举
@@ -34,6 +43,21 @@ message ChatMessage {
   string file_url = 6;              // 文件URL（图片/文件消息）
   string file_name = 7;             // 文件名
   int64 file_size = 8;              // 文件大小
+  // 扩展字段
+  string video_url = 13;            // 视频URL
+  string video_thumb = 14;          // 视频缩略图
+  string voice_url = 15;            // 语音URL
+  int32 voice_duration = 16;        // 语音时长（秒）
+  string emoji_url = 17;            // 表情包URL
+  string merge_messages = 18;       // JSON数组，合并消息的message_id列表
+  string quote_message_id = 19;     // 引用的消息ID
+  uint32 contact_user_id = 20;      // 分享的联系人ID
+  uint32 red_packet_id = 21;        // 关联的红包ID
+  uint32 transfer_id = 22;           // 关联的转账ID
+  // 状态字段
+  bool is_recalled = 23;            // 是否已撤回
+  bool is_deleted = 24;             // 是否已删除
+  int32 read_status = 25;           // 已读状态：1=已发送，2=已读
   MessageStatus status = 9;         // 消息状态
   google.protobuf.Timestamp created_at = 10;  // 创建时间
   google.protobuf.Timestamp updated_at = 11;  // 更新时间
@@ -48,6 +72,17 @@ message SendMessageRequest {
   string file_url = 4;              // 文件URL（可选）
   string file_name = 5;             // 文件名（可选）
   int64 file_size = 6;              // 文件大小（可选）
+  // 扩展字段
+  string video_url = 13;            // 视频URL
+  string video_thumb = 14;          // 视频缩略图
+  string voice_url = 15;            // 语音URL
+  int32 voice_duration = 16;        // 语音时长（秒）
+  string emoji_url = 17;            // 表情包URL
+  repeated string merge_message_ids = 18;  // 合并消息的message_id列表
+  string quote_message_id = 19;     // 引用的消息ID
+  uint32 contact_user_id = 20;      // 分享的联系人ID
+  uint32 red_packet_id = 21;        // 关联的红包ID
+  uint32 transfer_id = 22;           // 关联的转账ID
 }
 
 // 发送消息响应
@@ -137,7 +172,28 @@ message UploadFileResponse {
   string file_url = 1;   // 文件完整URL
   string file_name = 2;  // 文件名
   int64 file_size = 3;   // 文件大小
-  string file_type = 4;  // 文件类型（image/document）
+  string file_type = 4;  // 文件类型（image/document/video/voice/emoji）
+}
+
+// 撤回消息请求
+message RecallMessageRequest {
+  string message_id = 1 [(validate.rules).string.min_len = 1];  // 消息ID
+}
+
+// 撤回消息响应
+message RecallMessageResponse {
+  bool success = 1;  // 是否成功
+}
+
+// 删除消息请求
+message DeleteMessageRequest {
+  string message_id = 1 [(validate.rules).string.min_len = 1];  // 消息ID
+  bool delete_for_both = 2;  // 是否双向删除（仅私聊有效）
+}
+
+// 删除消息响应
+message DeleteMessageResponse {
+  bool success = 1;  // 是否成功
 }
 
 // 聊天服务定义
@@ -159,4 +215,10 @@ service ChatService {
   
   // 上传文件
   rpc UploadFile(UploadFileRequest) returns (UploadFileResponse);
+  
+  // 撤回消息
+  rpc RecallMessage(RecallMessageRequest) returns (RecallMessageResponse);
+  
+  // 删除消息
+  rpc DeleteMessage(DeleteMessageRequest) returns (DeleteMessageResponse);
 }

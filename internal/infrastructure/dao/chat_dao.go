@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,8 +30,8 @@ func NewChatDao(mysqlDB *gorm.DB, mongoDB *mongo.Database) *ChatDao {
 func (d *ChatDao) CreateMessage(message *models.ChatMessage) error {
 	// 生成消息ID
 	message.MessageID = generateMessageID()
-	message.CreatedAt = time.Now()
-	message.UpdatedAt = time.Now()
+	message.CreatedAt = time.Now().Unix()
+	message.UpdatedAt = time.Now().Unix()
 
 	fmt.Printf("准备存储消息: MessageID=%s, FromUserID=%d, ToUserID=%d, Content=%s\n",
 		message.MessageID, message.FromUserID, message.ToUserID, message.Content)
@@ -66,7 +66,7 @@ func (d *ChatDao) CreateMessage(message *models.ChatMessage) error {
 }
 
 // GetMessageHistory 获取消息历史（仅从MongoDB查询）
-func (d *ChatDao) GetMessageHistory(fromUserID, toUserID, groupID uint, page, pageSize int, beforeTime *time.Time) ([]*models.ChatMessage, int64, error) {
+func (d *ChatDao) GetMessageHistory(fromUserID, toUserID, groupID int64, page, pageSize int, beforeTime *time.Time) ([]*models.ChatMessage, int64, error) {
 	// 检查MongoDB连接
 	if d.mongoDB == nil {
 		return nil, 0, fmt.Errorf("MongoDB连接未初始化")
@@ -160,8 +160,113 @@ func (d *ChatDao) GetMessageHistory(fromUserID, toUserID, groupID uint, page, pa
 	return messages, totalCount, nil
 }
 
+// RecallMessage 撤回消息
+func (d *ChatDao) RecallMessage(messageID string, userID int64) error {
+	collection := d.mongoDB.Collection("chat_messages")
+	
+	// 查询消息是否存在且是发送者
+	filter := bson.M{
+		"message_id":  messageID,
+		"from_user_id": userID,
+	}
+	
+	update := bson.M{
+		"$set": bson.M{
+			"is_recalled": true,
+			"updated_at":  time.Now().Unix(),
+		},
+	}
+	
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to recall message: %w", err)
+	}
+	
+	if result.MatchedCount == 0 {
+		return fmt.Errorf("message not found or no permission")
+	}
+	
+	// 同时更新MySQL
+	err = d.mysqlDB.Model(&models.ChatMessage{}).
+		Where("message_id = ? AND from_user_id = ?", messageID, userID).
+		Updates(map[string]interface{}{
+			"is_recalled": true,
+			"updated_at":  time.Now().Unix(),
+		}).Error
+	
+	return err
+}
+
+// DeleteMessage 删除消息
+func (d *ChatDao) DeleteMessage(messageID string, userID int64, deleteForBoth bool) error {
+	collection := d.mongoDB.Collection("chat_messages")
+	
+	// 查询消息
+	var message models.ChatMessage
+	filter := bson.M{"message_id": messageID}
+	err := collection.FindOne(context.Background(), filter).Decode(&message)
+	if err != nil {
+		return fmt.Errorf("message not found: %w", err)
+	}
+	
+	// 检查权限：只有发送者或接收者可以删除
+	if message.FromUserID != userID && message.ToUserID != userID {
+		return fmt.Errorf("no permission to delete message")
+	}
+	
+	// 如果是群聊，不支持双向删除
+	if message.GroupID > 0 {
+		deleteForBoth = false
+	}
+	
+	// 更新消息
+	update := bson.M{
+		"$set": bson.M{
+			"is_deleted": true,
+			"updated_at": time.Now().Unix(),
+		},
+	}
+	
+	// 如果是双向删除，需要更新双方的消息
+	if deleteForBoth && message.GroupID == 0 {
+		// 私聊双向删除：更新发送者和接收者的消息
+		filter = bson.M{
+			"message_id": messageID,
+		}
+	} else {
+		// 单方删除：只删除当前用户的消息
+		filter = bson.M{
+			"message_id": messageID,
+			"$or": []bson.M{
+				{"from_user_id": userID},
+				{"to_user_id": userID},
+			},
+		}
+	}
+	
+	_, err = collection.UpdateMany(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to delete message: %w", err)
+	}
+	
+	// 同时更新MySQL
+	mysqlFilter := d.mysqlDB.Model(&models.ChatMessage{}).
+		Where("message_id = ?", messageID)
+	
+	if !deleteForBoth || message.GroupID > 0 {
+		mysqlFilter = mysqlFilter.Where("from_user_id = ? OR to_user_id = ?", userID, userID)
+	}
+	
+	err = mysqlFilter.Updates(map[string]interface{}{
+		"is_deleted": true,
+		"updated_at": time.Now().Unix(),
+	}).Error
+	
+	return err
+}
+
 // GetUnreadCount 获取未读消息数量
-func (d *ChatDao) GetUnreadCount(userID uint) (map[uint]int, error) {
+func (d *ChatDao) GetUnreadCount(userID int64) (map[int64]int, error) {
 	collection := d.mongoDB.Collection("chat_messages")
 
 	// 查询发送给当前用户且未读的消息
@@ -182,11 +287,11 @@ func (d *ChatDao) GetUnreadCount(userID uint) (map[uint]int, error) {
 	}
 	defer cursor.Close(context.Background())
 
-	unreadCount := make(map[uint]int)
+	unreadCount := make(map[int64]int)
 	for cursor.Next(context.Background()) {
 		var result struct {
-			FromUserID uint `bson:"_id"`
-			Count      int  `bson:"count"`
+			FromUserID int64 `bson:"_id"`
+			Count      int   `bson:"count"`
 		}
 		if err := cursor.Decode(&result); err != nil {
 			return nil, fmt.Errorf("failed to decode unread count: %v", err)
@@ -198,7 +303,7 @@ func (d *ChatDao) GetUnreadCount(userID uint) (map[uint]int, error) {
 }
 
 // MarkMessagesAsRead 标记消息为已读
-func (d *ChatDao) MarkMessagesAsRead(fromUserID, toUserID uint, messageID string) (int64, error) {
+func (d *ChatDao) MarkMessagesAsRead(fromUserID, toUserID int64, messageID string) (int64, error) {
 	collection := d.mongoDB.Collection("chat_messages")
 
 	// 构建查询条件
@@ -217,7 +322,7 @@ func (d *ChatDao) MarkMessagesAsRead(fromUserID, toUserID uint, messageID string
 	update := bson.M{
 		"$set": bson.M{
 			"status":     models.MessageStatusRead,
-			"updated_at": time.Now(),
+			"updated_at": time.Now().Unix(),
 		},
 	}
 
@@ -253,7 +358,7 @@ func (d *ChatDao) SearchUsers(keyword string, limit int) ([]*models.UserBasic, e
 }
 
 // GetConversations 获取会话列表
-func (d *ChatDao) GetConversations(userID uint, page, pageSize int) ([]*models.Conversation, int64, error) {
+func (d *ChatDao) GetConversations(userID int64, page, pageSize int) ([]*models.Conversation, int64, error) {
 	var conversations []*models.Conversation
 	var totalCount int64
 
@@ -294,7 +399,7 @@ func (d *ChatDao) updateConversation(message *models.ChatMessage) error {
 }
 
 // updateUserConversation 更新单个用户的会话
-func (d *ChatDao) updateUserConversation(userID, otherUserID uint, message *models.ChatMessage) error {
+func (d *ChatDao) updateUserConversation(userID, otherUserID int64, message *models.ChatMessage) error {
 	var conversation models.Conversation
 
 	// 查找或创建会话
@@ -332,7 +437,7 @@ func (d *ChatDao) updateUserConversation(userID, otherUserID uint, message *mode
 }
 
 // updateConversationUnreadCount 更新会话未读数量
-func (d *ChatDao) updateConversationUnreadCount(fromUserID, toUserID uint) error {
+func (d *ChatDao) updateConversationUnreadCount(fromUserID, toUserID int64) error {
 	// 重新计算未读数量
 	unreadCount, err := d.GetUnreadCount(toUserID)
 	if err != nil {

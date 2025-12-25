@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

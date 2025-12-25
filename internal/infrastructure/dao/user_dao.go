@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 
 	"gorm.io/gorm"
 )
@@ -39,8 +39,47 @@ func (d *UserDao) GetUserByName(name string) (*models.UserBasic, error) {
 	return &user, nil
 }
 
+// GetUserByLoginAccount 根据登录账号获取用户
+func (d *UserDao) GetUserByLoginAccount(loginAccount string) (*models.UserBasic, error) {
+	var user models.UserBasic
+	err := d.db.Where("login_account = ?", loginAccount).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+// GetUserByPhone 根据手机号获取用户
+func (d *UserDao) GetUserByPhone(phone string) (*models.UserBasic, error) {
+	var user models.UserBasic
+	err := d.db.Where("phone = ?", phone).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+// GetUserByEmail 根据邮箱获取用户
+func (d *UserDao) GetUserByEmail(email string) (*models.UserBasic, error) {
+	var user models.UserBasic
+	err := d.db.Where("email = ? OR email1 = ? OR email2 = ?", email, email, email).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
 // GetUserByID 根据ID获取用户
-func (d *UserDao) GetUserByID(id uint) (*models.UserBasic, error) {
+func (d *UserDao) GetUserByID(id int64) (*models.UserBasic, error) {
 	var user models.UserBasic
 	err := d.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
@@ -53,11 +92,11 @@ func (d *UserDao) GetUserByID(id uint) (*models.UserBasic, error) {
 }
 
 // UpdateUser 更新用户（支持部分更新）
-func (d *UserDao) UpdateUser(id uint, updates map[string]interface{}) error {
+func (d *UserDao) UpdateUser(id int64, updates map[string]interface{}) error {
 	return d.db.Model(&models.UserBasic{}).Where("id = ?", id).Updates(updates).Error
 }
 
 // DeleteUser 删除用户
-func (d *UserDao) DeleteUser(id uint) error {
+func (d *UserDao) DeleteUser(id int64) error {
 	return d.db.Delete(&models.UserBasic{}, id).Error
 }

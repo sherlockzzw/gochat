@@ -1,6 +1,8 @@
 package group
 
 import (
+	"time"
+
 	"gochat/api/api/group"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
@@ -31,7 +33,7 @@ func (h *GroupHandler) GetGroupInfo(ctx *gin.Context) {
 }
 
 func (h *GroupHandler) getGroupInfoLogic(ctx *gin.Context, req *group.GetGroupInfoRequest) (resp *group.GetGroupInfoResponse, errCode code_msg.BusinessCode, err error) {
-	groupID := uint(req.GetGroupId())
+	groupID := int64(req.GetGroupId())
 
 	// 获取群组信息
 	groupInfo, err := h.dao.GetGroupByID(groupID)
@@ -49,7 +51,7 @@ func (h *GroupHandler) getGroupInfoLogic(ctx *gin.Context, req *group.GetGroupIn
 	}
 
 	// 获取在线用户列表（从WebSocket Hub）
-	onlineUserIDs := make(map[uint]bool)
+	onlineUserIDs := make(map[int64]bool)
 	if utils.WSHub != nil {
 		onlineIDs := utils.WSHub.GetOnlineUserIDs()
 		for _, uid := range onlineIDs {
@@ -65,8 +67,8 @@ func (h *GroupHandler) getGroupInfoLogic(ctx *gin.Context, req *group.GetGroupIn
 		OwnerId:     uint32(groupInfo.OwnerID),
 		Notice:      groupInfo.Notice,
 		MemberCount:  int32(groupInfo.MemberCount),
-		CreatedAt:    timestamppb.New(groupInfo.CreatedAt),
-		UpdatedAt:    timestamppb.New(groupInfo.UpdatedAt),
+		CreatedAt:    timestamppb.New(time.Unix(groupInfo.CreatedAt, 0)),
+		UpdatedAt:    timestamppb.New(time.Unix(groupInfo.UpdatedAt, 0)),
 	}
 
 	// 构造成员列表
@@ -83,7 +85,7 @@ func (h *GroupHandler) getGroupInfoLogic(ctx *gin.Context, req *group.GetGroupIn
 			UserAvatar: m.UserAvatar,
 			UserPhone:  m.UserPhone,
 			IsOnline:   isOnline,
-			JoinedAt:   timestamppb.New(m.JoinedAt),
+			JoinedAt:   timestamppb.New(time.Unix(m.JoinedAt, 0)),
 		}
 		memberList = append(memberList, memberInfo)
 	}

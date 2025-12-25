@@ -38,7 +38,23 @@ const (
 )
 
 const (
-	UserNameExisted BusinessCode = 4301
+	UserNameExisted      BusinessCode = 4301 // 用户名已存在
+	LoginAccountExists   BusinessCode = 4302 // 登录账号已存在
+	PhoneExists          BusinessCode = 4303 // 手机号已被注册
+	EmailExists          BusinessCode = 4304 // 邮箱已被注册
+	AgreementNotAccepted BusinessCode = 4305 // 未同意用户协议或隐私政策
+	PhoneOrEmailRequired BusinessCode = 4306 // 必须提供手机号或邮箱
+	CodeTypeMismatch     BusinessCode = 4307 // 验证码类型不匹配
+	ParameterError       BusinessCode = 4001 // 参数错误
+	CodeError            BusinessCode = 4002 // 验证码错误
+	CodeExpired          BusinessCode = 4003 // 验证码已过期
+
+	// 群组相关
+	GroupNotFound        BusinessCode = 4401 // 群组不存在
+	NotGroupMember       BusinessCode = 4402 // 不在群组中
+	NoPermission         BusinessCode = 4403 // 没有权限
+	CannotRemoveOwner    BusinessCode = 4404 // 不能移除群主
+	CannotRemoveAdmin    BusinessCode = 4405 // 管理员不能移除其他管理员
 )
 
 // GetMsg 获取错误消息
@@ -75,6 +91,13 @@ func GetMsg(code BusinessCode) string {
 		InvalidToken:         "Token无效",
 		UserNameExisted:      "用户名已存在",
 		PasswordError:        "密码错误",
+
+		// 群组相关
+		GroupNotFound:        "群组不存在",
+		NotGroupMember:       "不在群组中",
+		NoPermission:         "没有权限",
+		CannotRemoveOwner:    "不能移除群主",
+		CannotRemoveAdmin:    "管理员不能移除其他管理员",
 	}
 
 	if msg, ok := msgMap[code]; ok {

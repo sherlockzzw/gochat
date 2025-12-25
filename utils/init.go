@@ -111,8 +111,9 @@ func InitRedis() {
 	ctx := context.Background()
 	pong, err := RDB.Ping(ctx).Result()
 	if err != nil {
-		fmt.Println("Failed to connect to Redis")
-		panic(err)
+		fmt.Println("Failed to connect to Redis (will continue without Redis)")
+		RDB = nil // 设置为 nil，表示 Redis 不可用
+		return
 	}
 
 	fmt.Println("Successfully connected to Redis:", pong)
@@ -124,15 +125,17 @@ func InitMongoDB() {
 
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
 	if err != nil {
-		fmt.Println("Failed to connect to MongoDB")
-		panic(err)
+		fmt.Println("Failed to connect to MongoDB (will continue without MongoDB)")
+		MongoDB = nil // 设置为 nil，表示 MongoDB 不可用
+		return
 	}
 
 	// 测试连接
 	err = client.Ping(context.Background(), nil)
 	if err != nil {
-		fmt.Println("Failed to ping MongoDB")
-		panic(err)
+		fmt.Println("Failed to ping MongoDB (will continue without MongoDB)")
+		MongoDB = nil
+		return
 	}
 
 	MongoDB = client.Database(database)

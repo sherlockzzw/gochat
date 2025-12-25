@@ -1,11 +1,13 @@
 package group
 
 import (
+	"time"
+
 	"gochat/api/api/group"
+	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
-	"gochat/models"
 	avatarUtils "gochat/utils"
 
 	"github.com/gin-gonic/gin"
@@ -39,24 +41,18 @@ func (h *GroupHandler) createGroupLogic(ctx *gin.Context, req *group.CreateGroup
 		return nil, code_msg.ServerError, err
 	}
 
-	// 验证群名称
-	if req.GetName() == "" {
-		return &group.CreateGroupResponse{
-			Success:      false,
-			ErrorMessage: "群名称不能为空",
-		}, 0, nil
-	}
-
 	// 创建群组
+	now := time.Now().Unix()
 	newGroup := &models.Group{
 		Name:        req.GetName(),
 		Avatar:      req.GetAvatar(),
 		OwnerID:     userID,
-		MemberCount:  1, // 创建者自己
+		MemberCount: 1, // 创建者自己
+		CreatedAt:   now,
+		UpdatedAt:   now,
 	}
 
 	if newGroup.Avatar == "" {
-		// 如果没有提供头像，使用默认头像
 		newGroup.Avatar = avatarUtils.GetDefaultGroupAvatar()
 	}
 
@@ -65,29 +61,22 @@ func (h *GroupHandler) createGroupLogic(ctx *gin.Context, req *group.CreateGroup
 		return nil, code_msg.ServerError, err
 	}
 
-	// 添加创建者为群主
 	err = h.dao.AddMember(newGroup.ID, userID, models.GroupRoleOwner, "")
 	if err != nil {
-		// 如果添加成员失败，删除群组
-		// 这里简化处理，实际应该使用事务
 		return nil, code_msg.ServerError, err
 	}
 
-	// 如果有初始成员，添加他们
 	if len(req.GetMemberIds()) > 0 {
-		// 将[]uint32转换为[]uint
-		memberIDs := make([]uint, 0, len(req.GetMemberIds()))
+		memberIDs := make([]int64, 0, len(req.GetMemberIds()))
 		for _, id := range req.GetMemberIds() {
-			memberIDs = append(memberIDs, uint(id))
+			memberIDs = append(memberIDs, int64(id))
 		}
 		err = h.dao.AddMembers(newGroup.ID, memberIDs, userID)
 		if err != nil {
-			// 记录错误但不影响群组创建
-			// 实际应该记录日志
+
 		}
 	}
 
-	// 重新获取群组信息（包含更新后的成员数量）
 	groupInfo, err := h.dao.GetGroupByID(newGroup.ID)
 	if err != nil {
 		return nil, code_msg.ServerError, err
@@ -100,9 +89,9 @@ func (h *GroupHandler) createGroupLogic(ctx *gin.Context, req *group.CreateGroup
 		Avatar:      groupInfo.Avatar,
 		OwnerId:     uint32(groupInfo.OwnerID),
 		Notice:      groupInfo.Notice,
-		MemberCount:  int32(groupInfo.MemberCount),
-		CreatedAt:    timestamppb.New(groupInfo.CreatedAt),
-		UpdatedAt:    timestamppb.New(groupInfo.UpdatedAt),
+		MemberCount: int32(groupInfo.MemberCount),
+		CreatedAt:   timestamppb.New(time.Unix(groupInfo.CreatedAt, 0)),
+		UpdatedAt:   timestamppb.New(time.Unix(groupInfo.UpdatedAt, 0)),
 	}
 
 	return &group.CreateGroupResponse{
@@ -110,4 +99,3 @@ func (h *GroupHandler) createGroupLogic(ctx *gin.Context, req *group.CreateGroup
 		Success: true,
 	}, 0, nil
 }
-

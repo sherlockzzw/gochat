@@ -18,7 +18,7 @@ type Hub struct {
 	clients map[*Client]bool
 
 	// 用户ID到客户端的映射
-	userClients map[uint]*Client
+	userClients map[int64]*Client
 
 	// 注册客户端
 	register chan *Client
@@ -56,7 +56,7 @@ type Client struct {
 	send chan []byte
 
 	// 用户ID
-	userID uint
+	userID int64
 
 	// Hub引用
 	hub *Hub
@@ -70,7 +70,7 @@ type Client struct {
 
 // UserMessage 发送给特定用户的消息
 type UserMessage struct {
-	UserID  uint
+	UserID  int64
 	Message []byte
 }
 
@@ -110,7 +110,7 @@ func NewHub() *Hub {
 
 	return &Hub{
 		clients:        make(map[*Client]bool),
-		userClients:    make(map[uint]*Client),
+		userClients:    make(map[int64]*Client),
 		register:       make(chan *Client, 1000),
 		unregister:     make(chan *Client, 1000),
 		broadcast:      make(chan []byte, 1000),
@@ -169,7 +169,7 @@ func (h *Hub) registerClient(client *Client) {
 			h.logger.Warn("Connection rejected: max connections reached",
 				zap.Int("maxConnections", h.maxConnections),
 				zap.Int("currentConnections", currentConnections),
-				zap.Uint("userID", client.userID))
+				zap.Int64("userID", client.userID))
 			// 关闭连接
 			close(client.send)
 			client.conn.Close()
@@ -201,7 +201,7 @@ func (h *Hub) registerClient(client *Client) {
 	}
 
 	h.logger.Info("Client registered",
-		zap.Uint("userID", client.userID),
+		zap.Int64("userID", client.userID),
 		zap.Int("totalClients", onlineCount),
 		zap.Int("maxConnections", h.maxConnections))
 }
@@ -218,7 +218,7 @@ func (h *Hub) unregisterClient(client *Client) {
 	}
 
 	h.logger.Info("Client unregistered",
-		zap.Uint("userID", client.userID),
+		zap.Int64("userID", client.userID),
 		zap.Int("totalClients", len(h.clients)))
 }
 
@@ -259,7 +259,7 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 				userMessage.UserID, onlineCount)
 		}
 		h.logger.Warn("User not found in online clients",
-			zap.Uint("userID", userMessage.UserID),
+			zap.Int64("userID", userMessage.UserID),
 			zap.Int("onlineUsers", onlineCount))
 		return
 	}
@@ -273,7 +273,7 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 				userMessage.UserID, len(userMessage.Message))
 		}
 		h.logger.Debug("Message sent to user",
-			zap.Uint("userID", userMessage.UserID),
+			zap.Int64("userID", userMessage.UserID),
 			zap.Int("messageLength", len(userMessage.Message)))
 	default:
 		// 客户端发送通道已满，说明客户端处理速度慢
@@ -281,7 +281,7 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 		// 这里选择关闭连接，让客户端重连
 		fmt.Printf("警告: 用户 %d 的发送通道已满，关闭连接\n", userMessage.UserID)
 		h.logger.Warn("Failed to send message to user, channel full",
-			zap.Uint("userID", userMessage.UserID))
+			zap.Int64("userID", userMessage.UserID))
 
 		// 需要加写锁来删除客户端
 		h.mutex.Lock()
@@ -296,7 +296,7 @@ func (h *Hub) sendToUserMessage(userMessage *UserMessage) {
 
 // SendToUser 发送消息给特定用户
 // 这个方法是非阻塞的，如果通道满了会记录警告但不会阻塞调用者
-func (h *Hub) SendToUser(userID uint, message []byte) {
+func (h *Hub) SendToUser(userID int64, message []byte) {
 	// 验证用户ID有效性
 	if userID == 0 {
 		h.logger.Warn("Invalid userID: 0")
@@ -306,7 +306,7 @@ func (h *Hub) SendToUser(userID uint, message []byte) {
 	// 检查消息大小，防止过大的消息
 	if len(message) > 1024*1024 { // 1MB限制
 		h.logger.Warn("Message too large",
-			zap.Uint("userID", userID),
+			zap.Int64("userID", userID),
 			zap.Int("messageLength", len(message)))
 		return
 	}
@@ -321,7 +321,7 @@ func (h *Hub) SendToUser(userID uint, message []byte) {
 		// 通道满了，记录警告
 		// 在高并发场景下，可以考虑使用更大的缓冲或者实现消息丢弃策略
 		h.logger.Warn("Failed to queue message for user, channel full",
-			zap.Uint("userID", userID),
+			zap.Int64("userID", userID),
 			zap.Int("messageLength", len(message)),
 			zap.Int("channelCapacity", cap(h.sendToUser)))
 	}
@@ -335,7 +335,7 @@ func (h *Hub) GetOnlineUsers() int {
 }
 
 // IsUserOnline 检查用户是否在线
-func (h *Hub) IsUserOnline(userID uint) bool {
+func (h *Hub) IsUserOnline(userID int64) bool {
 	h.mutex.RLock()
 	defer h.mutex.RUnlock()
 	_, ok := h.userClients[userID]
@@ -343,11 +343,11 @@ func (h *Hub) IsUserOnline(userID uint) bool {
 }
 
 // GetOnlineUserIDs 获取在线用户ID列表
-func (h *Hub) GetOnlineUserIDs() []uint {
+func (h *Hub) GetOnlineUserIDs() []int64 {
 	h.mutex.RLock()
 	defer h.mutex.RUnlock()
 
-	userIDs := make([]uint, 0, len(h.userClients))
+	userIDs := make([]int64, 0, len(h.userClients))
 	for userID := range h.userClients {
 		userIDs = append(userIDs, userID)
 	}
@@ -471,7 +471,7 @@ func (c *Client) startHeartbeat() {
 				// 检查是否超时
 				if time.Since(lastPong) > c.hub.pongWait {
 					c.hub.logger.Warn("Heartbeat timeout, closing connection",
-						zap.Uint("userID", c.userID),
+						zap.Int64("userID", c.userID),
 						zap.Duration("timeSinceLastPong", time.Since(lastPong)))
 					c.hub.unregister <- c
 					c.conn.Close()

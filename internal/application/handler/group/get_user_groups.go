@@ -1,6 +1,8 @@
 package group
 
 import (
+	"time"
+
 	"gochat/api/api/group"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
@@ -47,8 +49,8 @@ func (h *GroupHandler) getUserGroupsLogic(ctx *gin.Context) (resp *group.GetUser
 			OwnerId:     uint32(g.OwnerID),
 			Notice:      g.Notice,
 			MemberCount:  int32(g.MemberCount),
-			CreatedAt:    timestamppb.New(g.CreatedAt),
-			UpdatedAt:    timestamppb.New(g.UpdatedAt),
+			CreatedAt:    timestamppb.New(time.Unix(g.CreatedAt, 0)),
+			UpdatedAt:    timestamppb.New(time.Unix(g.UpdatedAt, 0)),
 		}
 		groupList = append(groupList, groupInfo)
 	}

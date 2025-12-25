@@ -22,6 +22,15 @@ func initCoreServices() {
 	utils.InitMongoDB()
 }
 
+// initCoreServicesForSetup 初始化setup命令所需的服务（仅MySQL）
+func initCoreServicesForSetup() {
+	utils.InitConfig()
+	utils.InitMysql()
+	// Redis 和 MongoDB 在 setup 时不是必需的，可选初始化
+	utils.InitRedis()
+	utils.InitMongoDB()
+}
+
 // initWebSocketService 初始化WebSocket服务
 func initWebSocketService() {
 	utils.InitWebSocket()
@@ -67,13 +76,13 @@ type SetupServer struct {
 
 // NewSetupServer 创建设置服务器
 func NewSetupServer() *SetupServer {
-	initCoreServices()
-	initWebSocketService() // Setup需要WebSocket用于测试
+	initCoreServicesForSetup()
+	// WebSocket 在 setup 时不是必需的，跳过初始化
 
 	return &SetupServer{
 		MysqlSvc: &utils.MysqlService{DB: utils.DB},
-		RedisSvc: &utils.RedisService{Client: utils.RDB},
-		MongoSvc: &utils.MongoService{DB: utils.MongoDB},
+		RedisSvc: &utils.RedisService{Client: utils.RDB}, // 可能为 nil
+		MongoSvc: &utils.MongoService{DB: utils.MongoDB}, // 可能为 nil
 		Logger:   createLogger(),
 	}
 }

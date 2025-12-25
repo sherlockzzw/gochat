@@ -55,6 +55,8 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 		chatRoute.GET("message/history", api.ChatHandler.GetMessageHistory)
 		chatRoute.POST("message/read", api.ChatHandler.MarkMessageRead)
 		chatRoute.GET("message/unread", api.ChatHandler.GetUnreadCount)
+		chatRoute.POST("message/recall", api.ChatHandler.RecallMessage)
+		chatRoute.POST("message/delete", api.ChatHandler.DeleteMessage)
 
 		// 文件上传
 		chatRoute.POST("upload", api.ChatHandler.UploadFile)
@@ -111,5 +113,36 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 
 		// 检查用户是否在群组中
 		groupRoute.GET("members/check", api.GroupHandler.CheckMemberInGroup)
+	}
+
+	// 资金相关接口
+	balanceRoute := r.Group("balance")
+	{
+		// 余额查询
+		balanceRoute.GET("", api.BalanceHandler.GetBalance)
+
+		// 充值
+		balanceRoute.POST("recharge", api.BalanceHandler.Recharge)
+		balanceRoute.GET("recharge/list", api.BalanceHandler.GetRechargeRequests)
+
+		// 提现
+		balanceRoute.POST("withdraw", api.BalanceHandler.Withdraw)
+		balanceRoute.GET("withdraw/list", api.BalanceHandler.GetWithdrawRequests)
+
+		// 红包
+		balanceRoute.POST("redpacket/private/send", api.BalanceHandler.SendPrivateRedPacket)
+		balanceRoute.POST("redpacket/group/send", api.BalanceHandler.SendGroupRedPacket)
+		balanceRoute.POST("redpacket/receive", api.BalanceHandler.ReceiveRedPacket)
+		balanceRoute.GET("redpacket/detail", api.BalanceHandler.GetRedPacketDetail)
+
+		// 转账
+		balanceRoute.POST("transfer/private/send", api.BalanceHandler.SendPrivateTransfer)
+		balanceRoute.POST("transfer/group/send", api.BalanceHandler.SendGroupTransfer)
+		balanceRoute.POST("transfer/receive", api.BalanceHandler.ReceiveTransfer)
+		balanceRoute.POST("transfer/cancel", api.BalanceHandler.CancelTransfer)
+		balanceRoute.GET("transfer/detail", api.BalanceHandler.GetTransferDetail)
+
+		// 资金流水
+		balanceRoute.GET("flows", api.BalanceHandler.GetBalanceFlows)
 	}
 }

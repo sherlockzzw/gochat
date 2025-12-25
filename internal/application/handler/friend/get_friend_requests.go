@@ -2,6 +2,8 @@ package friend
 
 import (
 	"fmt"
+	"time"
+
 	"gochat/api/api/friend"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
@@ -68,7 +70,7 @@ func (h *FriendHandler) getFriendRequestsLogic(ctx *gin.Context, req *friend.Get
 			FromUserAvatar: globalUtils.GetAvatarFullURL(r.FromUserAvatar, fmt.Sprintf("http://127.0.0.1:%d", apiPort)), // 返回完整头像URL
 			Message:        r.Message,
 			Status:         r.Status,
-			CreatedAt:      r.CreatedAt.Format("2006-01-02 15:04:05"),
+			CreatedAt:      time.Unix(r.CreatedAt, 0).Format("2006-01-02 15:04:05"),
 		}
 		requestInfos = append(requestInfos, requestInfo)
 	}

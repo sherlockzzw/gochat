@@ -7,6 +7,7 @@
 package chat
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -26,25 +27,49 @@ const (
 type MessageType int32
 
 const (
-	MessageType_TEXT   MessageType = 0 // 文字消息
-	MessageType_IMAGE  MessageType = 1 // 图片消息
-	MessageType_FILE   MessageType = 2 // 文件消息
-	MessageType_SYSTEM MessageType = 3 // 系统消息
+	MessageType_TEXT       MessageType = 0  // 文字消息
+	MessageType_IMAGE      MessageType = 1  // 图片消息
+	MessageType_FILE       MessageType = 2  // 文件消息
+	MessageType_SYSTEM     MessageType = 3  // 系统消息
+	MessageType_VIDEO      MessageType = 4  // 视频消息
+	MessageType_VOICE      MessageType = 5  // 语音条消息
+	MessageType_EMOJI      MessageType = 6  // 表情包消息
+	MessageType_MERGE      MessageType = 7  // 合并消息
+	MessageType_QUOTE      MessageType = 8  // 引用消息
+	MessageType_CONTACT    MessageType = 9  // 联系人分享消息
+	MessageType_RED_PACKET MessageType = 10 // 红包消息
+	MessageType_TRANSFER   MessageType = 11 // 转账消息
 )
 
 // Enum value maps for MessageType.
 var (
 	MessageType_name = map[int32]string{
-		0: "TEXT",
-		1: "IMAGE",
-		2: "FILE",
-		3: "SYSTEM",
+		0:  "TEXT",
+		1:  "IMAGE",
+		2:  "FILE",
+		3:  "SYSTEM",
+		4:  "VIDEO",
+		5:  "VOICE",
+		6:  "EMOJI",
+		7:  "MERGE",
+		8:  "QUOTE",
+		9:  "CONTACT",
+		10: "RED_PACKET",
+		11: "TRANSFER",
 	}
 	MessageType_value = map[string]int32{
-		"TEXT":   0,
-		"IMAGE":  1,
-		"FILE":   2,
-		"SYSTEM": 3,
+		"TEXT":       0,
+		"IMAGE":      1,
+		"FILE":       2,
+		"SYSTEM":     3,
+		"VIDEO":      4,
+		"VOICE":      5,
+		"EMOJI":      6,
+		"MERGE":      7,
+		"QUOTE":      8,
+		"CONTACT":    9,
+		"RED_PACKET": 10,
+		"TRANSFER":   11,
 	}
 )
 
@@ -133,19 +158,34 @@ func (MessageStatus) EnumDescriptor() ([]byte, []int) {
 
 // 聊天消息
 type ChatMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                                                 // 消息ID
-	FromUserId    uint32                 `protobuf:"varint,2,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"`                            // 发送者用户ID
-	ToUserId      uint32                 `protobuf:"varint,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID（私聊时使用，群聊时为0）
-	GroupId       uint32                 `protobuf:"varint,12,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`                                      // 群组ID（群聊时使用，私聊时为0）
-	MessageType   MessageType            `protobuf:"varint,4,opt,name=message_type,json=messageType,proto3,enum=api.chat.MessageType" json:"message_type,omitempty"` // 消息类型
-	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                                                       // 消息内容
-	FileUrl       string                 `protobuf:"bytes,6,opt,name=file_url,json=fileUrl,proto3" json:"file_url,omitempty"`                                        // 文件URL（图片/文件消息）
-	FileName      string                 `protobuf:"bytes,7,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                     // 文件名
-	FileSize      int64                  `protobuf:"varint,8,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`                                    // 文件大小
-	Status        MessageStatus          `protobuf:"varint,9,opt,name=status,proto3,enum=api.chat.MessageStatus" json:"status,omitempty"`                            // 消息状态
-	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                 // 创建时间
-	UpdatedAt     *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                 // 更新时间
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                                                 // 消息ID
+	FromUserId  uint32                 `protobuf:"varint,2,opt,name=from_user_id,json=fromUserId,proto3" json:"from_user_id,omitempty"`                            // 发送者用户ID
+	ToUserId    uint32                 `protobuf:"varint,3,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID（私聊时使用，群聊时为0）
+	GroupId     uint32                 `protobuf:"varint,12,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`                                      // 群组ID（群聊时使用，私聊时为0）
+	MessageType MessageType            `protobuf:"varint,4,opt,name=message_type,json=messageType,proto3,enum=api.chat.MessageType" json:"message_type,omitempty"` // 消息类型
+	Content     string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                                                       // 消息内容
+	FileUrl     string                 `protobuf:"bytes,6,opt,name=file_url,json=fileUrl,proto3" json:"file_url,omitempty"`                                        // 文件URL（图片/文件消息）
+	FileName    string                 `protobuf:"bytes,7,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                     // 文件名
+	FileSize    int64                  `protobuf:"varint,8,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`                                    // 文件大小
+	// 扩展字段
+	VideoUrl       string `protobuf:"bytes,13,opt,name=video_url,json=videoUrl,proto3" json:"video_url,omitempty"`                     // 视频URL
+	VideoThumb     string `protobuf:"bytes,14,opt,name=video_thumb,json=videoThumb,proto3" json:"video_thumb,omitempty"`               // 视频缩略图
+	VoiceUrl       string `protobuf:"bytes,15,opt,name=voice_url,json=voiceUrl,proto3" json:"voice_url,omitempty"`                     // 语音URL
+	VoiceDuration  int32  `protobuf:"varint,16,opt,name=voice_duration,json=voiceDuration,proto3" json:"voice_duration,omitempty"`     // 语音时长（秒）
+	EmojiUrl       string `protobuf:"bytes,17,opt,name=emoji_url,json=emojiUrl,proto3" json:"emoji_url,omitempty"`                     // 表情包URL
+	MergeMessages  string `protobuf:"bytes,18,opt,name=merge_messages,json=mergeMessages,proto3" json:"merge_messages,omitempty"`      // JSON数组，合并消息的message_id列表
+	QuoteMessageId string `protobuf:"bytes,19,opt,name=quote_message_id,json=quoteMessageId,proto3" json:"quote_message_id,omitempty"` // 引用的消息ID
+	ContactUserId  uint32 `protobuf:"varint,20,opt,name=contact_user_id,json=contactUserId,proto3" json:"contact_user_id,omitempty"`   // 分享的联系人ID
+	RedPacketId    uint32 `protobuf:"varint,21,opt,name=red_packet_id,json=redPacketId,proto3" json:"red_packet_id,omitempty"`         // 关联的红包ID
+	TransferId     uint32 `protobuf:"varint,22,opt,name=transfer_id,json=transferId,proto3" json:"transfer_id,omitempty"`              // 关联的转账ID
+	// 状态字段
+	IsRecalled    bool                 `protobuf:"varint,23,opt,name=is_recalled,json=isRecalled,proto3" json:"is_recalled,omitempty"`  // 是否已撤回
+	IsDeleted     bool                 `protobuf:"varint,24,opt,name=is_deleted,json=isDeleted,proto3" json:"is_deleted,omitempty"`     // 是否已删除
+	ReadStatus    int32                `protobuf:"varint,25,opt,name=read_status,json=readStatus,proto3" json:"read_status,omitempty"`  // 已读状态：1=已发送，2=已读
+	Status        MessageStatus        `protobuf:"varint,9,opt,name=status,proto3,enum=api.chat.MessageStatus" json:"status,omitempty"` // 消息状态
+	CreatedAt     *timestamp.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`      // 创建时间
+	UpdatedAt     *timestamp.Timestamp `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`      // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -243,6 +283,97 @@ func (x *ChatMessage) GetFileSize() int64 {
 	return 0
 }
 
+func (x *ChatMessage) GetVideoUrl() string {
+	if x != nil {
+		return x.VideoUrl
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetVideoThumb() string {
+	if x != nil {
+		return x.VideoThumb
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetVoiceUrl() string {
+	if x != nil {
+		return x.VoiceUrl
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetVoiceDuration() int32 {
+	if x != nil {
+		return x.VoiceDuration
+	}
+	return 0
+}
+
+func (x *ChatMessage) GetEmojiUrl() string {
+	if x != nil {
+		return x.EmojiUrl
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetMergeMessages() string {
+	if x != nil {
+		return x.MergeMessages
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetQuoteMessageId() string {
+	if x != nil {
+		return x.QuoteMessageId
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetContactUserId() uint32 {
+	if x != nil {
+		return x.ContactUserId
+	}
+	return 0
+}
+
+func (x *ChatMessage) GetRedPacketId() uint32 {
+	if x != nil {
+		return x.RedPacketId
+	}
+	return 0
+}
+
+func (x *ChatMessage) GetTransferId() uint32 {
+	if x != nil {
+		return x.TransferId
+	}
+	return 0
+}
+
+func (x *ChatMessage) GetIsRecalled() bool {
+	if x != nil {
+		return x.IsRecalled
+	}
+	return false
+}
+
+func (x *ChatMessage) GetIsDeleted() bool {
+	if x != nil {
+		return x.IsDeleted
+	}
+	return false
+}
+
+func (x *ChatMessage) GetReadStatus() int32 {
+	if x != nil {
+		return x.ReadStatus
+	}
+	return 0
+}
+
 func (x *ChatMessage) GetStatus() MessageStatus {
 	if x != nil {
 		return x.Status
@@ -266,16 +397,27 @@ func (x *ChatMessage) GetUpdatedAt() *timestamp.Timestamp {
 
 // 发送消息请求
 type SendMessageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ToUserId      uint32                 `protobuf:"varint,1,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID（私聊时使用）
-	GroupId       uint32                 `protobuf:"varint,7,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`                                       // 群组ID（群聊时使用，与to_user_id二选一）
-	MessageType   MessageType            `protobuf:"varint,2,opt,name=message_type,json=messageType,proto3,enum=api.chat.MessageType" json:"message_type,omitempty"` // 消息类型
-	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                       // 消息内容
-	FileUrl       string                 `protobuf:"bytes,4,opt,name=file_url,json=fileUrl,proto3" json:"file_url,omitempty"`                                        // 文件URL（可选）
-	FileName      string                 `protobuf:"bytes,5,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                     // 文件名（可选）
-	FileSize      int64                  `protobuf:"varint,6,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`                                    // 文件大小（可选）
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ToUserId    uint32                 `protobuf:"varint,1,opt,name=to_user_id,json=toUserId,proto3" json:"to_user_id,omitempty"`                                  // 接收者用户ID（私聊时使用）
+	GroupId     uint32                 `protobuf:"varint,7,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`                                       // 群组ID（群聊时使用，与to_user_id二选一）
+	MessageType MessageType            `protobuf:"varint,2,opt,name=message_type,json=messageType,proto3,enum=api.chat.MessageType" json:"message_type,omitempty"` // 消息类型
+	Content     string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                                                       // 消息内容
+	FileUrl     string                 `protobuf:"bytes,4,opt,name=file_url,json=fileUrl,proto3" json:"file_url,omitempty"`                                        // 文件URL（可选）
+	FileName    string                 `protobuf:"bytes,5,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                     // 文件名（可选）
+	FileSize    int64                  `protobuf:"varint,6,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`                                    // 文件大小（可选）
+	// 扩展字段
+	VideoUrl        string   `protobuf:"bytes,13,opt,name=video_url,json=videoUrl,proto3" json:"video_url,omitempty"`                        // 视频URL
+	VideoThumb      string   `protobuf:"bytes,14,opt,name=video_thumb,json=videoThumb,proto3" json:"video_thumb,omitempty"`                  // 视频缩略图
+	VoiceUrl        string   `protobuf:"bytes,15,opt,name=voice_url,json=voiceUrl,proto3" json:"voice_url,omitempty"`                        // 语音URL
+	VoiceDuration   int32    `protobuf:"varint,16,opt,name=voice_duration,json=voiceDuration,proto3" json:"voice_duration,omitempty"`        // 语音时长（秒）
+	EmojiUrl        string   `protobuf:"bytes,17,opt,name=emoji_url,json=emojiUrl,proto3" json:"emoji_url,omitempty"`                        // 表情包URL
+	MergeMessageIds []string `protobuf:"bytes,18,rep,name=merge_message_ids,json=mergeMessageIds,proto3" json:"merge_message_ids,omitempty"` // 合并消息的message_id列表
+	QuoteMessageId  string   `protobuf:"bytes,19,opt,name=quote_message_id,json=quoteMessageId,proto3" json:"quote_message_id,omitempty"`    // 引用的消息ID
+	ContactUserId   uint32   `protobuf:"varint,20,opt,name=contact_user_id,json=contactUserId,proto3" json:"contact_user_id,omitempty"`      // 分享的联系人ID
+	RedPacketId     uint32   `protobuf:"varint,21,opt,name=red_packet_id,json=redPacketId,proto3" json:"red_packet_id,omitempty"`            // 关联的红包ID
+	TransferId      uint32   `protobuf:"varint,22,opt,name=transfer_id,json=transferId,proto3" json:"transfer_id,omitempty"`                 // 关联的转账ID
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *SendMessageRequest) Reset() {
@@ -353,6 +495,76 @@ func (x *SendMessageRequest) GetFileName() string {
 func (x *SendMessageRequest) GetFileSize() int64 {
 	if x != nil {
 		return x.FileSize
+	}
+	return 0
+}
+
+func (x *SendMessageRequest) GetVideoUrl() string {
+	if x != nil {
+		return x.VideoUrl
+	}
+	return ""
+}
+
+func (x *SendMessageRequest) GetVideoThumb() string {
+	if x != nil {
+		return x.VideoThumb
+	}
+	return ""
+}
+
+func (x *SendMessageRequest) GetVoiceUrl() string {
+	if x != nil {
+		return x.VoiceUrl
+	}
+	return ""
+}
+
+func (x *SendMessageRequest) GetVoiceDuration() int32 {
+	if x != nil {
+		return x.VoiceDuration
+	}
+	return 0
+}
+
+func (x *SendMessageRequest) GetEmojiUrl() string {
+	if x != nil {
+		return x.EmojiUrl
+	}
+	return ""
+}
+
+func (x *SendMessageRequest) GetMergeMessageIds() []string {
+	if x != nil {
+		return x.MergeMessageIds
+	}
+	return nil
+}
+
+func (x *SendMessageRequest) GetQuoteMessageId() string {
+	if x != nil {
+		return x.QuoteMessageId
+	}
+	return ""
+}
+
+func (x *SendMessageRequest) GetContactUserId() uint32 {
+	if x != nil {
+		return x.ContactUserId
+	}
+	return 0
+}
+
+func (x *SendMessageRequest) GetRedPacketId() uint32 {
+	if x != nil {
+		return x.RedPacketId
+	}
+	return 0
+}
+
+func (x *SendMessageRequest) GetTransferId() uint32 {
+	if x != nil {
+		return x.TransferId
 	}
 	return 0
 }
@@ -1087,11 +1299,199 @@ func (x *UploadFileResponse) GetFileType() string {
 	return ""
 }
 
+// 撤回消息请求
+type RecallMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 消息ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecallMessageRequest) Reset() {
+	*x = RecallMessageRequest{}
+	mi := &file_api_chat_chat_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecallMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecallMessageRequest) ProtoMessage() {}
+
+func (x *RecallMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecallMessageRequest.ProtoReflect.Descriptor instead.
+func (*RecallMessageRequest) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *RecallMessageRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+// 撤回消息响应
+type RecallMessageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // 是否成功
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecallMessageResponse) Reset() {
+	*x = RecallMessageResponse{}
+	mi := &file_api_chat_chat_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecallMessageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecallMessageResponse) ProtoMessage() {}
+
+func (x *RecallMessageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecallMessageResponse.ProtoReflect.Descriptor instead.
+func (*RecallMessageResponse) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *RecallMessageResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+// 删除消息请求
+type DeleteMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`                // 消息ID
+	DeleteForBoth bool                   `protobuf:"varint,2,opt,name=delete_for_both,json=deleteForBoth,proto3" json:"delete_for_both,omitempty"` // 是否双向删除（仅私聊有效）
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteMessageRequest) Reset() {
+	*x = DeleteMessageRequest{}
+	mi := &file_api_chat_chat_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteMessageRequest) ProtoMessage() {}
+
+func (x *DeleteMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteMessageRequest.ProtoReflect.Descriptor instead.
+func (*DeleteMessageRequest) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *DeleteMessageRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *DeleteMessageRequest) GetDeleteForBoth() bool {
+	if x != nil {
+		return x.DeleteForBoth
+	}
+	return false
+}
+
+// 删除消息响应
+type DeleteMessageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // 是否成功
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteMessageResponse) Reset() {
+	*x = DeleteMessageResponse{}
+	mi := &file_api_chat_chat_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteMessageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteMessageResponse) ProtoMessage() {}
+
+func (x *DeleteMessageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_chat_chat_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteMessageResponse.ProtoReflect.Descriptor instead.
+func (*DeleteMessageResponse) Descriptor() ([]byte, []int) {
+	return file_api_chat_chat_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *DeleteMessageResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_api_chat_chat_proto protoreflect.FileDescriptor
 
 const file_api_chat_chat_proto_rawDesc = "" +
 	"\n" +
-	"\x13api/chat/chat.proto\x12\bapi.chat\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc8\x03\n" +
+	"\x13api/chat/chat.proto\x12\bapi.chat\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17validate/validate.proto\"\x86\a\n" +
 	"\vChatMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
 	"\ffrom_user_id\x18\x02 \x01(\rR\n" +
@@ -1103,13 +1503,31 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x19\n" +
 	"\bfile_url\x18\x06 \x01(\tR\afileUrl\x12\x1b\n" +
 	"\tfile_name\x18\a \x01(\tR\bfileName\x12\x1b\n" +
-	"\tfile_size\x18\b \x01(\x03R\bfileSize\x12/\n" +
+	"\tfile_size\x18\b \x01(\x03R\bfileSize\x12\x1b\n" +
+	"\tvideo_url\x18\r \x01(\tR\bvideoUrl\x12\x1f\n" +
+	"\vvideo_thumb\x18\x0e \x01(\tR\n" +
+	"videoThumb\x12\x1b\n" +
+	"\tvoice_url\x18\x0f \x01(\tR\bvoiceUrl\x12%\n" +
+	"\x0evoice_duration\x18\x10 \x01(\x05R\rvoiceDuration\x12\x1b\n" +
+	"\temoji_url\x18\x11 \x01(\tR\bemojiUrl\x12%\n" +
+	"\x0emerge_messages\x18\x12 \x01(\tR\rmergeMessages\x12(\n" +
+	"\x10quote_message_id\x18\x13 \x01(\tR\x0equoteMessageId\x12&\n" +
+	"\x0fcontact_user_id\x18\x14 \x01(\rR\rcontactUserId\x12\"\n" +
+	"\rred_packet_id\x18\x15 \x01(\rR\vredPacketId\x12\x1f\n" +
+	"\vtransfer_id\x18\x16 \x01(\rR\n" +
+	"transferId\x12\x1f\n" +
+	"\vis_recalled\x18\x17 \x01(\bR\n" +
+	"isRecalled\x12\x1d\n" +
+	"\n" +
+	"is_deleted\x18\x18 \x01(\bR\tisDeleted\x12\x1f\n" +
+	"\vread_status\x18\x19 \x01(\x05R\n" +
+	"readStatus\x12/\n" +
 	"\x06status\x18\t \x01(\x0e2\x17.api.chat.MessageStatusR\x06status\x129\n" +
 	"\n" +
 	"created_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xf6\x01\n" +
+	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xd8\x04\n" +
 	"\x12SendMessageRequest\x12\x1c\n" +
 	"\n" +
 	"to_user_id\x18\x01 \x01(\rR\btoUserId\x12\x19\n" +
@@ -1118,7 +1536,19 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\acontent\x18\x03 \x01(\tR\acontent\x12\x19\n" +
 	"\bfile_url\x18\x04 \x01(\tR\afileUrl\x12\x1b\n" +
 	"\tfile_name\x18\x05 \x01(\tR\bfileName\x12\x1b\n" +
-	"\tfile_size\x18\x06 \x01(\x03R\bfileSize\"\x85\x01\n" +
+	"\tfile_size\x18\x06 \x01(\x03R\bfileSize\x12\x1b\n" +
+	"\tvideo_url\x18\r \x01(\tR\bvideoUrl\x12\x1f\n" +
+	"\vvideo_thumb\x18\x0e \x01(\tR\n" +
+	"videoThumb\x12\x1b\n" +
+	"\tvoice_url\x18\x0f \x01(\tR\bvoiceUrl\x12%\n" +
+	"\x0evoice_duration\x18\x10 \x01(\x05R\rvoiceDuration\x12\x1b\n" +
+	"\temoji_url\x18\x11 \x01(\tR\bemojiUrl\x12*\n" +
+	"\x11merge_message_ids\x18\x12 \x03(\tR\x0fmergeMessageIds\x12(\n" +
+	"\x10quote_message_id\x18\x13 \x01(\tR\x0equoteMessageId\x12&\n" +
+	"\x0fcontact_user_id\x18\x14 \x01(\rR\rcontactUserId\x12\"\n" +
+	"\rred_packet_id\x18\x15 \x01(\rR\vredPacketId\x12\x1f\n" +
+	"\vtransfer_id\x18\x16 \x01(\rR\n" +
+	"transferId\"\x85\x01\n" +
 	"\x13SendMessageResponse\x12/\n" +
 	"\amessage\x18\x01 \x01(\v2\x15.api.chat.ChatMessageR\amessage\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12#\n" +
@@ -1172,20 +1602,41 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\bfile_url\x18\x01 \x01(\tR\afileUrl\x12\x1b\n" +
 	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x1b\n" +
 	"\tfile_size\x18\x03 \x01(\x03R\bfileSize\x12\x1b\n" +
-	"\tfile_type\x18\x04 \x01(\tR\bfileType*8\n" +
+	"\tfile_type\x18\x04 \x01(\tR\bfileType\">\n" +
+	"\x14RecallMessageRequest\x12&\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tmessageId\"1\n" +
+	"\x15RecallMessageResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"f\n" +
+	"\x14DeleteMessageRequest\x12&\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tmessageId\x12&\n" +
+	"\x0fdelete_for_both\x18\x02 \x01(\bR\rdeleteForBoth\"1\n" +
+	"\x15DeleteMessageResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess*\x9a\x01\n" +
 	"\vMessageType\x12\b\n" +
 	"\x04TEXT\x10\x00\x12\t\n" +
 	"\x05IMAGE\x10\x01\x12\b\n" +
 	"\x04FILE\x10\x02\x12\n" +
 	"\n" +
-	"\x06SYSTEM\x10\x03*K\n" +
+	"\x06SYSTEM\x10\x03\x12\t\n" +
+	"\x05VIDEO\x10\x04\x12\t\n" +
+	"\x05VOICE\x10\x05\x12\t\n" +
+	"\x05EMOJI\x10\x06\x12\t\n" +
+	"\x05MERGE\x10\a\x12\t\n" +
+	"\x05QUOTE\x10\b\x12\v\n" +
+	"\aCONTACT\x10\t\x12\x0e\n" +
+	"\n" +
+	"RED_PACKET\x10\n" +
+	"\x12\f\n" +
+	"\bTRANSFER\x10\v*K\n" +
 	"\rMessageStatus\x12\v\n" +
 	"\aSENDING\x10\x00\x12\b\n" +
 	"\x04SENT\x10\x01\x12\r\n" +
 	"\tDELIVERED\x10\x02\x12\b\n" +
 	"\x04READ\x10\x03\x12\n" +
 	"\n" +
-	"\x06FAILED\x10\x042\xf6\x03\n" +
+	"\x06FAILED\x10\x042\x9a\x05\n" +
 	"\vChatService\x12G\n" +
 	"\n" +
 	"SearchUser\x12\x1b.api.chat.SearchUserRequest\x1a\x1c.api.chat.SearchUserResponse\x12J\n" +
@@ -1194,7 +1645,9 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\x0fMarkMessageRead\x12 .api.chat.MarkMessageReadRequest\x1a!.api.chat.MarkMessageReadResponse\x12S\n" +
 	"\x0eGetUnreadCount\x12\x1f.api.chat.GetUnreadCountRequest\x1a .api.chat.GetUnreadCountResponse\x12G\n" +
 	"\n" +
-	"UploadFile\x12\x1b.api.chat.UploadFileRequest\x1a\x1c.api.chat.UploadFileResponseB\x15Z\x13gochat/api/api/chatb\x06proto3"
+	"UploadFile\x12\x1b.api.chat.UploadFileRequest\x1a\x1c.api.chat.UploadFileResponse\x12P\n" +
+	"\rRecallMessage\x12\x1e.api.chat.RecallMessageRequest\x1a\x1f.api.chat.RecallMessageResponse\x12P\n" +
+	"\rDeleteMessage\x12\x1e.api.chat.DeleteMessageRequest\x1a\x1f.api.chat.DeleteMessageResponseB\x15Z\x13gochat/api/api/chatb\x06proto3"
 
 var (
 	file_api_chat_chat_proto_rawDescOnce sync.Once
@@ -1209,7 +1662,7 @@ func file_api_chat_chat_proto_rawDescGZIP() []byte {
 }
 
 var file_api_chat_chat_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_chat_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_api_chat_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_api_chat_chat_proto_goTypes = []any{
 	(MessageType)(0),                  // 0: api.chat.MessageType
 	(MessageStatus)(0),                // 1: api.chat.MessageStatus
@@ -1227,35 +1680,43 @@ var file_api_chat_chat_proto_goTypes = []any{
 	(*GetUnreadCountResponse)(nil),    // 13: api.chat.GetUnreadCountResponse
 	(*UploadFileRequest)(nil),         // 14: api.chat.UploadFileRequest
 	(*UploadFileResponse)(nil),        // 15: api.chat.UploadFileResponse
-	nil,                               // 16: api.chat.GetUnreadCountResponse.UnreadByUserEntry
-	(*timestamp.Timestamp)(nil),       // 17: google.protobuf.Timestamp
+	(*RecallMessageRequest)(nil),      // 16: api.chat.RecallMessageRequest
+	(*RecallMessageResponse)(nil),     // 17: api.chat.RecallMessageResponse
+	(*DeleteMessageRequest)(nil),      // 18: api.chat.DeleteMessageRequest
+	(*DeleteMessageResponse)(nil),     // 19: api.chat.DeleteMessageResponse
+	nil,                               // 20: api.chat.GetUnreadCountResponse.UnreadByUserEntry
+	(*timestamp.Timestamp)(nil),       // 21: google.protobuf.Timestamp
 }
 var file_api_chat_chat_proto_depIdxs = []int32{
 	0,  // 0: api.chat.ChatMessage.message_type:type_name -> api.chat.MessageType
 	1,  // 1: api.chat.ChatMessage.status:type_name -> api.chat.MessageStatus
-	17, // 2: api.chat.ChatMessage.created_at:type_name -> google.protobuf.Timestamp
-	17, // 3: api.chat.ChatMessage.updated_at:type_name -> google.protobuf.Timestamp
+	21, // 2: api.chat.ChatMessage.created_at:type_name -> google.protobuf.Timestamp
+	21, // 3: api.chat.ChatMessage.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: api.chat.SendMessageRequest.message_type:type_name -> api.chat.MessageType
 	2,  // 5: api.chat.SendMessageResponse.message:type_name -> api.chat.ChatMessage
-	17, // 6: api.chat.GetMessageHistoryRequest.before_time:type_name -> google.protobuf.Timestamp
+	21, // 6: api.chat.GetMessageHistoryRequest.before_time:type_name -> google.protobuf.Timestamp
 	2,  // 7: api.chat.GetMessageHistoryResponse.messages:type_name -> api.chat.ChatMessage
 	9,  // 8: api.chat.SearchUserResponse.users:type_name -> api.chat.UserInfo
-	17, // 9: api.chat.UserInfo.last_seen:type_name -> google.protobuf.Timestamp
-	16, // 10: api.chat.GetUnreadCountResponse.unread_by_user:type_name -> api.chat.GetUnreadCountResponse.UnreadByUserEntry
+	21, // 9: api.chat.UserInfo.last_seen:type_name -> google.protobuf.Timestamp
+	20, // 10: api.chat.GetUnreadCountResponse.unread_by_user:type_name -> api.chat.GetUnreadCountResponse.UnreadByUserEntry
 	7,  // 11: api.chat.ChatService.SearchUser:input_type -> api.chat.SearchUserRequest
 	3,  // 12: api.chat.ChatService.SendMessage:input_type -> api.chat.SendMessageRequest
 	5,  // 13: api.chat.ChatService.GetMessageHistory:input_type -> api.chat.GetMessageHistoryRequest
 	10, // 14: api.chat.ChatService.MarkMessageRead:input_type -> api.chat.MarkMessageReadRequest
 	12, // 15: api.chat.ChatService.GetUnreadCount:input_type -> api.chat.GetUnreadCountRequest
 	14, // 16: api.chat.ChatService.UploadFile:input_type -> api.chat.UploadFileRequest
-	8,  // 17: api.chat.ChatService.SearchUser:output_type -> api.chat.SearchUserResponse
-	4,  // 18: api.chat.ChatService.SendMessage:output_type -> api.chat.SendMessageResponse
-	6,  // 19: api.chat.ChatService.GetMessageHistory:output_type -> api.chat.GetMessageHistoryResponse
-	11, // 20: api.chat.ChatService.MarkMessageRead:output_type -> api.chat.MarkMessageReadResponse
-	13, // 21: api.chat.ChatService.GetUnreadCount:output_type -> api.chat.GetUnreadCountResponse
-	15, // 22: api.chat.ChatService.UploadFile:output_type -> api.chat.UploadFileResponse
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
+	16, // 17: api.chat.ChatService.RecallMessage:input_type -> api.chat.RecallMessageRequest
+	18, // 18: api.chat.ChatService.DeleteMessage:input_type -> api.chat.DeleteMessageRequest
+	8,  // 19: api.chat.ChatService.SearchUser:output_type -> api.chat.SearchUserResponse
+	4,  // 20: api.chat.ChatService.SendMessage:output_type -> api.chat.SendMessageResponse
+	6,  // 21: api.chat.ChatService.GetMessageHistory:output_type -> api.chat.GetMessageHistoryResponse
+	11, // 22: api.chat.ChatService.MarkMessageRead:output_type -> api.chat.MarkMessageReadResponse
+	13, // 23: api.chat.ChatService.GetUnreadCount:output_type -> api.chat.GetUnreadCountResponse
+	15, // 24: api.chat.ChatService.UploadFile:output_type -> api.chat.UploadFileResponse
+	17, // 25: api.chat.ChatService.RecallMessage:output_type -> api.chat.RecallMessageResponse
+	19, // 26: api.chat.ChatService.DeleteMessage:output_type -> api.chat.DeleteMessageResponse
+	19, // [19:27] is the sub-list for method output_type
+	11, // [11:19] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name
@@ -1272,7 +1733,7 @@ func file_api_chat_chat_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_chat_chat_proto_rawDesc), len(file_api_chat_chat_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   15,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

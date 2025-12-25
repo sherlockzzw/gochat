@@ -75,6 +75,32 @@ func (m *ChatMessage) validate(all bool) error {
 
 	// no validation rules for FileSize
 
+	// no validation rules for VideoUrl
+
+	// no validation rules for VideoThumb
+
+	// no validation rules for VoiceUrl
+
+	// no validation rules for VoiceDuration
+
+	// no validation rules for EmojiUrl
+
+	// no validation rules for MergeMessages
+
+	// no validation rules for QuoteMessageId
+
+	// no validation rules for ContactUserId
+
+	// no validation rules for RedPacketId
+
+	// no validation rules for TransferId
+
+	// no validation rules for IsRecalled
+
+	// no validation rules for IsDeleted
+
+	// no validation rules for ReadStatus
+
 	// no validation rules for Status
 
 	if all {
@@ -247,6 +273,24 @@ func (m *SendMessageRequest) validate(all bool) error {
 	// no validation rules for FileName
 
 	// no validation rules for FileSize
+
+	// no validation rules for VideoUrl
+
+	// no validation rules for VideoThumb
+
+	// no validation rules for VoiceUrl
+
+	// no validation rules for VoiceDuration
+
+	// no validation rules for EmojiUrl
+
+	// no validation rules for QuoteMessageId
+
+	// no validation rules for ContactUserId
+
+	// no validation rules for RedPacketId
+
+	// no validation rules for TransferId
 
 	if len(errors) > 0 {
 		return SendMessageRequestMultiError(errors)
@@ -1763,3 +1807,439 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = UploadFileResponseValidationError{}
+
+// Validate checks the field values on RecallMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RecallMessageRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RecallMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RecallMessageRequestMultiError, or nil if none found.
+func (m *RecallMessageRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RecallMessageRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetMessageId()) < 1 {
+		err := RecallMessageRequestValidationError{
+			field:  "MessageId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return RecallMessageRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// RecallMessageRequestMultiError is an error wrapping multiple validation
+// errors returned by RecallMessageRequest.ValidateAll() if the designated
+// constraints aren't met.
+type RecallMessageRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RecallMessageRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RecallMessageRequestMultiError) AllErrors() []error { return m }
+
+// RecallMessageRequestValidationError is the validation error returned by
+// RecallMessageRequest.Validate if the designated constraints aren't met.
+type RecallMessageRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RecallMessageRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RecallMessageRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RecallMessageRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RecallMessageRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RecallMessageRequestValidationError) ErrorName() string {
+	return "RecallMessageRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RecallMessageRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRecallMessageRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RecallMessageRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RecallMessageRequestValidationError{}
+
+// Validate checks the field values on RecallMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RecallMessageResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RecallMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RecallMessageResponseMultiError, or nil if none found.
+func (m *RecallMessageResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RecallMessageResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return RecallMessageResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RecallMessageResponseMultiError is an error wrapping multiple validation
+// errors returned by RecallMessageResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RecallMessageResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RecallMessageResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RecallMessageResponseMultiError) AllErrors() []error { return m }
+
+// RecallMessageResponseValidationError is the validation error returned by
+// RecallMessageResponse.Validate if the designated constraints aren't met.
+type RecallMessageResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RecallMessageResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RecallMessageResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RecallMessageResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RecallMessageResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RecallMessageResponseValidationError) ErrorName() string {
+	return "RecallMessageResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RecallMessageResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRecallMessageResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RecallMessageResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RecallMessageResponseValidationError{}
+
+// Validate checks the field values on DeleteMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteMessageRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteMessageRequestMultiError, or nil if none found.
+func (m *DeleteMessageRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteMessageRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetMessageId()) < 1 {
+		err := DeleteMessageRequestValidationError{
+			field:  "MessageId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for DeleteForBoth
+
+	if len(errors) > 0 {
+		return DeleteMessageRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteMessageRequestMultiError is an error wrapping multiple validation
+// errors returned by DeleteMessageRequest.ValidateAll() if the designated
+// constraints aren't met.
+type DeleteMessageRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteMessageRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteMessageRequestMultiError) AllErrors() []error { return m }
+
+// DeleteMessageRequestValidationError is the validation error returned by
+// DeleteMessageRequest.Validate if the designated constraints aren't met.
+type DeleteMessageRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteMessageRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteMessageRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteMessageRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteMessageRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteMessageRequestValidationError) ErrorName() string {
+	return "DeleteMessageRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteMessageRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteMessageRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteMessageRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteMessageRequestValidationError{}
+
+// Validate checks the field values on DeleteMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteMessageResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteMessageResponseMultiError, or nil if none found.
+func (m *DeleteMessageResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteMessageResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Success
+
+	if len(errors) > 0 {
+		return DeleteMessageResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteMessageResponseMultiError is an error wrapping multiple validation
+// errors returned by DeleteMessageResponse.ValidateAll() if the designated
+// constraints aren't met.
+type DeleteMessageResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteMessageResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteMessageResponseMultiError) AllErrors() []error { return m }
+
+// DeleteMessageResponseValidationError is the validation error returned by
+// DeleteMessageResponse.Validate if the designated constraints aren't met.
+type DeleteMessageResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteMessageResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteMessageResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteMessageResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteMessageResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteMessageResponseValidationError) ErrorName() string {
+	return "DeleteMessageResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteMessageResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteMessageResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteMessageResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteMessageResponseValidationError{}

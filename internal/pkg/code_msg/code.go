@@ -18,5 +18,14 @@ var CodeMsg = map[BusinessCode]string{
 	ServerError:                 "服务器开小差～",
 	ServerTimeOut:               "请求超时",
 
-	UserNameExisted: "用户名已存在",
-}
+		UserNameExisted:      "用户名已存在",
+		LoginAccountExists:   "登录账号已存在",
+		PhoneExists:          "手机号已被注册",
+		EmailExists:          "邮箱已被注册",
+		AgreementNotAccepted: "必须同意《用户协议》和《隐私政策》",
+		PhoneOrEmailRequired: "必须提供手机号或邮箱",
+		CodeTypeMismatch:     "验证码类型不匹配",
+		ParameterError:       "参数错误",
+		CodeError:            "验证码错误或已过期",
+		CodeExpired:          "验证码已过期",
+	}

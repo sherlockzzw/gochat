@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 
 	"gorm.io/gorm"
 )
@@ -20,7 +20,7 @@ func (d *FriendDao) CreateFriendRequest(req *models.FriendRequest) error {
 }
 
 // GetFriendRequestByID 根据ID获取好友申请
-func (d *FriendDao) GetFriendRequestByID(requestID uint) (*models.FriendRequest, error) {
+func (d *FriendDao) GetFriendRequestByID(requestID int64) (*models.FriendRequest, error) {
 	var request models.FriendRequest
 	err := d.db.Where("id = ?", requestID).First(&request).Error
 	if err != nil {
@@ -33,7 +33,7 @@ func (d *FriendDao) GetFriendRequestByID(requestID uint) (*models.FriendRequest,
 }
 
 // GetFriendRequest 获取好友申请
-func (d *FriendDao) GetFriendRequest(fromUserID, toUserID uint) (*models.FriendRequest, error) {
+func (d *FriendDao) GetFriendRequest(fromUserID, toUserID int64) (*models.FriendRequest, error) {
 	var req models.FriendRequest
 	err := d.db.Where("from_user_id = ? AND to_user_id = ? AND status = ?", fromUserID, toUserID, "pending").First(&req).Error
 	if err != nil {
@@ -46,12 +46,12 @@ func (d *FriendDao) GetFriendRequest(fromUserID, toUserID uint) (*models.FriendR
 }
 
 // UpdateFriendRequestStatus 更新好友申请状态
-func (d *FriendDao) UpdateFriendRequestStatus(requestID uint, status string) error {
+func (d *FriendDao) UpdateFriendRequestStatus(requestID int64, status string) error {
 	return d.db.Model(&models.FriendRequest{}).Where("id = ?", requestID).Update("status", status).Error
 }
 
 // GetFriendRequests 获取好友申请列表
-func (d *FriendDao) GetFriendRequests(userID uint, page, pageSize int) ([]*models.FriendRequest, error) {
+func (d *FriendDao) GetFriendRequests(userID int64, page, pageSize int) ([]*models.FriendRequest, error) {
 	var requests []*models.FriendRequest
 	offset := (page - 1) * pageSize
 
@@ -65,7 +65,7 @@ func (d *FriendDao) GetFriendRequests(userID uint, page, pageSize int) ([]*model
 }
 
 // GetFriendRequestsWithUserInfo 获取好友申请列表（包含申请人信息）
-func (d *FriendDao) GetFriendRequestsWithUserInfo(userID uint, page, pageSize int) ([]*models.FriendRequestWithUser, error) {
+func (d *FriendDao) GetFriendRequestsWithUserInfo(userID int64, page, pageSize int) ([]*models.FriendRequestWithUser, error) {
 	var requests []*models.FriendRequestWithUser
 	offset := (page - 1) * pageSize
 
@@ -104,7 +104,7 @@ func (d *FriendDao) CreateFriendsInTransaction(friend1, friend2 *models.Friend) 
 }
 
 // CheckIsFriend 检查是否为好友
-func (d *FriendDao) CheckIsFriend(userID, friendID uint) (*models.Friend, error) {
+func (d *FriendDao) CheckIsFriend(userID, friendID int64) (*models.Friend, error) {
 	var friend models.Friend
 	err := d.db.Where("user_id = ? AND friend_id = ?", userID, friendID).First(&friend).Error
 	if err != nil {
@@ -117,7 +117,7 @@ func (d *FriendDao) CheckIsFriend(userID, friendID uint) (*models.Friend, error)
 }
 
 // GetFriendList 获取好友列表
-func (d *FriendDao) GetFriendList(userID uint, page, pageSize int) ([]*models.Friend, error) {
+func (d *FriendDao) GetFriendList(userID int64, page, pageSize int) ([]*models.Friend, error) {
 	var friends []*models.Friend
 	offset := (page - 1) * pageSize
 
@@ -131,7 +131,7 @@ func (d *FriendDao) GetFriendList(userID uint, page, pageSize int) ([]*models.Fr
 }
 
 // GetFriendListWithUserInfo 获取好友列表（包含用户信息）
-func (d *FriendDao) GetFriendListWithUserInfo(userID uint, page, pageSize int) ([]*models.FriendWithUser, error) {
+func (d *FriendDao) GetFriendListWithUserInfo(userID int64, page, pageSize int) ([]*models.FriendWithUser, error) {
 	var friends []*models.FriendWithUser
 	offset := (page - 1) * pageSize
 
@@ -148,11 +148,11 @@ func (d *FriendDao) GetFriendListWithUserInfo(userID uint, page, pageSize int) (
 }
 
 // GetFriendListWithUserInfoAndOnlineStatus 获取好友列表（包含用户信息和在线状态）
-func (d *FriendDao) GetFriendListWithUserInfoAndOnlineStatus(userID uint, page, pageSize int, onlineUserIDs []uint) ([]*models.FriendWithUser, error) {
+func (d *FriendDao) GetFriendListWithUserInfoAndOnlineStatus(userID int64, page, pageSize int, onlineUserIDs []int64) ([]*models.FriendWithUser, error) {
 	var friends []*models.FriendWithUser
 	offset := (page - 1) * pageSize
 
-	onlineMap := make(map[uint]bool)
+	onlineMap := make(map[int64]bool)
 	for _, id := range onlineUserIDs {
 		onlineMap[id] = true
 	}
@@ -179,7 +179,7 @@ func (d *FriendDao) GetFriendListWithUserInfoAndOnlineStatus(userID uint, page, 
 }
 
 // DeleteFriend 删除好友
-func (d *FriendDao) DeleteFriend(userID, friendID uint) error {
+func (d *FriendDao) DeleteFriend(userID, friendID int64) error {
 	// 删除双向好友关系
 	err := d.db.Where("(user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)",
 		userID, friendID, friendID, userID).Delete(&models.Friend{}).Error
@@ -187,7 +187,7 @@ func (d *FriendDao) DeleteFriend(userID, friendID uint) error {
 }
 
 // GetFriendDetail 获取好友详情
-func (d *FriendDao) GetFriendDetail(userID, friendID uint) (*models.Friend, error) {
+func (d *FriendDao) GetFriendDetail(userID, friendID int64) (*models.Friend, error) {
 	var friend models.Friend
 	err := d.db.Where("user_id = ? AND friend_id = ?", userID, friendID).First(&friend).Error
 	if err != nil {
@@ -200,14 +200,14 @@ func (d *FriendDao) GetFriendDetail(userID, friendID uint) (*models.Friend, erro
 }
 
 // SetFriendRemark 设置好友备注
-func (d *FriendDao) SetFriendRemark(userID, friendID uint, remark string) error {
+func (d *FriendDao) SetFriendRemark(userID, friendID int64, remark string) error {
 	return d.db.Model(&models.Friend{}).
 		Where("user_id = ? AND friend_id = ?", userID, friendID).
 		Update("remark", remark).Error
 }
 
 // BlockFriend 屏蔽好友
-func (d *FriendDao) BlockFriend(userID, friendID uint, isBlocked bool) error {
+func (d *FriendDao) BlockFriend(userID, friendID int64, isBlocked bool) error {
 	return d.db.Model(&models.Friend{}).
 		Where("user_id = ? AND friend_id = ?", userID, friendID).
 		Update("is_blocked", isBlocked).Error

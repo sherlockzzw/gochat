@@ -5,7 +5,7 @@ import (
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +37,7 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 		return nil, code_msg.ServerError, err
 	}
 
-	requestID := uint(req.GetRequestId())
+	requestID := int64(req.GetRequestId())
 	action := req.GetAction()
 
 	// 验证操作类型

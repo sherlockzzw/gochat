@@ -4,6 +4,7 @@ import (
 	"gochat/api/api/friend"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
+	"gochat/internal/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,9 +31,12 @@ func (h *FriendHandler) CheckFriend(ctx *gin.Context) {
 
 func (h *FriendHandler) checkFriendLogic(ctx *gin.Context, req *friend.CheckFriendRequest) (resp *friend.CheckFriendResponse, errCode code_msg.BusinessCode, err error) {
 	// 获取当前用户ID（从token中解析）
-	userID := uint(1) // TODO: 从JWT token中获取真实用户ID
+	userID, err := utils.GetCurrentUserID(ctx)
+	if err != nil {
+		return nil, code_msg.ServerError, err
+	}
 
-	friendID := uint(req.GetFriendId())
+	friendID := int64(req.GetFriendId())
 
 	// 检查好友关系
 	existingFriend, err := h.dao.CheckIsFriend(userID, friendID)

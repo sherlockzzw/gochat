@@ -5,6 +5,7 @@ package api.group;
 option go_package = "gochat/api/api/group";
 
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 // 群组信息
 message GroupInfo {
@@ -34,9 +35,9 @@ message GroupMemberInfo {
 
 // 创建群组请求
 message CreateGroupRequest {
-  string name = 1;                     // 群名称
-  string avatar = 2;                   // 群头像（可选）
-  repeated uint32 member_ids = 3;       // 初始成员ID列表（不包括创建者）
+  string name = 1 [(validate.rules).string = {min_len: 1, max_len: 100}];  // 群名称
+  string avatar = 2;                     // 群头像（可选）
+  repeated uint32 member_ids = 3;         // 初始成员ID列表（不包括创建者）
 }
 
 // 创建群组响应
@@ -72,9 +73,9 @@ message GetUserGroupsResponse {
 // 添加群成员请求
 message AddGroupMembersRequest {
   // @inject_tag: form:"group_id"
-  uint32 group_id = 1;                 // 群ID
+  uint32 group_id = 1 [(validate.rules).uint32.gt = 0];  // 群ID
   // @inject_tag: form:"user_ids"
-  repeated uint32 user_ids = 2;         // 要添加的用户ID列表
+  repeated uint32 user_ids = 2 [(validate.rules).repeated.min_items = 1];  // 要添加的用户ID列表
 }
 
 // 添加群成员响应
@@ -88,9 +89,9 @@ message AddGroupMembersResponse {
 // 移除群成员请求
 message RemoveGroupMemberRequest {
   // @inject_tag: form:"group_id"
-  uint32 group_id = 1;                 // 群ID
+  uint32 group_id = 1 [(validate.rules).uint32.gt = 0];  // 群ID
   // @inject_tag: form:"user_id"
-  uint32 user_id = 2;                  // 要移除的用户ID
+  uint32 user_id = 2 [(validate.rules).uint32.gt = 0];  // 要移除的用户ID
 }
 
 // 移除群成员响应

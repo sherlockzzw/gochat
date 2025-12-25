@@ -26,7 +26,7 @@ func (h *UserHandler) GetUserInfo(ctx *gin.Context) {
 
 func (h *UserHandler) getUserInfoLogic(ctx *gin.Context, req user.GetUserInfoRequest) (resp *user.GetUserInfoResponse, err error) {
 	// 获取用户信息
-	userModel, err := h.dao.GetUserByID(uint(req.GetId()))
+	userModel, err := h.dao.GetUserByID(int64(req.GetId()))
 	if err != nil {
 		h.response.JsonNotFound(ctx, "用户不存在")
 		return nil, gin.Error{Err: gin.Error{}, Type: gin.ErrorTypePublic, Meta: "用户不存在"}

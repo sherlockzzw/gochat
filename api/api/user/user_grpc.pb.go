@@ -19,10 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ApiUser_Register_FullMethodName          = "/api_user.ApiUser/Register"
-	ApiUser_Login_FullMethodName             = "/api_user.ApiUser/Login"
-	ApiUser_GetUserInfo_FullMethodName       = "/api_user.ApiUser/GetUserInfo"
-	ApiUser_UpdateUserProfile_FullMethodName = "/api_user.ApiUser/UpdateUserProfile"
+	ApiUser_Register_FullMethodName              = "/api_user.ApiUser/Register"
+	ApiUser_Login_FullMethodName                 = "/api_user.ApiUser/Login"
+	ApiUser_GetUserInfo_FullMethodName           = "/api_user.ApiUser/GetUserInfo"
+	ApiUser_UpdateUserProfile_FullMethodName     = "/api_user.ApiUser/UpdateUserProfile"
+	ApiUser_ChangePassword_FullMethodName        = "/api_user.ApiUser/ChangePassword"
+	ApiUser_ResetPassword_FullMethodName         = "/api_user.ApiUser/ResetPassword"
+	ApiUser_BindPhone_FullMethodName             = "/api_user.ApiUser/BindPhone"
+	ApiUser_BindEmail_FullMethodName             = "/api_user.ApiUser/BindEmail"
+	ApiUser_UpdatePrivacySettings_FullMethodName = "/api_user.ApiUser/UpdatePrivacySettings"
+	ApiUser_GetDeviceList_FullMethodName         = "/api_user.ApiUser/GetDeviceList"
+	ApiUser_LogoutDevice_FullMethodName          = "/api_user.ApiUser/LogoutDevice"
 )
 
 // ApiUserClient is the client API for ApiUser service.
@@ -39,6 +46,20 @@ type ApiUserClient interface {
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*GetUserInfoResponse, error)
 	// 更新用户资料
 	UpdateUserProfile(ctx context.Context, in *UpdateUserProfileRequest, opts ...grpc.CallOption) (*UpdateUserProfileResponse, error)
+	// 修改密码
+	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error)
+	// 重置密码
+	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
+	// 绑定手机号
+	BindPhone(ctx context.Context, in *BindPhoneRequest, opts ...grpc.CallOption) (*BindPhoneResponse, error)
+	// 绑定邮箱
+	BindEmail(ctx context.Context, in *BindEmailRequest, opts ...grpc.CallOption) (*BindEmailResponse, error)
+	// 更新隐私设置
+	UpdatePrivacySettings(ctx context.Context, in *UpdatePrivacySettingsRequest, opts ...grpc.CallOption) (*UpdatePrivacySettingsResponse, error)
+	// 获取设备列表
+	GetDeviceList(ctx context.Context, in *GetDeviceListRequest, opts ...grpc.CallOption) (*GetDeviceListResponse, error)
+	// 下线设备
+	LogoutDevice(ctx context.Context, in *LogoutDeviceRequest, opts ...grpc.CallOption) (*LogoutDeviceResponse, error)
 }
 
 type apiUserClient struct {
@@ -89,6 +110,76 @@ func (c *apiUserClient) UpdateUserProfile(ctx context.Context, in *UpdateUserPro
 	return out, nil
 }
 
+func (c *apiUserClient) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangePasswordResponse)
+	err := c.cc.Invoke(ctx, ApiUser_ChangePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiUserClient) ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResetPasswordResponse)
+	err := c.cc.Invoke(ctx, ApiUser_ResetPassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiUserClient) BindPhone(ctx context.Context, in *BindPhoneRequest, opts ...grpc.CallOption) (*BindPhoneResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BindPhoneResponse)
+	err := c.cc.Invoke(ctx, ApiUser_BindPhone_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiUserClient) BindEmail(ctx context.Context, in *BindEmailRequest, opts ...grpc.CallOption) (*BindEmailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BindEmailResponse)
+	err := c.cc.Invoke(ctx, ApiUser_BindEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiUserClient) UpdatePrivacySettings(ctx context.Context, in *UpdatePrivacySettingsRequest, opts ...grpc.CallOption) (*UpdatePrivacySettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdatePrivacySettingsResponse)
+	err := c.cc.Invoke(ctx, ApiUser_UpdatePrivacySettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiUserClient) GetDeviceList(ctx context.Context, in *GetDeviceListRequest, opts ...grpc.CallOption) (*GetDeviceListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDeviceListResponse)
+	err := c.cc.Invoke(ctx, ApiUser_GetDeviceList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiUserClient) LogoutDevice(ctx context.Context, in *LogoutDeviceRequest, opts ...grpc.CallOption) (*LogoutDeviceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LogoutDeviceResponse)
+	err := c.cc.Invoke(ctx, ApiUser_LogoutDevice_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiUserServer is the server API for ApiUser service.
 // All implementations must embed UnimplementedApiUserServer
 // for forward compatibility.
@@ -103,6 +194,20 @@ type ApiUserServer interface {
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*GetUserInfoResponse, error)
 	// 更新用户资料
 	UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UpdateUserProfileResponse, error)
+	// 修改密码
+	ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error)
+	// 重置密码
+	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
+	// 绑定手机号
+	BindPhone(context.Context, *BindPhoneRequest) (*BindPhoneResponse, error)
+	// 绑定邮箱
+	BindEmail(context.Context, *BindEmailRequest) (*BindEmailResponse, error)
+	// 更新隐私设置
+	UpdatePrivacySettings(context.Context, *UpdatePrivacySettingsRequest) (*UpdatePrivacySettingsResponse, error)
+	// 获取设备列表
+	GetDeviceList(context.Context, *GetDeviceListRequest) (*GetDeviceListResponse, error)
+	// 下线设备
+	LogoutDevice(context.Context, *LogoutDeviceRequest) (*LogoutDeviceResponse, error)
 	mustEmbedUnimplementedApiUserServer()
 }
 
@@ -124,6 +229,27 @@ func (UnimplementedApiUserServer) GetUserInfo(context.Context, *GetUserInfoReque
 }
 func (UnimplementedApiUserServer) UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*UpdateUserProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserProfile not implemented")
+}
+func (UnimplementedApiUserServer) ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedApiUserServer) ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetPassword not implemented")
+}
+func (UnimplementedApiUserServer) BindPhone(context.Context, *BindPhoneRequest) (*BindPhoneResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BindPhone not implemented")
+}
+func (UnimplementedApiUserServer) BindEmail(context.Context, *BindEmailRequest) (*BindEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BindEmail not implemented")
+}
+func (UnimplementedApiUserServer) UpdatePrivacySettings(context.Context, *UpdatePrivacySettingsRequest) (*UpdatePrivacySettingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePrivacySettings not implemented")
+}
+func (UnimplementedApiUserServer) GetDeviceList(context.Context, *GetDeviceListRequest) (*GetDeviceListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDeviceList not implemented")
+}
+func (UnimplementedApiUserServer) LogoutDevice(context.Context, *LogoutDeviceRequest) (*LogoutDeviceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogoutDevice not implemented")
 }
 func (UnimplementedApiUserServer) mustEmbedUnimplementedApiUserServer() {}
 func (UnimplementedApiUserServer) testEmbeddedByValue()                 {}
@@ -218,6 +344,132 @@ func _ApiUser_UpdateUserProfile_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiUser_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiUserServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiUser_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiUserServer).ChangePassword(ctx, req.(*ChangePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiUser_ResetPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiUserServer).ResetPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiUser_ResetPassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiUserServer).ResetPassword(ctx, req.(*ResetPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiUser_BindPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindPhoneRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiUserServer).BindPhone(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiUser_BindPhone_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiUserServer).BindPhone(ctx, req.(*BindPhoneRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiUser_BindEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiUserServer).BindEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiUser_BindEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiUserServer).BindEmail(ctx, req.(*BindEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiUser_UpdatePrivacySettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePrivacySettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiUserServer).UpdatePrivacySettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiUser_UpdatePrivacySettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiUserServer).UpdatePrivacySettings(ctx, req.(*UpdatePrivacySettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiUser_GetDeviceList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDeviceListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiUserServer).GetDeviceList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiUser_GetDeviceList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiUserServer).GetDeviceList(ctx, req.(*GetDeviceListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiUser_LogoutDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogoutDeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiUserServer).LogoutDevice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ApiUser_LogoutDevice_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiUserServer).LogoutDevice(ctx, req.(*LogoutDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ApiUser_ServiceDesc is the grpc.ServiceDesc for ApiUser service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -240,6 +492,34 @@ var ApiUser_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserProfile",
 			Handler:    _ApiUser_UpdateUserProfile_Handler,
+		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _ApiUser_ChangePassword_Handler,
+		},
+		{
+			MethodName: "ResetPassword",
+			Handler:    _ApiUser_ResetPassword_Handler,
+		},
+		{
+			MethodName: "BindPhone",
+			Handler:    _ApiUser_BindPhone_Handler,
+		},
+		{
+			MethodName: "BindEmail",
+			Handler:    _ApiUser_BindEmail_Handler,
+		},
+		{
+			MethodName: "UpdatePrivacySettings",
+			Handler:    _ApiUser_UpdatePrivacySettings_Handler,
+		},
+		{
+			MethodName: "GetDeviceList",
+			Handler:    _ApiUser_GetDeviceList_Handler,
+		},
+		{
+			MethodName: "LogoutDevice",
+			Handler:    _ApiUser_LogoutDevice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

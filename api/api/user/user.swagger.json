@@ -49,6 +49,128 @@
         ]
       }
     },
+    "/api/user/bind-email": {
+      "post": {
+        "summary": "绑定邮箱",
+        "operationId": "ApiUser_BindEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userBindEmailResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userBindEmailRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
+    "/api/user/bind-phone": {
+      "post": {
+        "summary": "绑定手机号",
+        "operationId": "ApiUser_BindPhone",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userBindPhoneResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userBindPhoneRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
+    "/api/user/change-password": {
+      "post": {
+        "summary": "修改密码",
+        "operationId": "ApiUser_ChangePassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userChangePasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userChangePasswordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
+    "/api/user/devices": {
+      "get": {
+        "summary": "获取设备列表",
+        "operationId": "ApiUser_GetDeviceList",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userGetDeviceListResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
     "/api/user/info": {
       "get": {
         "summary": "获取用户信息",
@@ -75,6 +197,72 @@
             "required": false,
             "type": "string",
             "format": "int64"
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
+    "/api/user/logout-device": {
+      "post": {
+        "summary": "下线设备",
+        "operationId": "ApiUser_LogoutDevice",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userLogoutDeviceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userLogoutDeviceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
+    },
+    "/api/user/privacy-settings": {
+      "post": {
+        "summary": "更新隐私设置",
+        "operationId": "ApiUser_UpdatePrivacySettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userUpdatePrivacySettingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userUpdatePrivacySettingsRequest"
+            }
           }
         ],
         "tags": [
@@ -147,9 +335,173 @@
           "ApiUser"
         ]
       }
+    },
+    "/api/user/reset-password": {
+      "post": {
+        "summary": "重置密码",
+        "operationId": "ApiUser_ResetPassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/api_userResetPasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api_userResetPasswordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApiUser"
+        ]
+      }
     }
   },
   "definitions": {
+    "api_userBindEmailRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string",
+          "title": "验证码"
+        },
+        "slot": {
+          "type": "integer",
+          "format": "int32",
+          "title": "邮箱槽位(1或2,对应email1或email2)"
+        }
+      },
+      "title": "绑定邮箱请求"
+    },
+    "api_userBindEmailResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "user": {
+          "$ref": "#/definitions/api_userUserInfo"
+        }
+      },
+      "title": "绑定邮箱响应"
+    },
+    "api_userBindPhoneRequest": {
+      "type": "object",
+      "properties": {
+        "phone": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string",
+          "title": "验证码"
+        }
+      },
+      "title": "绑定手机号请求"
+    },
+    "api_userBindPhoneResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "user": {
+          "$ref": "#/definitions/api_userUserInfo"
+        }
+      },
+      "title": "绑定手机号响应"
+    },
+    "api_userChangePasswordRequest": {
+      "type": "object",
+      "properties": {
+        "oldPassword": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      },
+      "title": "修改密码请求"
+    },
+    "api_userChangePasswordResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "修改密码响应"
+    },
+    "api_userDeviceInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "deviceType": {
+          "type": "string",
+          "title": "ios, android, web_mobile, pc_desktop, pc_web"
+        },
+        "deviceId": {
+          "type": "string"
+        },
+        "deviceName": {
+          "type": "string"
+        },
+        "lastActiveAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "最后活跃时间(时间戳)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间(时间戳)"
+        }
+      },
+      "title": "设备信息"
+    },
+    "api_userGetDeviceListResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "devices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/api_userDeviceInfo"
+          }
+        }
+      },
+      "title": "获取设备列表响应"
+    },
     "api_userGetUserInfoResponse": {
       "type": "object",
       "properties": {
@@ -165,13 +517,29 @@
     "api_userLoginRequest": {
       "type": "object",
       "properties": {
-        "name": {
+        "loginAccount": {
           "type": "string",
-          "title": "@inject_tag: json:\"name\""
+          "title": "登录账号(支持登录账号/手机号/邮箱)"
         },
         "password": {
+          "type": "string"
+        },
+        "deviceType": {
           "type": "string",
-          "title": "@inject_tag: json:\"password\""
+          "title": "设备类型"
+        },
+        "deviceId": {
+          "type": "string",
+          "title": "设备唯一标识"
+        },
+        "deviceName": {
+          "type": "string",
+          "title": "设备名称"
+        },
+        "autoLoginDays": {
+          "type": "integer",
+          "format": "int32",
+          "title": "自动登录天数(7-30天)"
         }
       },
       "title": "登录请求"
@@ -195,36 +563,88 @@
       },
       "title": "登录响应"
     },
+    "api_userLogoutDeviceRequest": {
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "设备ID,0表示下线所有设备(除当前设备)"
+        }
+      },
+      "title": "下线设备请求"
+    },
+    "api_userLogoutDeviceResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "下线设备响应"
+    },
     "api_userRegisterRequest": {
       "type": "object",
       "properties": {
-        "name": {
+        "loginAccount": {
           "type": "string",
-          "title": "@inject_tag: json:\"name\""
+          "title": "登录账号(5-32位,字母开头,支持英文/数字/下划线/@)"
         },
         "password": {
           "type": "string",
-          "title": "@inject_tag: json:\"password\""
+          "title": "密码(8-20位,含大小写/数字/特殊字符) - 复杂校验在业务层实现"
+        },
+        "name": {
+          "type": "string",
+          "title": "用户名/昵称"
         },
         "phone": {
           "type": "string",
-          "title": "@inject_tag: json:\"phone\""
+          "title": "手机号(可选,如果提供则必须验证)"
         },
         "email": {
           "type": "string",
-          "title": "@inject_tag: json:\"email\""
+          "title": "邮箱(可选,如果提供则必须验证)"
+        },
+        "code": {
+          "type": "string",
+          "title": "验证码(手机号或邮箱的验证码)"
+        },
+        "codeType": {
+          "type": "string",
+          "title": "验证码类型(phone或email)"
+        },
+        "agreeTerms": {
+          "type": "boolean",
+          "title": "必须同意用户协议"
+        },
+        "agreePrivacy": {
+          "type": "boolean",
+          "title": "必须同意隐私政策"
         },
         "clientIp": {
-          "type": "string",
-          "title": "@inject_tag: json:\"client_ip\""
+          "type": "string"
         },
         "clientPort": {
-          "type": "string",
-          "title": "@inject_tag: json:\"client_port\""
+          "type": "string"
         },
         "deviceInfo": {
+          "type": "string"
+        },
+        "deviceType": {
           "type": "string",
-          "title": "@inject_tag: json:\"device_info\""
+          "title": "设备类型"
+        },
+        "deviceId": {
+          "type": "string",
+          "title": "设备唯一标识"
+        },
+        "deviceName": {
+          "type": "string",
+          "title": "设备名称"
         }
       },
       "title": "用户注册请求"
@@ -245,33 +665,82 @@
       },
       "title": "用户注册响应"
     },
+    "api_userResetPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "phone": {
+          "type": "string",
+          "title": "手机号或邮箱"
+        },
+        "code": {
+          "type": "string",
+          "title": "验证码"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      },
+      "title": "重置密码请求"
+    },
+    "api_userResetPasswordResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "重置密码响应"
+    },
+    "api_userUpdatePrivacySettingsRequest": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "type": "string",
+          "title": "JSON格式的隐私设置"
+        }
+      },
+      "title": "更新隐私设置请求"
+    },
+    "api_userUpdatePrivacySettingsResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "user": {
+          "$ref": "#/definitions/api_userUserInfo"
+        }
+      },
+      "title": "更新隐私设置响应"
+    },
     "api_userUpdateUserProfileRequest": {
       "type": "object",
       "properties": {
         "name": {
           "type": "string",
-          "description": "用户名",
-          "title": "@inject_tag: json:\"name\""
+          "title": "用户名"
         },
         "phone": {
           "type": "string",
-          "description": "手机号",
-          "title": "@inject_tag: json:\"phone\""
+          "title": "手机号"
         },
         "email": {
           "type": "string",
-          "description": "邮箱",
-          "title": "@inject_tag: json:\"email\""
+          "title": "邮箱"
         },
         "avatar": {
           "type": "string",
-          "description": "头像URL",
-          "title": "@inject_tag: json:\"avatar\""
+          "title": "头像URL"
         },
         "signature": {
           "type": "string",
-          "description": "个性签名",
-          "title": "@inject_tag: json:\"signature\""
+          "title": "个性签名"
         }
       },
       "title": "更新用户资料请求"
@@ -301,11 +770,28 @@
         "name": {
           "type": "string"
         },
+        "loginAccount": {
+          "type": "string",
+          "title": "登录账号(不可修改)"
+        },
         "phone": {
           "type": "string"
         },
+        "phoneVerified": {
+          "type": "boolean",
+          "title": "手机号是否已验证"
+        },
         "email": {
-          "type": "string"
+          "type": "string",
+          "title": "邮箱1"
+        },
+        "email1": {
+          "type": "string",
+          "title": "邮箱2"
+        },
+        "email2": {
+          "type": "string",
+          "title": "邮箱3"
         },
         "avatar": {
           "type": "string"
@@ -343,6 +829,25 @@
         "signature": {
           "type": "string",
           "title": "个性签名"
+        },
+        "privacySettings": {
+          "type": "string",
+          "title": "隐私设置(JSON格式)"
+        },
+        "loginFailCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "登录失败次数"
+        },
+        "lockedUntil": {
+          "type": "string",
+          "format": "int64",
+          "title": "锁定到期时间(时间戳,0表示未锁定)"
+        },
+        "lastActiveTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "最后活跃时间(时间戳)"
         }
       },
       "title": "用户信息"

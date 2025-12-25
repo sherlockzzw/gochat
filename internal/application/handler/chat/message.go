@@ -8,7 +8,7 @@ import (
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 	globalUtils "gochat/utils"
 	"time"
 
@@ -44,21 +44,15 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 	}
 
 	// 验证消息类型：私聊或群聊二选一
-	groupID := uint(req.GetGroupId())
-	toUserID := uint(req.GetToUserId())
+	groupID := int64(req.GetGroupId())
+	toUserID := int64(req.GetToUserId())
 	
 	if groupID == 0 && toUserID == 0 {
-		return &chat.SendMessageResponse{
-			Success:      false,
-			ErrorMessage: "请指定接收者或群组",
-		}, 0, nil
+		return nil, code_msg.BadRequest, nil
 	}
 	
 	if groupID > 0 && toUserID > 0 {
-		return &chat.SendMessageResponse{
-			Success:      false,
-			ErrorMessage: "不能同时指定接收者和群组",
-		}, 0, nil
+		return nil, code_msg.BadRequest, nil
 	}
 
 	// 如果是群聊，验证用户是否在群组中
@@ -69,24 +63,42 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 			return nil, code_msg.ServerError, err
 		}
 		if !isMember {
-			return &chat.SendMessageResponse{
-				Success:      false,
-				ErrorMessage: "您不在该群组中",
-			}, 0, nil
+			return nil, code_msg.NotGroupMember, nil
 		}
 	}
 
+	// 处理合并消息ID列表
+	var mergeMessagesJSON string
+	if len(req.GetMergeMessageIds()) > 0 {
+		mergeMessagesBytes, _ := json.Marshal(req.GetMergeMessageIds())
+		mergeMessagesJSON = string(mergeMessagesBytes)
+	}
+
 	// 创建消息模型
+	now := time.Now().Unix()
 	message := &models.ChatMessage{
-		FromUserID:  fromUserID,
-		ToUserID:    toUserID,
-		GroupID:     groupID,
-		MessageType: int(req.GetMessageType()),
-		Content:     req.GetContent(),
-		FileURL:     req.GetFileUrl(),
-		FileName:    req.GetFileName(),
-		FileSize:    req.GetFileSize(),
-		Status:      models.MessageStatusSent,
+		FromUserID:     fromUserID,
+		ToUserID:       toUserID,
+		GroupID:        groupID,
+		MessageType:    int(req.GetMessageType()),
+		Content:        req.GetContent(),
+		FileURL:        req.GetFileUrl(),
+		FileName:       req.GetFileName(),
+		FileSize:       req.GetFileSize(),
+		VideoURL:       req.GetVideoUrl(),
+		VideoThumb:     req.GetVideoThumb(),
+		VoiceURL:       req.GetVoiceUrl(),
+		VoiceDuration:  int(req.GetVoiceDuration()),
+		EmojiURL:       req.GetEmojiUrl(),
+		MergeMessages:  mergeMessagesJSON,
+		QuoteMessageID: req.GetQuoteMessageId(),
+		ContactUserID:  int64(req.GetContactUserId()),
+		RedPacketID:    int64(req.GetRedPacketId()),
+		TransferID:     int64(req.GetTransferId()),
+		ReadStatus:     1, // 默认已发送
+		Status:         models.MessageStatusSent,
+		CreatedAt:      now,
+		UpdatedAt:      now,
 	}
 
 	// 保存消息
@@ -100,24 +112,36 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 
 	// 转换为响应格式
 	chatMessage := &chat.ChatMessage{
-		Id:          message.MessageID,
-		FromUserId:  uint32(message.FromUserID),
-		ToUserId:    uint32(message.ToUserID),
-		GroupId:     uint32(message.GroupID),
-		MessageType: chat.MessageType(message.MessageType),
-		Content:     message.Content,
-		FileUrl:     message.FileURL,
-		FileName:    message.FileName,
-		FileSize:    message.FileSize,
-		Status:      chat.MessageStatus(message.Status),
-		CreatedAt:   timestamppb.New(message.CreatedAt),
-		UpdatedAt:   timestamppb.New(message.UpdatedAt),
+		Id:             message.MessageID,
+		FromUserId:     uint32(message.FromUserID),
+		ToUserId:       uint32(message.ToUserID),
+		GroupId:        uint32(message.GroupID),
+		MessageType:    chat.MessageType(message.MessageType),
+		Content:        message.Content,
+		FileUrl:        message.FileURL,
+		FileName:       message.FileName,
+		FileSize:       message.FileSize,
+		VideoUrl:       message.VideoURL,
+		VideoThumb:     message.VideoThumb,
+		VoiceUrl:       message.VoiceURL,
+		VoiceDuration:  int32(message.VoiceDuration),
+		EmojiUrl:       message.EmojiURL,
+		MergeMessages:  message.MergeMessages,
+		QuoteMessageId: message.QuoteMessageID,
+		ContactUserId:  uint32(message.ContactUserID),
+		RedPacketId:    uint32(message.RedPacketID),
+		TransferId:     uint32(message.TransferID),
+		IsRecalled:     message.IsRecalled,
+		IsDeleted:      message.IsDeleted,
+		ReadStatus:     int32(message.ReadStatus),
+		Status:         chat.MessageStatus(message.Status),
+		CreatedAt:      timestamppb.New(time.Unix(message.CreatedAt, 0)),
+		UpdatedAt:      timestamppb.New(time.Unix(message.UpdatedAt, 0)),
 	}
 
 	resp = &chat.SendMessageResponse{
-		Message:      chatMessage,
-		Success:      true,
-		ErrorMessage: "",
+		Message: chatMessage,
+		Success: true,
 	}
 
 	return resp, 0, nil
@@ -142,19 +166,32 @@ func (h *ChatHandler) GetMessageHistory(ctx *gin.Context) {
 
 	// 手动构建响应结构体，确保messages字段始终存在（即使为空数组）
 	// 将protobuf消息转换为map，确保JSON序列化正确
-	messagesList := make([]map[string]interface{}, 0)
+		messagesList := make([]map[string]interface{}, 0)
 	for _, msg := range resp.GetMessages() {
 		msgMap := map[string]interface{}{
-			"id":           msg.GetId(),
-			"from_user_id": msg.GetFromUserId(),
-			"to_user_id":   msg.GetToUserId(),
-			"group_id":     msg.GetGroupId(),
-			"message_type": msg.GetMessageType(),
-			"content":      msg.GetContent(),
-			"file_url":     msg.GetFileUrl(),
-			"file_name":    msg.GetFileName(),
-			"file_size":    msg.GetFileSize(),
-			"status":       msg.GetStatus(),
+			"id":              msg.GetId(),
+			"from_user_id":    msg.GetFromUserId(),
+			"to_user_id":      msg.GetToUserId(),
+			"group_id":        msg.GetGroupId(),
+			"message_type":    msg.GetMessageType(),
+			"content":         msg.GetContent(),
+			"file_url":        msg.GetFileUrl(),
+			"file_name":       msg.GetFileName(),
+			"file_size":       msg.GetFileSize(),
+			"video_url":      msg.GetVideoUrl(),
+			"video_thumb":     msg.GetVideoThumb(),
+			"voice_url":      msg.GetVoiceUrl(),
+			"voice_duration": msg.GetVoiceDuration(),
+			"emoji_url":      msg.GetEmojiUrl(),
+			"merge_messages": msg.GetMergeMessages(),
+			"quote_message_id": msg.GetQuoteMessageId(),
+			"contact_user_id":  msg.GetContactUserId(),
+			"red_packet_id":    msg.GetRedPacketId(),
+			"transfer_id":      msg.GetTransferId(),
+			"is_recalled":      msg.GetIsRecalled(),
+			"is_deleted":       msg.GetIsDeleted(),
+			"read_status":      msg.GetReadStatus(),
+			"status":          msg.GetStatus(),
 		}
 
 		// 处理时间戳
@@ -194,8 +231,8 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 	}
 
 	// 判断是私聊还是群聊
-	groupID := uint(req.GetGroupId())
-	otherUserID := uint(req.GetOtherUserId())
+	groupID := int64(req.GetGroupId())
+	otherUserID := int64(req.GetOtherUserId())
 	
 	if groupID == 0 && otherUserID == 0 {
 		return &chat.GetMessageHistoryResponse{
@@ -248,18 +285,34 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 	var chatMessages []*chat.ChatMessage
 	for _, msg := range messages {
 		chatMsg := &chat.ChatMessage{
-			Id:          msg.MessageID,
-			FromUserId:  uint32(msg.FromUserID),
-			ToUserId:    uint32(msg.ToUserID),
-			GroupId:     uint32(msg.GroupID),
-			MessageType: chat.MessageType(msg.MessageType),
-			Content:     msg.Content,
-			FileUrl:     msg.FileURL,
-			FileName:    msg.FileName,
-			FileSize:    msg.FileSize,
-			Status:      chat.MessageStatus(msg.Status),
-			CreatedAt:   timestamppb.New(msg.CreatedAt),
-			UpdatedAt:   timestamppb.New(msg.UpdatedAt),
+			Id:             msg.MessageID,
+			FromUserId:     uint32(msg.FromUserID),
+			ToUserId:       uint32(msg.ToUserID),
+			GroupId:        uint32(msg.GroupID),
+			MessageType:    chat.MessageType(msg.MessageType),
+			Content:        msg.Content,
+			FileUrl:        msg.FileURL,
+			FileName:       msg.FileName,
+			FileSize:       msg.FileSize,
+			// 扩展字段
+			VideoUrl:       msg.VideoURL,
+			VideoThumb:     msg.VideoThumb,
+			VoiceUrl:       msg.VoiceURL,
+			VoiceDuration:  int32(msg.VoiceDuration),
+			EmojiUrl:       msg.EmojiURL,
+			MergeMessages:  msg.MergeMessages,
+			QuoteMessageId: msg.QuoteMessageID,
+			ContactUserId:  uint32(msg.ContactUserID),
+			// 红包和转账字段（重要！）
+			RedPacketId: uint32(msg.RedPacketID),
+			TransferId:  uint32(msg.TransferID),
+			// 状态字段
+			IsRecalled: msg.IsRecalled,
+			IsDeleted:  msg.IsDeleted,
+			ReadStatus: int32(msg.ReadStatus),
+			Status:     chat.MessageStatus(msg.Status),
+			CreatedAt:  timestamppb.New(time.Unix(msg.CreatedAt, 0)),
+			UpdatedAt:  timestamppb.New(time.Unix(msg.UpdatedAt, 0)),
 		}
 		chatMessages = append(chatMessages, chatMsg)
 	}
@@ -321,7 +374,7 @@ func (h *ChatHandler) markMessageReadLogic(ctx *gin.Context, req chat.MarkMessag
 
 	// 标记消息为已读
 	markedCount, err := h.dao.MarkMessagesAsRead(
-		uint(req.GetOtherUserId()),
+		int64(req.GetOtherUserId()),
 		toUserID,
 		req.GetMessageId(),
 	)
@@ -403,7 +456,7 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 			"file_name":    message.FileName,
 			"file_size":    message.FileSize,
 			"status":       message.Status,
-			"created_at":   message.CreatedAt.Unix(),
+			"created_at":   message.CreatedAt,
 		},
 	}
 
@@ -444,7 +497,7 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 		offlineCount := 0
 		
 		// 获取在线用户列表
-		onlineUserIDs := make(map[uint]bool)
+		onlineUserIDs := make(map[int64]bool)
 		onlineIDs := wsHub.GetOnlineUserIDs()
 		for _, uid := range onlineIDs {
 			onlineUserIDs[uid] = true

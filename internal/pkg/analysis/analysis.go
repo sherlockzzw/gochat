@@ -16,6 +16,9 @@ type Validator interface {
 
 // BindParameter -
 func BindParameter[k any](c *gin.Context, response *response.SvcRequest) (res k, err error) {
+	go func() {
+
+	}()
 	if c.Request.Method == "GET" {
 		if len(c.Request.URL.Query()) == 0 {
 			return newIfPointer[k](), nil

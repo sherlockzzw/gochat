@@ -39,24 +39,80 @@ service ApiUser {
       body:"*"
     };
   };
+  
+  // 修改密码
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
+    option(google.api.http) = {
+      post:"/api/user/change-password"
+      body:"*"
+    };
+  };
+  
+  // 重置密码
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+    option(google.api.http) = {
+      post:"/api/user/reset-password"
+      body:"*"
+    };
+  };
+  
+  // 绑定手机号
+  rpc BindPhone(BindPhoneRequest) returns (BindPhoneResponse) {
+    option(google.api.http) = {
+      post:"/api/user/bind-phone"
+      body:"*"
+    };
+  };
+  
+  // 绑定邮箱
+  rpc BindEmail(BindEmailRequest) returns (BindEmailResponse) {
+    option(google.api.http) = {
+      post:"/api/user/bind-email"
+      body:"*"
+    };
+  };
+  
+  // 更新隐私设置
+  rpc UpdatePrivacySettings(UpdatePrivacySettingsRequest) returns (UpdatePrivacySettingsResponse) {
+    option(google.api.http) = {
+      post:"/api/user/privacy-settings"
+      body:"*"
+    };
+  };
+  
+  // 获取设备列表
+  rpc GetDeviceList(GetDeviceListRequest) returns (GetDeviceListResponse) {
+    option(google.api.http) = {
+      get:"/api/user/devices"
+    };
+  };
+  
+  // 下线设备
+  rpc LogoutDevice(LogoutDeviceRequest) returns (LogoutDeviceResponse) {
+    option(google.api.http) = {
+      post:"/api/user/logout-device"
+      body:"*"
+    };
+  };
 }
 
 // 用户注册请求
 message RegisterRequest {
-  // @inject_tag: json:"name"
-  string name = 1[(validate.rules).string.min_len = 1];
-  // @inject_tag: json:"password"
-  string password = 2[(validate.rules).string.min_len = 6];
-  // @inject_tag: json:"phone"
-  string phone = 3;
-  // @inject_tag: json:"email"
-  string email = 4;
-  // @inject_tag: json:"client_ip"
-  string client_ip = 5;
-  // @inject_tag: json:"client_port"
-  string client_port = 6;
-  // @inject_tag: json:"device_info"
-  string device_info = 7;
+  string login_account = 1[(validate.rules).string = {min_len: 5, max_len: 32, pattern: "^[a-zA-Z][a-zA-Z0-9_@]*$"}]; // 登录账号(5-32位,字母开头,支持英文/数字/下划线/@)
+  string password = 2[(validate.rules).string = {min_len: 8, max_len: 20}]; // 密码(8-20位,含大小写/数字/特殊字符) - 复杂校验在业务层实现
+  string name = 3[(validate.rules).string.min_len = 1]; // 用户名/昵称
+  string phone = 4; // 手机号(可选,如果提供则必须验证)
+  string email = 5; // 邮箱(可选,如果提供则必须验证)
+  string code = 6[(validate.rules).string = {min_len: 4, max_len: 6}]; // 验证码(手机号或邮箱的验证码)
+  string code_type = 7[(validate.rules).string = {in: ["phone", "email"]}]; // 验证码类型(phone或email)
+  bool agree_terms = 8[(validate.rules).bool.const = true]; // 必须同意用户协议
+  bool agree_privacy = 9[(validate.rules).bool.const = true]; // 必须同意隐私政策
+  string client_ip = 10;
+  string client_port = 11;
+  string device_info = 12;
+  string device_type = 13[(validate.rules).string = {in: ["ios", "android", "web_mobile", "pc_desktop", "pc_web"]}]; // 设备类型
+  string device_id = 14; // 设备唯一标识
+  string device_name = 15; // 设备名称
 }
 
 // 用户注册响应
@@ -68,10 +124,12 @@ message RegisterResponse {
 
 // 登录请求
 message LoginRequest {
-  // @inject_tag: json:"name"
-  string name = 1[(validate.rules).string.min_len = 1];
-  // @inject_tag: json:"password"
+  string login_account = 1[(validate.rules).string.min_len = 1]; // 登录账号(支持登录账号/手机号/邮箱)
   string password = 2[(validate.rules).string.min_len = 1];
+  string device_type = 3[(validate.rules).string = {in: ["ios", "android", "web_mobile", "pc_desktop", "pc_web"]}]; // 设备类型
+  string device_id = 4; // 设备唯一标识
+  string device_name = 5; // 设备名称
+  int32 auto_login_days = 6[(validate.rules).int32 = {gte: 7, lte: 30}]; // 自动登录天数(7-30天)
 }
 
 // 登录响应
@@ -98,8 +156,12 @@ message GetUserInfoResponse {
 message UserInfo {
   int64 id = 1;
   string name = 2;
+  string login_account = 16; // 登录账号(不可修改)
   string phone = 3;
-  string email = 4;
+  bool phone_verified = 17; // 手机号是否已验证
+  string email = 4; // 邮箱1
+  string email1 = 18; // 邮箱2
+  string email2 = 19; // 邮箱3
   string avatar = 5;
   string client_ip = 6;
   string client_port = 7;
@@ -111,19 +173,18 @@ message UserInfo {
   string created_at = 13;
   string updated_at = 14;
   string signature = 15; // 个性签名
+  string privacy_settings = 20; // 隐私设置(JSON格式)
+  int32 login_fail_count = 21; // 登录失败次数
+  int64 locked_until = 22; // 锁定到期时间(时间戳,0表示未锁定)
+  int64 last_active_time = 23; // 最后活跃时间(时间戳)
 }
 
 // 更新用户资料请求
 message UpdateUserProfileRequest {
-  // @inject_tag: json:"name"
   string name = 1;        // 用户名
-  // @inject_tag: json:"phone"
   string phone = 2;       // 手机号
-  // @inject_tag: json:"email"
   string email = 3;       // 邮箱
-  // @inject_tag: json:"avatar"
   string avatar = 4;      // 头像URL
-  // @inject_tag: json:"signature"
   string signature = 5;   // 个性签名
 }
 
@@ -132,4 +193,100 @@ message UpdateUserProfileResponse {
   string message = 1;
   UserInfo user = 2;
   bool success = 3;
+}
+
+// 修改密码请求
+message ChangePasswordRequest {
+  string old_password = 1[(validate.rules).string.min_len = 1];
+  string new_password = 2[(validate.rules).string.min_len = 8];
+}
+
+// 修改密码响应
+message ChangePasswordResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+// 重置密码请求
+message ResetPasswordRequest {
+  string phone = 1; // 手机号或邮箱
+  string code = 2[(validate.rules).string.min_len = 1]; // 验证码
+  string new_password = 3[(validate.rules).string.min_len = 8];
+}
+
+// 重置密码响应
+message ResetPasswordResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+// 绑定手机号请求
+message BindPhoneRequest {
+  string phone = 1[(validate.rules).string.min_len = 1];
+  string code = 2[(validate.rules).string.min_len = 1]; // 验证码
+}
+
+// 绑定手机号响应
+message BindPhoneResponse {
+  string message = 1;
+  bool success = 2;
+  UserInfo user = 3;
+}
+
+// 绑定邮箱请求
+message BindEmailRequest {
+  string email = 1[(validate.rules).string.min_len = 1];
+  string code = 2[(validate.rules).string.min_len = 1]; // 验证码
+  int32 slot = 3; // 邮箱槽位(1或2,对应email1或email2)
+}
+
+// 绑定邮箱响应
+message BindEmailResponse {
+  string message = 1;
+  bool success = 2;
+  UserInfo user = 3;
+}
+
+// 更新隐私设置请求
+message UpdatePrivacySettingsRequest {
+  string settings = 1; // JSON格式的隐私设置
+}
+
+// 更新隐私设置响应
+message UpdatePrivacySettingsResponse {
+  string message = 1;
+  bool success = 2;
+  UserInfo user = 3;
+}
+
+// 获取设备列表请求
+message GetDeviceListRequest {
+  // 空请求
+}
+
+// 设备信息
+message DeviceInfo {
+  uint32 id = 1;
+  string device_type = 2; // ios, android, web_mobile, pc_desktop, pc_web
+  string device_id = 3;
+  string device_name = 4;
+  int64 last_active_at = 5; // 最后活跃时间(时间戳)
+  int64 created_at = 6; // 创建时间(时间戳)
+}
+
+// 获取设备列表响应
+message GetDeviceListResponse {
+  string message = 1;
+  repeated DeviceInfo devices = 2;
+}
+
+// 下线设备请求
+message LogoutDeviceRequest {
+  uint32 device_id = 1; // 设备ID,0表示下线所有设备(除当前设备)
+}
+
+// 下线设备响应
+message LogoutDeviceResponse {
+  string message = 1;
+  bool success = 2;
 }

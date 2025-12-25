@@ -25,21 +25,22 @@ const (
 
 // 用户注册请求
 type RegisterRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// @inject_tag: json:"name"
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name"`
-	// @inject_tag: json:"password"
-	Password string `protobuf:"bytes,2,opt,name=password,proto3" json:"password"`
-	// @inject_tag: json:"phone"
-	Phone string `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone"`
-	// @inject_tag: json:"email"
-	Email string `protobuf:"bytes,4,opt,name=email,proto3" json:"email"`
-	// @inject_tag: json:"client_ip"
-	ClientIp string `protobuf:"bytes,5,opt,name=client_ip,json=clientIp,proto3" json:"client_ip"`
-	// @inject_tag: json:"client_port"
-	ClientPort string `protobuf:"bytes,6,opt,name=client_port,json=clientPort,proto3" json:"client_port"`
-	// @inject_tag: json:"device_info"
-	DeviceInfo    string `protobuf:"bytes,7,opt,name=device_info,json=deviceInfo,proto3" json:"device_info"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoginAccount  string                 `protobuf:"bytes,1,opt,name=login_account,json=loginAccount,proto3" json:"login_account,omitempty"`  // 登录账号(5-32位,字母开头,支持英文/数字/下划线/@)
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`                              // 密码(8-20位,含大小写/数字/特殊字符) - 复杂校验在业务层实现
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                      // 用户名/昵称
+	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`                                    // 手机号(可选,如果提供则必须验证)
+	Email         string                 `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`                                    // 邮箱(可选,如果提供则必须验证)
+	Code          string                 `protobuf:"bytes,6,opt,name=code,proto3" json:"code,omitempty"`                                      // 验证码(手机号或邮箱的验证码)
+	CodeType      string                 `protobuf:"bytes,7,opt,name=code_type,json=codeType,proto3" json:"code_type,omitempty"`              // 验证码类型(phone或email)
+	AgreeTerms    bool                   `protobuf:"varint,8,opt,name=agree_terms,json=agreeTerms,proto3" json:"agree_terms,omitempty"`       // 必须同意用户协议
+	AgreePrivacy  bool                   `protobuf:"varint,9,opt,name=agree_privacy,json=agreePrivacy,proto3" json:"agree_privacy,omitempty"` // 必须同意隐私政策
+	ClientIp      string                 `protobuf:"bytes,10,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`
+	ClientPort    string                 `protobuf:"bytes,11,opt,name=client_port,json=clientPort,proto3" json:"client_port,omitempty"`
+	DeviceInfo    string                 `protobuf:"bytes,12,opt,name=device_info,json=deviceInfo,proto3" json:"device_info,omitempty"`
+	DeviceType    string                 `protobuf:"bytes,13,opt,name=device_type,json=deviceType,proto3" json:"device_type,omitempty"` // 设备类型
+	DeviceId      string                 `protobuf:"bytes,14,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`       // 设备唯一标识
+	DeviceName    string                 `protobuf:"bytes,15,opt,name=device_name,json=deviceName,proto3" json:"device_name,omitempty"` // 设备名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,9 +75,9 @@ func (*RegisterRequest) Descriptor() ([]byte, []int) {
 	return file_api_user_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RegisterRequest) GetName() string {
+func (x *RegisterRequest) GetLoginAccount() string {
 	if x != nil {
-		return x.Name
+		return x.LoginAccount
 	}
 	return ""
 }
@@ -84,6 +85,13 @@ func (x *RegisterRequest) GetName() string {
 func (x *RegisterRequest) GetPassword() string {
 	if x != nil {
 		return x.Password
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetName() string {
+	if x != nil {
+		return x.Name
 	}
 	return ""
 }
@@ -100,6 +108,34 @@ func (x *RegisterRequest) GetEmail() string {
 		return x.Email
 	}
 	return ""
+}
+
+func (x *RegisterRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetCodeType() string {
+	if x != nil {
+		return x.CodeType
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetAgreeTerms() bool {
+	if x != nil {
+		return x.AgreeTerms
+	}
+	return false
+}
+
+func (x *RegisterRequest) GetAgreePrivacy() bool {
+	if x != nil {
+		return x.AgreePrivacy
+	}
+	return false
 }
 
 func (x *RegisterRequest) GetClientIp() string {
@@ -119,6 +155,27 @@ func (x *RegisterRequest) GetClientPort() string {
 func (x *RegisterRequest) GetDeviceInfo() string {
 	if x != nil {
 		return x.DeviceInfo
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetDeviceType() string {
+	if x != nil {
+		return x.DeviceType
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetDeviceName() string {
+	if x != nil {
+		return x.DeviceName
 	}
 	return ""
 }
@@ -186,11 +243,13 @@ func (x *RegisterResponse) GetData() *UserInfo {
 
 // 登录请求
 type LoginRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// @inject_tag: json:"name"
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name"`
-	// @inject_tag: json:"password"
-	Password      string `protobuf:"bytes,2,opt,name=password,proto3" json:"password"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoginAccount  string                 `protobuf:"bytes,1,opt,name=login_account,json=loginAccount,proto3" json:"login_account,omitempty"` // 登录账号(支持登录账号/手机号/邮箱)
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	DeviceType    string                 `protobuf:"bytes,3,opt,name=device_type,json=deviceType,proto3" json:"device_type,omitempty"`             // 设备类型
+	DeviceId      string                 `protobuf:"bytes,4,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`                   // 设备唯一标识
+	DeviceName    string                 `protobuf:"bytes,5,opt,name=device_name,json=deviceName,proto3" json:"device_name,omitempty"`             // 设备名称
+	AutoLoginDays int32                  `protobuf:"varint,6,opt,name=auto_login_days,json=autoLoginDays,proto3" json:"auto_login_days,omitempty"` // 自动登录天数(7-30天)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -225,9 +284,9 @@ func (*LoginRequest) Descriptor() ([]byte, []int) {
 	return file_api_user_user_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *LoginRequest) GetName() string {
+func (x *LoginRequest) GetLoginAccount() string {
 	if x != nil {
-		return x.Name
+		return x.LoginAccount
 	}
 	return ""
 }
@@ -237,6 +296,34 @@ func (x *LoginRequest) GetPassword() string {
 		return x.Password
 	}
 	return ""
+}
+
+func (x *LoginRequest) GetDeviceType() string {
+	if x != nil {
+		return x.DeviceType
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetDeviceName() string {
+	if x != nil {
+		return x.DeviceName
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetAutoLoginDays() int32 {
+	if x != nil {
+		return x.AutoLoginDays
+	}
+	return 0
 }
 
 // 登录响应
@@ -409,24 +496,32 @@ func (x *GetUserInfoResponse) GetUser() *UserInfo {
 
 // 用户信息
 type UserInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
-	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
-	Avatar        string                 `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`
-	ClientIp      string                 `protobuf:"bytes,6,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`
-	ClientPort    string                 `protobuf:"bytes,7,opt,name=client_port,json=clientPort,proto3" json:"client_port,omitempty"`
-	LoginTime     int64                  `protobuf:"varint,8,opt,name=login_time,json=loginTime,proto3" json:"login_time,omitempty"`
-	Identity      string                 `protobuf:"bytes,9,opt,name=identity,proto3" json:"identity,omitempty"`
-	HeartTime     int64                  `protobuf:"varint,10,opt,name=heart_time,json=heartTime,proto3" json:"heart_time,omitempty"`
-	LogoutTime    int64                  `protobuf:"varint,11,opt,name=logout_time,json=logoutTime,proto3" json:"logout_time,omitempty"`
-	DeviceInfo    string                 `protobuf:"bytes,12,opt,name=device_info,json=deviceInfo,proto3" json:"device_info,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     string                 `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	Signature     string                 `protobuf:"bytes,15,opt,name=signature,proto3" json:"signature,omitempty"` // 个性签名
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	LoginAccount    string                 `protobuf:"bytes,16,opt,name=login_account,json=loginAccount,proto3" json:"login_account,omitempty"` // 登录账号(不可修改)
+	Phone           string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
+	PhoneVerified   bool                   `protobuf:"varint,17,opt,name=phone_verified,json=phoneVerified,proto3" json:"phone_verified,omitempty"` // 手机号是否已验证
+	Email           string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`                                        // 邮箱1
+	Email1          string                 `protobuf:"bytes,18,opt,name=email1,proto3" json:"email1,omitempty"`                                     // 邮箱2
+	Email2          string                 `protobuf:"bytes,19,opt,name=email2,proto3" json:"email2,omitempty"`                                     // 邮箱3
+	Avatar          string                 `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	ClientIp        string                 `protobuf:"bytes,6,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`
+	ClientPort      string                 `protobuf:"bytes,7,opt,name=client_port,json=clientPort,proto3" json:"client_port,omitempty"`
+	LoginTime       int64                  `protobuf:"varint,8,opt,name=login_time,json=loginTime,proto3" json:"login_time,omitempty"`
+	Identity        string                 `protobuf:"bytes,9,opt,name=identity,proto3" json:"identity,omitempty"`
+	HeartTime       int64                  `protobuf:"varint,10,opt,name=heart_time,json=heartTime,proto3" json:"heart_time,omitempty"`
+	LogoutTime      int64                  `protobuf:"varint,11,opt,name=logout_time,json=logoutTime,proto3" json:"logout_time,omitempty"`
+	DeviceInfo      string                 `protobuf:"bytes,12,opt,name=device_info,json=deviceInfo,proto3" json:"device_info,omitempty"`
+	CreatedAt       string                 `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       string                 `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Signature       string                 `protobuf:"bytes,15,opt,name=signature,proto3" json:"signature,omitempty"`                                    // 个性签名
+	PrivacySettings string                 `protobuf:"bytes,20,opt,name=privacy_settings,json=privacySettings,proto3" json:"privacy_settings,omitempty"` // 隐私设置(JSON格式)
+	LoginFailCount  int32                  `protobuf:"varint,21,opt,name=login_fail_count,json=loginFailCount,proto3" json:"login_fail_count,omitempty"` // 登录失败次数
+	LockedUntil     int64                  `protobuf:"varint,22,opt,name=locked_until,json=lockedUntil,proto3" json:"locked_until,omitempty"`            // 锁定到期时间(时间戳,0表示未锁定)
+	LastActiveTime  int64                  `protobuf:"varint,23,opt,name=last_active_time,json=lastActiveTime,proto3" json:"last_active_time,omitempty"` // 最后活跃时间(时间戳)
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UserInfo) Reset() {
@@ -473,6 +568,13 @@ func (x *UserInfo) GetName() string {
 	return ""
 }
 
+func (x *UserInfo) GetLoginAccount() string {
+	if x != nil {
+		return x.LoginAccount
+	}
+	return ""
+}
+
 func (x *UserInfo) GetPhone() string {
 	if x != nil {
 		return x.Phone
@@ -480,9 +582,30 @@ func (x *UserInfo) GetPhone() string {
 	return ""
 }
 
+func (x *UserInfo) GetPhoneVerified() bool {
+	if x != nil {
+		return x.PhoneVerified
+	}
+	return false
+}
+
 func (x *UserInfo) GetEmail() string {
 	if x != nil {
 		return x.Email
+	}
+	return ""
+}
+
+func (x *UserInfo) GetEmail1() string {
+	if x != nil {
+		return x.Email1
+	}
+	return ""
+}
+
+func (x *UserInfo) GetEmail2() string {
+	if x != nil {
+		return x.Email2
 	}
 	return ""
 }
@@ -564,19 +687,42 @@ func (x *UserInfo) GetSignature() string {
 	return ""
 }
 
+func (x *UserInfo) GetPrivacySettings() string {
+	if x != nil {
+		return x.PrivacySettings
+	}
+	return ""
+}
+
+func (x *UserInfo) GetLoginFailCount() int32 {
+	if x != nil {
+		return x.LoginFailCount
+	}
+	return 0
+}
+
+func (x *UserInfo) GetLockedUntil() int64 {
+	if x != nil {
+		return x.LockedUntil
+	}
+	return 0
+}
+
+func (x *UserInfo) GetLastActiveTime() int64 {
+	if x != nil {
+		return x.LastActiveTime
+	}
+	return 0
+}
+
 // 更新用户资料请求
 type UpdateUserProfileRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// @inject_tag: json:"name"
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name"` // 用户名
-	// @inject_tag: json:"phone"
-	Phone string `protobuf:"bytes,2,opt,name=phone,proto3" json:"phone"` // 手机号
-	// @inject_tag: json:"email"
-	Email string `protobuf:"bytes,3,opt,name=email,proto3" json:"email"` // 邮箱
-	// @inject_tag: json:"avatar"
-	Avatar string `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar"` // 头像URL
-	// @inject_tag: json:"signature"
-	Signature     string `protobuf:"bytes,5,opt,name=signature,proto3" json:"signature"` // 个性签名
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`           // 用户名
+	Phone         string                 `protobuf:"bytes,2,opt,name=phone,proto3" json:"phone,omitempty"`         // 手机号
+	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`         // 邮箱
+	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`       // 头像URL
+	Signature     string                 `protobuf:"bytes,5,opt,name=signature,proto3" json:"signature,omitempty"` // 个性签名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -707,28 +853,885 @@ func (x *UpdateUserProfileResponse) GetSuccess() bool {
 	return false
 }
 
+// 修改密码请求
+type ChangePasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OldPassword   string                 `protobuf:"bytes,1,opt,name=old_password,json=oldPassword,proto3" json:"old_password,omitempty"`
+	NewPassword   string                 `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangePasswordRequest) Reset() {
+	*x = ChangePasswordRequest{}
+	mi := &file_api_user_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordRequest) ProtoMessage() {}
+
+func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
+func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ChangePasswordRequest) GetOldPassword() string {
+	if x != nil {
+		return x.OldPassword
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+// 修改密码响应
+type ChangePasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangePasswordResponse) Reset() {
+	*x = ChangePasswordResponse{}
+	mi := &file_api_user_user_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordResponse) ProtoMessage() {}
+
+func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordResponse.ProtoReflect.Descriptor instead.
+func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ChangePasswordResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ChangePasswordResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+// 重置密码请求
+type ResetPasswordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"` // 手机号或邮箱
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`   // 验证码
+	NewPassword   string                 `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetPasswordRequest) Reset() {
+	*x = ResetPasswordRequest{}
+	mi := &file_api_user_user_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetPasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetPasswordRequest) ProtoMessage() {}
+
+func (x *ResetPasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetPasswordRequest.ProtoReflect.Descriptor instead.
+func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ResetPasswordRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *ResetPasswordRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *ResetPasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+// 重置密码响应
+type ResetPasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResetPasswordResponse) Reset() {
+	*x = ResetPasswordResponse{}
+	mi := &file_api_user_user_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResetPasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResetPasswordResponse) ProtoMessage() {}
+
+func (x *ResetPasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResetPasswordResponse.ProtoReflect.Descriptor instead.
+func (*ResetPasswordResponse) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ResetPasswordResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ResetPasswordResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+// 绑定手机号请求
+type BindPhoneRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"` // 验证码
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindPhoneRequest) Reset() {
+	*x = BindPhoneRequest{}
+	mi := &file_api_user_user_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindPhoneRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindPhoneRequest) ProtoMessage() {}
+
+func (x *BindPhoneRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindPhoneRequest.ProtoReflect.Descriptor instead.
+func (*BindPhoneRequest) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *BindPhoneRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+func (x *BindPhoneRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+// 绑定手机号响应
+type BindPhoneResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	User          *UserInfo              `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindPhoneResponse) Reset() {
+	*x = BindPhoneResponse{}
+	mi := &file_api_user_user_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindPhoneResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindPhoneResponse) ProtoMessage() {}
+
+func (x *BindPhoneResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindPhoneResponse.ProtoReflect.Descriptor instead.
+func (*BindPhoneResponse) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *BindPhoneResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *BindPhoneResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *BindPhoneResponse) GetUser() *UserInfo {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+// 绑定邮箱请求
+type BindEmailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`  // 验证码
+	Slot          int32                  `protobuf:"varint,3,opt,name=slot,proto3" json:"slot,omitempty"` // 邮箱槽位(1或2,对应email1或email2)
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindEmailRequest) Reset() {
+	*x = BindEmailRequest{}
+	mi := &file_api_user_user_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindEmailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindEmailRequest) ProtoMessage() {}
+
+func (x *BindEmailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindEmailRequest.ProtoReflect.Descriptor instead.
+func (*BindEmailRequest) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *BindEmailRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *BindEmailRequest) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *BindEmailRequest) GetSlot() int32 {
+	if x != nil {
+		return x.Slot
+	}
+	return 0
+}
+
+// 绑定邮箱响应
+type BindEmailResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	User          *UserInfo              `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BindEmailResponse) Reset() {
+	*x = BindEmailResponse{}
+	mi := &file_api_user_user_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BindEmailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BindEmailResponse) ProtoMessage() {}
+
+func (x *BindEmailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BindEmailResponse.ProtoReflect.Descriptor instead.
+func (*BindEmailResponse) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *BindEmailResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *BindEmailResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *BindEmailResponse) GetUser() *UserInfo {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+// 更新隐私设置请求
+type UpdatePrivacySettingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Settings      string                 `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"` // JSON格式的隐私设置
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePrivacySettingsRequest) Reset() {
+	*x = UpdatePrivacySettingsRequest{}
+	mi := &file_api_user_user_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePrivacySettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePrivacySettingsRequest) ProtoMessage() {}
+
+func (x *UpdatePrivacySettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePrivacySettingsRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePrivacySettingsRequest) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *UpdatePrivacySettingsRequest) GetSettings() string {
+	if x != nil {
+		return x.Settings
+	}
+	return ""
+}
+
+// 更新隐私设置响应
+type UpdatePrivacySettingsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	User          *UserInfo              `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePrivacySettingsResponse) Reset() {
+	*x = UpdatePrivacySettingsResponse{}
+	mi := &file_api_user_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePrivacySettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePrivacySettingsResponse) ProtoMessage() {}
+
+func (x *UpdatePrivacySettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePrivacySettingsResponse.ProtoReflect.Descriptor instead.
+func (*UpdatePrivacySettingsResponse) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UpdatePrivacySettingsResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *UpdatePrivacySettingsResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *UpdatePrivacySettingsResponse) GetUser() *UserInfo {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+// 获取设备列表请求
+type GetDeviceListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDeviceListRequest) Reset() {
+	*x = GetDeviceListRequest{}
+	mi := &file_api_user_user_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDeviceListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDeviceListRequest) ProtoMessage() {}
+
+func (x *GetDeviceListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDeviceListRequest.ProtoReflect.Descriptor instead.
+func (*GetDeviceListRequest) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{19}
+}
+
+// 设备信息
+type DeviceInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	DeviceType    string                 `protobuf:"bytes,2,opt,name=device_type,json=deviceType,proto3" json:"device_type,omitempty"` // ios, android, web_mobile, pc_desktop, pc_web
+	DeviceId      string                 `protobuf:"bytes,3,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	DeviceName    string                 `protobuf:"bytes,4,opt,name=device_name,json=deviceName,proto3" json:"device_name,omitempty"`
+	LastActiveAt  int64                  `protobuf:"varint,5,opt,name=last_active_at,json=lastActiveAt,proto3" json:"last_active_at,omitempty"` // 最后活跃时间(时间戳)
+	CreatedAt     int64                  `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`            // 创建时间(时间戳)
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeviceInfo) Reset() {
+	*x = DeviceInfo{}
+	mi := &file_api_user_user_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeviceInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeviceInfo) ProtoMessage() {}
+
+func (x *DeviceInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeviceInfo.ProtoReflect.Descriptor instead.
+func (*DeviceInfo) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *DeviceInfo) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *DeviceInfo) GetDeviceType() string {
+	if x != nil {
+		return x.DeviceType
+	}
+	return ""
+}
+
+func (x *DeviceInfo) GetDeviceId() string {
+	if x != nil {
+		return x.DeviceId
+	}
+	return ""
+}
+
+func (x *DeviceInfo) GetDeviceName() string {
+	if x != nil {
+		return x.DeviceName
+	}
+	return ""
+}
+
+func (x *DeviceInfo) GetLastActiveAt() int64 {
+	if x != nil {
+		return x.LastActiveAt
+	}
+	return 0
+}
+
+func (x *DeviceInfo) GetCreatedAt() int64 {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return 0
+}
+
+// 获取设备列表响应
+type GetDeviceListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Devices       []*DeviceInfo          `protobuf:"bytes,2,rep,name=devices,proto3" json:"devices,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDeviceListResponse) Reset() {
+	*x = GetDeviceListResponse{}
+	mi := &file_api_user_user_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDeviceListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDeviceListResponse) ProtoMessage() {}
+
+func (x *GetDeviceListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDeviceListResponse.ProtoReflect.Descriptor instead.
+func (*GetDeviceListResponse) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *GetDeviceListResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *GetDeviceListResponse) GetDevices() []*DeviceInfo {
+	if x != nil {
+		return x.Devices
+	}
+	return nil
+}
+
+// 下线设备请求
+type LogoutDeviceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId      uint32                 `protobuf:"varint,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"` // 设备ID,0表示下线所有设备(除当前设备)
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutDeviceRequest) Reset() {
+	*x = LogoutDeviceRequest{}
+	mi := &file_api_user_user_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutDeviceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutDeviceRequest) ProtoMessage() {}
+
+func (x *LogoutDeviceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutDeviceRequest.ProtoReflect.Descriptor instead.
+func (*LogoutDeviceRequest) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *LogoutDeviceRequest) GetDeviceId() uint32 {
+	if x != nil {
+		return x.DeviceId
+	}
+	return 0
+}
+
+// 下线设备响应
+type LogoutDeviceResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Success       bool                   `protobuf:"varint,2,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutDeviceResponse) Reset() {
+	*x = LogoutDeviceResponse{}
+	mi := &file_api_user_user_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutDeviceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutDeviceResponse) ProtoMessage() {}
+
+func (x *LogoutDeviceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_user_user_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutDeviceResponse.ProtoReflect.Descriptor instead.
+func (*LogoutDeviceResponse) Descriptor() ([]byte, []int) {
+	return file_api_user_user_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *LogoutDeviceResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *LogoutDeviceResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
 var File_api_user_user_proto protoreflect.FileDescriptor
 
 const file_api_user_user_proto_rawDesc = "" +
 	"\n" +
-	"\x13api/user/user.proto\x12\bapi_user\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\xde\x01\n" +
-	"\x0fRegisterRequest\x12\x1b\n" +
-	"\x04name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12#\n" +
-	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\bpassword\x12\x14\n" +
-	"\x05phone\x18\x03 \x01(\tR\x05phone\x12\x14\n" +
-	"\x05email\x18\x04 \x01(\tR\x05email\x12\x1b\n" +
-	"\tclient_ip\x18\x05 \x01(\tR\bclientIp\x12\x1f\n" +
-	"\vclient_port\x18\x06 \x01(\tR\n" +
+	"\x13api/user/user.proto\x12\bapi_user\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\xe7\x04\n" +
+	"\x0fRegisterRequest\x12H\n" +
+	"\rlogin_account\x18\x01 \x01(\tB#\xfaB r\x1e\x10\x05\x18 2\x18^[a-zA-Z][a-zA-Z0-9_@]*$R\floginAccount\x12%\n" +
+	"\bpassword\x18\x02 \x01(\tB\t\xfaB\x06r\x04\x10\b\x18\x14R\bpassword\x12\x1b\n" +
+	"\x04name\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12\x14\n" +
+	"\x05phone\x18\x04 \x01(\tR\x05phone\x12\x14\n" +
+	"\x05email\x18\x05 \x01(\tR\x05email\x12\x1d\n" +
+	"\x04code\x18\x06 \x01(\tB\t\xfaB\x06r\x04\x10\x04\x18\x06R\x04code\x120\n" +
+	"\tcode_type\x18\a \x01(\tB\x13\xfaB\x10r\x0eR\x05phoneR\x05emailR\bcodeType\x12(\n" +
+	"\vagree_terms\x18\b \x01(\bB\a\xfaB\x04j\x02\b\x01R\n" +
+	"agreeTerms\x12,\n" +
+	"\ragree_privacy\x18\t \x01(\bB\a\xfaB\x04j\x02\b\x01R\fagreePrivacy\x12\x1b\n" +
+	"\tclient_ip\x18\n" +
+	" \x01(\tR\bclientIp\x12\x1f\n" +
+	"\vclient_port\x18\v \x01(\tR\n" +
 	"clientPort\x12\x1f\n" +
-	"\vdevice_info\x18\a \x01(\tR\n" +
-	"deviceInfo\"h\n" +
+	"\vdevice_info\x18\f \x01(\tR\n" +
+	"deviceInfo\x12T\n" +
+	"\vdevice_type\x18\r \x01(\tB3\xfaB0r.R\x03iosR\aandroidR\n" +
+	"web_mobileR\n" +
+	"pc_desktopR\x06pc_webR\n" +
+	"deviceType\x12\x1b\n" +
+	"\tdevice_id\x18\x0e \x01(\tR\bdeviceId\x12\x1f\n" +
+	"\vdevice_name\x18\x0f \x01(\tR\n" +
+	"deviceName\"h\n" +
 	"\x10RegisterResponse\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12&\n" +
-	"\x04data\x18\x03 \x01(\v2\x12.api_user.UserInfoR\x04data\"P\n" +
-	"\fLoginRequest\x12\x1b\n" +
-	"\x04name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12#\n" +
-	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\"\x7f\n" +
+	"\x04data\x18\x03 \x01(\v2\x12.api_user.UserInfoR\x04data\"\xa8\x02\n" +
+	"\fLoginRequest\x12,\n" +
+	"\rlogin_account\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\floginAccount\x12#\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12T\n" +
+	"\vdevice_type\x18\x03 \x01(\tB3\xfaB0r.R\x03iosR\aandroidR\n" +
+	"web_mobileR\n" +
+	"pc_desktopR\x06pc_webR\n" +
+	"deviceType\x12\x1b\n" +
+	"\tdevice_id\x18\x04 \x01(\tR\bdeviceId\x12\x1f\n" +
+	"\vdevice_name\x18\x05 \x01(\tR\n" +
+	"deviceName\x121\n" +
+	"\x0fauto_login_days\x18\x06 \x01(\x05B\t\xfaB\x06\x1a\x04\x18\x1e(\aR\rautoLoginDays\"\x7f\n" +
 	"\rLoginResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12&\n" +
 	"\x04data\x18\x02 \x01(\v2\x12.api_user.UserInfoR\x04data\x12\x14\n" +
@@ -738,12 +1741,16 @@ const file_api_user_user_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\"W\n" +
 	"\x13GetUserInfoResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12&\n" +
-	"\x04user\x18\x02 \x01(\v2\x12.api_user.UserInfoR\x04user\"\xa8\x03\n" +
+	"\x04user\x18\x02 \x01(\v2\x12.api_user.UserInfoR\x04user\"\xc6\x05\n" +
 	"\bUserInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05phone\x18\x03 \x01(\tR\x05phone\x12\x14\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\rlogin_account\x18\x10 \x01(\tR\floginAccount\x12\x14\n" +
+	"\x05phone\x18\x03 \x01(\tR\x05phone\x12%\n" +
+	"\x0ephone_verified\x18\x11 \x01(\bR\rphoneVerified\x12\x14\n" +
 	"\x05email\x18\x04 \x01(\tR\x05email\x12\x16\n" +
+	"\x06email1\x18\x12 \x01(\tR\x06email1\x12\x16\n" +
+	"\x06email2\x18\x13 \x01(\tR\x06email2\x12\x16\n" +
 	"\x06avatar\x18\x05 \x01(\tR\x06avatar\x12\x1b\n" +
 	"\tclient_ip\x18\x06 \x01(\tR\bclientIp\x12\x1f\n" +
 	"\vclient_port\x18\a \x01(\tR\n" +
@@ -762,7 +1769,11 @@ const file_api_user_user_proto_rawDesc = "" +
 	"created_at\x18\r \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\x0e \x01(\tR\tupdatedAt\x12\x1c\n" +
-	"\tsignature\x18\x0f \x01(\tR\tsignature\"\x90\x01\n" +
+	"\tsignature\x18\x0f \x01(\tR\tsignature\x12)\n" +
+	"\x10privacy_settings\x18\x14 \x01(\tR\x0fprivacySettings\x12(\n" +
+	"\x10login_fail_count\x18\x15 \x01(\x05R\x0eloginFailCount\x12!\n" +
+	"\flocked_until\x18\x16 \x01(\x03R\vlockedUntil\x12(\n" +
+	"\x10last_active_time\x18\x17 \x01(\x03R\x0elastActiveTime\"\x90\x01\n" +
 	"\x18UpdateUserProfileRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05phone\x18\x02 \x01(\tR\x05phone\x12\x14\n" +
@@ -772,13 +1783,74 @@ const file_api_user_user_proto_rawDesc = "" +
 	"\x19UpdateUserProfileResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12&\n" +
 	"\x04user\x18\x02 \x01(\v2\x12.api_user.UserInfoR\x04user\x12\x18\n" +
-	"\asuccess\x18\x03 \x01(\bR\asuccess2\x9c\x03\n" +
+	"\asuccess\x18\x03 \x01(\bR\asuccess\"o\n" +
+	"\x15ChangePasswordRequest\x12*\n" +
+	"\fold_password\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voldPassword\x12*\n" +
+	"\fnew_password\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\bR\vnewPassword\"L\n" +
+	"\x16ChangePasswordResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x18\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess\"u\n" +
+	"\x14ResetPasswordRequest\x12\x14\n" +
+	"\x05phone\x18\x01 \x01(\tR\x05phone\x12\x1b\n" +
+	"\x04code\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04code\x12*\n" +
+	"\fnew_password\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\bR\vnewPassword\"K\n" +
+	"\x15ResetPasswordResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x18\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess\"N\n" +
+	"\x10BindPhoneRequest\x12\x1d\n" +
+	"\x05phone\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05phone\x12\x1b\n" +
+	"\x04code\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04code\"o\n" +
+	"\x11BindPhoneResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x18\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess\x12&\n" +
+	"\x04user\x18\x03 \x01(\v2\x12.api_user.UserInfoR\x04user\"b\n" +
+	"\x10BindEmailRequest\x12\x1d\n" +
+	"\x05email\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05email\x12\x1b\n" +
+	"\x04code\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04code\x12\x12\n" +
+	"\x04slot\x18\x03 \x01(\x05R\x04slot\"o\n" +
+	"\x11BindEmailResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x18\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess\x12&\n" +
+	"\x04user\x18\x03 \x01(\v2\x12.api_user.UserInfoR\x04user\":\n" +
+	"\x1cUpdatePrivacySettingsRequest\x12\x1a\n" +
+	"\bsettings\x18\x01 \x01(\tR\bsettings\"{\n" +
+	"\x1dUpdatePrivacySettingsResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x18\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess\x12&\n" +
+	"\x04user\x18\x03 \x01(\v2\x12.api_user.UserInfoR\x04user\"\x16\n" +
+	"\x14GetDeviceListRequest\"\xc0\x01\n" +
+	"\n" +
+	"DeviceInfo\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1f\n" +
+	"\vdevice_type\x18\x02 \x01(\tR\n" +
+	"deviceType\x12\x1b\n" +
+	"\tdevice_id\x18\x03 \x01(\tR\bdeviceId\x12\x1f\n" +
+	"\vdevice_name\x18\x04 \x01(\tR\n" +
+	"deviceName\x12$\n" +
+	"\x0elast_active_at\x18\x05 \x01(\x03R\flastActiveAt\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\x03R\tcreatedAt\"a\n" +
+	"\x15GetDeviceListResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12.\n" +
+	"\adevices\x18\x02 \x03(\v2\x14.api_user.DeviceInfoR\adevices\"2\n" +
+	"\x13LogoutDeviceRequest\x12\x1b\n" +
+	"\tdevice_id\x18\x01 \x01(\rR\bdeviceId\"J\n" +
+	"\x14LogoutDeviceResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x18\n" +
+	"\asuccess\x18\x02 \x01(\bR\asuccess2\xce\t\n" +
 	"\aApiUser\x12`\n" +
 	"\bRegister\x12\x19.api_user.RegisterRequest\x1a\x1a.api_user.RegisterResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/user/register\x12O\n" +
 	"\x05Login\x12\x16.api_user.LoginRequest\x1a\x17.api_user.LoginResponse\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
 	"/api/login\x12b\n" +
 	"\vGetUserInfo\x12\x1c.api_user.GetUserInfoRequest\x1a\x1d.api_user.GetUserInfoResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/api/user/info\x12z\n" +
-	"\x11UpdateUserProfile\x12\".api_user.UpdateUserProfileRequest\x1a#.api_user.UpdateUserProfileResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/user/profileB\x15Z\x13gochat/api/api/userb\x06proto3"
+	"\x11UpdateUserProfile\x12\".api_user.UpdateUserProfileRequest\x1a#.api_user.UpdateUserProfileResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/user/profile\x12y\n" +
+	"\x0eChangePassword\x12\x1f.api_user.ChangePasswordRequest\x1a .api_user.ChangePasswordResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/user/change-password\x12u\n" +
+	"\rResetPassword\x12\x1e.api_user.ResetPasswordRequest\x1a\x1f.api_user.ResetPasswordResponse\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/api/user/reset-password\x12e\n" +
+	"\tBindPhone\x12\x1a.api_user.BindPhoneRequest\x1a\x1b.api_user.BindPhoneResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/user/bind-phone\x12e\n" +
+	"\tBindEmail\x12\x1a.api_user.BindEmailRequest\x1a\x1b.api_user.BindEmailResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/user/bind-email\x12\x8f\x01\n" +
+	"\x15UpdatePrivacySettings\x12&.api_user.UpdatePrivacySettingsRequest\x1a'.api_user.UpdatePrivacySettingsResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/user/privacy-settings\x12k\n" +
+	"\rGetDeviceList\x12\x1e.api_user.GetDeviceListRequest\x1a\x1f.api_user.GetDeviceListResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/api/user/devices\x12q\n" +
+	"\fLogoutDevice\x12\x1d.api_user.LogoutDeviceRequest\x1a\x1e.api_user.LogoutDeviceResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/user/logout-deviceB\x15Z\x13gochat/api/api/userb\x06proto3"
 
 var (
 	file_api_user_user_proto_rawDescOnce sync.Once
@@ -792,36 +1864,69 @@ func file_api_user_user_proto_rawDescGZIP() []byte {
 	return file_api_user_user_proto_rawDescData
 }
 
-var file_api_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_api_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_api_user_user_proto_goTypes = []any{
-	(*RegisterRequest)(nil),           // 0: api_user.RegisterRequest
-	(*RegisterResponse)(nil),          // 1: api_user.RegisterResponse
-	(*LoginRequest)(nil),              // 2: api_user.LoginRequest
-	(*LoginResponse)(nil),             // 3: api_user.LoginResponse
-	(*GetUserInfoRequest)(nil),        // 4: api_user.GetUserInfoRequest
-	(*GetUserInfoResponse)(nil),       // 5: api_user.GetUserInfoResponse
-	(*UserInfo)(nil),                  // 6: api_user.UserInfo
-	(*UpdateUserProfileRequest)(nil),  // 7: api_user.UpdateUserProfileRequest
-	(*UpdateUserProfileResponse)(nil), // 8: api_user.UpdateUserProfileResponse
+	(*RegisterRequest)(nil),               // 0: api_user.RegisterRequest
+	(*RegisterResponse)(nil),              // 1: api_user.RegisterResponse
+	(*LoginRequest)(nil),                  // 2: api_user.LoginRequest
+	(*LoginResponse)(nil),                 // 3: api_user.LoginResponse
+	(*GetUserInfoRequest)(nil),            // 4: api_user.GetUserInfoRequest
+	(*GetUserInfoResponse)(nil),           // 5: api_user.GetUserInfoResponse
+	(*UserInfo)(nil),                      // 6: api_user.UserInfo
+	(*UpdateUserProfileRequest)(nil),      // 7: api_user.UpdateUserProfileRequest
+	(*UpdateUserProfileResponse)(nil),     // 8: api_user.UpdateUserProfileResponse
+	(*ChangePasswordRequest)(nil),         // 9: api_user.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil),        // 10: api_user.ChangePasswordResponse
+	(*ResetPasswordRequest)(nil),          // 11: api_user.ResetPasswordRequest
+	(*ResetPasswordResponse)(nil),         // 12: api_user.ResetPasswordResponse
+	(*BindPhoneRequest)(nil),              // 13: api_user.BindPhoneRequest
+	(*BindPhoneResponse)(nil),             // 14: api_user.BindPhoneResponse
+	(*BindEmailRequest)(nil),              // 15: api_user.BindEmailRequest
+	(*BindEmailResponse)(nil),             // 16: api_user.BindEmailResponse
+	(*UpdatePrivacySettingsRequest)(nil),  // 17: api_user.UpdatePrivacySettingsRequest
+	(*UpdatePrivacySettingsResponse)(nil), // 18: api_user.UpdatePrivacySettingsResponse
+	(*GetDeviceListRequest)(nil),          // 19: api_user.GetDeviceListRequest
+	(*DeviceInfo)(nil),                    // 20: api_user.DeviceInfo
+	(*GetDeviceListResponse)(nil),         // 21: api_user.GetDeviceListResponse
+	(*LogoutDeviceRequest)(nil),           // 22: api_user.LogoutDeviceRequest
+	(*LogoutDeviceResponse)(nil),          // 23: api_user.LogoutDeviceResponse
 }
 var file_api_user_user_proto_depIdxs = []int32{
-	6, // 0: api_user.RegisterResponse.data:type_name -> api_user.UserInfo
-	6, // 1: api_user.LoginResponse.data:type_name -> api_user.UserInfo
-	6, // 2: api_user.GetUserInfoResponse.user:type_name -> api_user.UserInfo
-	6, // 3: api_user.UpdateUserProfileResponse.user:type_name -> api_user.UserInfo
-	0, // 4: api_user.ApiUser.Register:input_type -> api_user.RegisterRequest
-	2, // 5: api_user.ApiUser.Login:input_type -> api_user.LoginRequest
-	4, // 6: api_user.ApiUser.GetUserInfo:input_type -> api_user.GetUserInfoRequest
-	7, // 7: api_user.ApiUser.UpdateUserProfile:input_type -> api_user.UpdateUserProfileRequest
-	1, // 8: api_user.ApiUser.Register:output_type -> api_user.RegisterResponse
-	3, // 9: api_user.ApiUser.Login:output_type -> api_user.LoginResponse
-	5, // 10: api_user.ApiUser.GetUserInfo:output_type -> api_user.GetUserInfoResponse
-	8, // 11: api_user.ApiUser.UpdateUserProfile:output_type -> api_user.UpdateUserProfileResponse
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	6,  // 0: api_user.RegisterResponse.data:type_name -> api_user.UserInfo
+	6,  // 1: api_user.LoginResponse.data:type_name -> api_user.UserInfo
+	6,  // 2: api_user.GetUserInfoResponse.user:type_name -> api_user.UserInfo
+	6,  // 3: api_user.UpdateUserProfileResponse.user:type_name -> api_user.UserInfo
+	6,  // 4: api_user.BindPhoneResponse.user:type_name -> api_user.UserInfo
+	6,  // 5: api_user.BindEmailResponse.user:type_name -> api_user.UserInfo
+	6,  // 6: api_user.UpdatePrivacySettingsResponse.user:type_name -> api_user.UserInfo
+	20, // 7: api_user.GetDeviceListResponse.devices:type_name -> api_user.DeviceInfo
+	0,  // 8: api_user.ApiUser.Register:input_type -> api_user.RegisterRequest
+	2,  // 9: api_user.ApiUser.Login:input_type -> api_user.LoginRequest
+	4,  // 10: api_user.ApiUser.GetUserInfo:input_type -> api_user.GetUserInfoRequest
+	7,  // 11: api_user.ApiUser.UpdateUserProfile:input_type -> api_user.UpdateUserProfileRequest
+	9,  // 12: api_user.ApiUser.ChangePassword:input_type -> api_user.ChangePasswordRequest
+	11, // 13: api_user.ApiUser.ResetPassword:input_type -> api_user.ResetPasswordRequest
+	13, // 14: api_user.ApiUser.BindPhone:input_type -> api_user.BindPhoneRequest
+	15, // 15: api_user.ApiUser.BindEmail:input_type -> api_user.BindEmailRequest
+	17, // 16: api_user.ApiUser.UpdatePrivacySettings:input_type -> api_user.UpdatePrivacySettingsRequest
+	19, // 17: api_user.ApiUser.GetDeviceList:input_type -> api_user.GetDeviceListRequest
+	22, // 18: api_user.ApiUser.LogoutDevice:input_type -> api_user.LogoutDeviceRequest
+	1,  // 19: api_user.ApiUser.Register:output_type -> api_user.RegisterResponse
+	3,  // 20: api_user.ApiUser.Login:output_type -> api_user.LoginResponse
+	5,  // 21: api_user.ApiUser.GetUserInfo:output_type -> api_user.GetUserInfoResponse
+	8,  // 22: api_user.ApiUser.UpdateUserProfile:output_type -> api_user.UpdateUserProfileResponse
+	10, // 23: api_user.ApiUser.ChangePassword:output_type -> api_user.ChangePasswordResponse
+	12, // 24: api_user.ApiUser.ResetPassword:output_type -> api_user.ResetPasswordResponse
+	14, // 25: api_user.ApiUser.BindPhone:output_type -> api_user.BindPhoneResponse
+	16, // 26: api_user.ApiUser.BindEmail:output_type -> api_user.BindEmailResponse
+	18, // 27: api_user.ApiUser.UpdatePrivacySettings:output_type -> api_user.UpdatePrivacySettingsResponse
+	21, // 28: api_user.ApiUser.GetDeviceList:output_type -> api_user.GetDeviceListResponse
+	23, // 29: api_user.ApiUser.LogoutDevice:output_type -> api_user.LogoutDeviceResponse
+	19, // [19:30] is the sub-list for method output_type
+	8,  // [8:19] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_api_user_user_proto_init() }
@@ -835,7 +1940,7 @@ func file_api_user_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_user_user_proto_rawDesc), len(file_api_user_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -2,6 +2,8 @@ package friend
 
 import (
 	"fmt"
+	"time"
+
 	"gochat/api/api/friend"
 	"gochat/internal/infrastructure/dao"
 	"gochat/internal/pkg/code_msg"
@@ -17,7 +19,7 @@ func (h *FriendHandler) GetFriendDetail(ctx *gin.Context) {
 	// 从URL参数获取friend_id
 	friendIDStr := ctx.Param("friend_id")
 	if friendIDStr == "" {
-		h.response.JsonError(ctx, nil, "好友ID不能为空")
+		h.response.JsonErrorFixation(ctx, code_msg.BadRequest)
 		return
 	}
 
@@ -52,7 +54,7 @@ func (h *FriendHandler) getFriendDetailLogic(ctx *gin.Context, req *friend.GetFr
 		return nil, code_msg.ServerError, err
 	}
 
-	friendID := uint(req.GetFriendId())
+	friendID := int64(req.GetFriendId())
 
 	// 获取好友关系
 	friendRelation, err := h.dao.GetFriendDetail(userID, friendID)
@@ -104,7 +106,7 @@ func (h *FriendHandler) getFriendDetailLogic(ctx *gin.Context, req *friend.GetFr
 		IsOnline:  isOnline,
 		Remark:    friendRelation.Remark,
 		IsBlocked: friendRelation.IsBlocked,
-		CreatedAt: timestamppb.New(friendRelation.CreatedAt),
+		CreatedAt: timestamppb.New(time.Unix(friendRelation.CreatedAt, 0)),
 	}
 
 	resp = &friend.GetFriendDetailResponse{

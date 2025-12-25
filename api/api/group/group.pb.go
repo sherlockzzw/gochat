@@ -7,6 +7,7 @@
 package group
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1125,7 +1126,7 @@ var File_api_group_group_proto protoreflect.FileDescriptor
 
 const file_api_group_group_proto_rawDesc = "" +
 	"\n" +
-	"\x15api/group/group.proto\x12\tapi.group\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x02\n" +
+	"\x15api/group/group.proto\x12\tapi.group\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17validate/validate.proto\"\x93\x02\n" +
 	"\tGroupInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -1150,9 +1151,9 @@ const file_api_group_group_proto_rawDesc = "" +
 	"user_phone\x18\b \x01(\tR\tuserPhone\x12\x1b\n" +
 	"\tis_online\x18\t \x01(\bR\bisOnline\x127\n" +
 	"\tjoined_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\bjoinedAt\"_\n" +
-	"\x12CreateGroupRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\bjoinedAt\"j\n" +
+	"\x12CreateGroupRequest\x12\x1d\n" +
+	"\x04name\x18\x01 \x01(\tB\t\xfaB\x06r\x04\x10\x01\x18dR\x04name\x12\x16\n" +
 	"\x06avatar\x18\x02 \x01(\tR\x06avatar\x12\x1d\n" +
 	"\n" +
 	"member_ids\x18\x03 \x03(\rR\tmemberIds\"\x80\x01\n" +
@@ -1169,19 +1170,19 @@ const file_api_group_group_proto_rawDesc = "" +
 	"\x15GetUserGroupsResponse\x12,\n" +
 	"\x06groups\x18\x01 \x03(\v2\x14.api.group.GroupInfoR\x06groups\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
-	"totalCount\"N\n" +
-	"\x16AddGroupMembersRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\rR\agroupId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\rR\auserIds\"\xa1\x01\n" +
+	"totalCount\"a\n" +
+	"\x16AddGroupMembersRequest\x12\"\n" +
+	"\bgroup_id\x18\x01 \x01(\rB\a\xfaB\x04*\x02 \x00R\agroupId\x12#\n" +
+	"\buser_ids\x18\x02 \x03(\rB\b\xfaB\x05\x92\x01\x02\b\x01R\auserIds\"\xa1\x01\n" +
 	"\x17AddGroupMembersResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1f\n" +
 	"\vadded_count\x18\x02 \x01(\x05R\n" +
 	"addedCount\x12&\n" +
 	"\x0ffailed_user_ids\x18\x03 \x03(\rR\rfailedUserIds\x12#\n" +
-	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"N\n" +
-	"\x18RemoveGroupMemberRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\rR\agroupId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\rR\x06userId\"Z\n" +
+	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"`\n" +
+	"\x18RemoveGroupMemberRequest\x12\"\n" +
+	"\bgroup_id\x18\x01 \x01(\rB\a\xfaB\x04*\x02 \x00R\agroupId\x12 \n" +
+	"\auser_id\x18\x02 \x01(\rB\a\xfaB\x04*\x02 \x00R\x06userId\"Z\n" +
 	"\x19RemoveGroupMemberResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12#\n" +
 	"\rerror_message\x18\x02 \x01(\tR\ferrorMessage\"3\n" +

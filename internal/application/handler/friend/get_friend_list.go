@@ -49,12 +49,12 @@ func (h *FriendHandler) getFriendListLogic(ctx *gin.Context, req *friend.GetFrie
 
 	// 获取在线用户ID列表
 	wsHub := globalUtils.GetWebSocketHub()
-	var onlineUserIDs []uint
+	var onlineUserIDs []int64
 	if wsHub != nil {
 		onlineUserIDs = wsHub.GetOnlineUserIDs()
 	} else {
 		// WebSocket Hub未初始化，返回空列表
-		onlineUserIDs = []uint{}
+		onlineUserIDs = []int64{}
 	}
 
 	// 获取好友列表（包含用户信息和在线状态）

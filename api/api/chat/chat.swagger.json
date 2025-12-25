@@ -96,6 +96,65 @@
           "format": "int64",
           "title": "文件大小"
         },
+        "videoUrl": {
+          "type": "string",
+          "description": "视频URL",
+          "title": "扩展字段"
+        },
+        "videoThumb": {
+          "type": "string",
+          "title": "视频缩略图"
+        },
+        "voiceUrl": {
+          "type": "string",
+          "title": "语音URL"
+        },
+        "voiceDuration": {
+          "type": "integer",
+          "format": "int32",
+          "title": "语音时长（秒）"
+        },
+        "emojiUrl": {
+          "type": "string",
+          "title": "表情包URL"
+        },
+        "mergeMessages": {
+          "type": "string",
+          "title": "JSON数组，合并消息的message_id列表"
+        },
+        "quoteMessageId": {
+          "type": "string",
+          "title": "引用的消息ID"
+        },
+        "contactUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "分享的联系人ID"
+        },
+        "redPacketId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "关联的红包ID"
+        },
+        "transferId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "关联的转账ID"
+        },
+        "isRecalled": {
+          "type": "boolean",
+          "description": "是否已撤回",
+          "title": "状态字段"
+        },
+        "isDeleted": {
+          "type": "boolean",
+          "title": "是否已删除"
+        },
+        "readStatus": {
+          "type": "integer",
+          "format": "int32",
+          "title": "已读状态：1=已发送，2=已读"
+        },
         "status": {
           "$ref": "#/definitions/chatMessageStatus",
           "title": "消息状态"
@@ -112,6 +171,16 @@
         }
       },
       "title": "聊天消息"
+    },
+    "chatDeleteMessageResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "删除消息响应"
     },
     "chatGetMessageHistoryResponse": {
       "type": "object",
@@ -203,11 +272,29 @@
         "TEXT",
         "IMAGE",
         "FILE",
-        "SYSTEM"
+        "SYSTEM",
+        "VIDEO",
+        "VOICE",
+        "EMOJI",
+        "MERGE",
+        "QUOTE",
+        "CONTACT",
+        "RED_PACKET",
+        "TRANSFER"
       ],
       "default": "TEXT",
-      "description": "- TEXT: 文字消息\n - IMAGE: 图片消息\n - FILE: 文件消息\n - SYSTEM: 系统消息",
+      "description": "- TEXT: 文字消息\n - IMAGE: 图片消息\n - FILE: 文件消息\n - SYSTEM: 系统消息\n - VIDEO: 视频消息\n - VOICE: 语音条消息\n - EMOJI: 表情包消息\n - MERGE: 合并消息\n - QUOTE: 引用消息\n - CONTACT: 联系人分享消息\n - RED_PACKET: 红包消息\n - TRANSFER: 转账消息",
       "title": "消息类型枚举"
+    },
+    "chatRecallMessageResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "撤回消息响应"
     },
     "chatSearchUserResponse": {
       "type": "object",

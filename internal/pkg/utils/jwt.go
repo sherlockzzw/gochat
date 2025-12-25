@@ -9,7 +9,7 @@ import (
 )
 
 // GetCurrentUserID 从JWT token中获取当前用户ID
-func GetCurrentUserID(ctx *gin.Context) (uint, error) {
+func GetCurrentUserID(ctx *gin.Context) (int64, error) {
 	claims := jwt.ExtractClaims(ctx)
 
 	// 检查claims是否存在
@@ -45,37 +45,35 @@ func GetCurrentUserID(ctx *gin.Context) (uint, error) {
 		return 0, fmt.Errorf("ID field is nil in identity map")
 	}
 
-	// 直接转换为uint类型（从调试信息看，ID是数字类型）
-	if userID, ok := userIDInterface.(uint); ok {
+	// 直接转换为int64类型
+	if userID, ok := userIDInterface.(int64); ok {
 		return userID, nil
 	}
 
 	// 如果是其他数字类型，尝试转换
-	if userID, ok := userIDInterface.(uint64); ok {
-		return uint(userID), nil
+	if userID, ok := userIDInterface.(int); ok {
+		return int64(userID), nil
 	}
 
-	if userID, ok := userIDInterface.(int); ok {
-		if userID < 0 {
-			return 0, fmt.Errorf("ID field is negative")
-		}
-		return uint(userID), nil
+	if userID, ok := userIDInterface.(uint); ok {
+		return int64(userID), nil
+	}
+
+	if userID, ok := userIDInterface.(uint64); ok {
+		return int64(userID), nil
 	}
 
 	if userID, ok := userIDInterface.(float64); ok {
-		if userID < 0 {
-			return 0, fmt.Errorf("ID field is negative")
-		}
-		return uint(userID), nil
+		return int64(userID), nil
 	}
 
 	// 如果是字符串，尝试解析
 	if userIDStr, ok := userIDInterface.(string); ok {
-		userID, err := strconv.ParseUint(userIDStr, 10, 32)
+		userID, err := strconv.ParseInt(userIDStr, 10, 64)
 		if err != nil {
-			return 0, fmt.Errorf("failed to parse ID as uint: %v", err)
+			return 0, fmt.Errorf("failed to parse ID as int64: %v", err)
 		}
-		return uint(userID), nil
+		return userID, nil
 	}
 
 	return 0, fmt.Errorf("ID field has unexpected type: %T", userIDInterface)

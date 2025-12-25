@@ -1,0 +1,320 @@
+syntax = "proto3";
+
+package api.balance;
+
+option go_package = "gochat/api/api/balance";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+
+// 获取余额响应
+message GetBalanceResponse {
+  int64 balance = 1;  // 余额(单位:分)
+}
+
+// 充值申请请求
+message RechargeRequest {
+  int64 amount = 1 [(validate.rules).int64 = {gt: 0}];  // 充值金额(单位:分, 0.01-5000元)
+  string remark = 2;  // 备注说明
+}
+
+// 充值申请响应
+message RechargeResponse {
+  int64 request_id = 1;  // 申请ID
+  bool success = 2;      // 是否成功
+}
+
+// 获取充值申请列表请求
+message GetRechargeRequestsRequest {
+  int32 page = 1 [(validate.rules).int32 = {gt: 0}];      // 页码
+  int32 page_size = 2 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
+}
+
+// 充值申请信息
+message RechargeRequestInfo {
+  int64 id = 1;                    // 申请ID
+  int64 amount = 2;               // 充值金额(单位:分)
+  string status = 3;               // 状态(pending/approved/rejected)
+  string remark = 4;               // 备注说明
+  int64 auditor_id = 5;            // 审核人ID
+  int64 audit_time = 6;            // 审核时间(时间戳)
+  string audit_note = 7;           // 审核备注
+  int64 created_at = 8;            // 创建时间(时间戳)
+}
+
+// 获取充值申请列表响应
+message GetRechargeRequestsResponse {
+  repeated RechargeRequestInfo requests = 1;  // 申请列表
+  int32 total_count = 2;                     // 总数量
+  int32 current_page = 3;                    // 当前页码
+  int32 page_size = 4;                       // 每页数量
+}
+
+// 提现申请请求
+message WithdrawRequest {
+  int64 amount = 1 [(validate.rules).int64 = {gt: 0}];  // 提现金额(单位:分, 1-2000元)
+  string account_info = 2 [(validate.rules).string.min_len = 1];  // 收款账户信息(加密存储)
+  string remark = 3;  // 备注说明
+}
+
+// 提现申请响应
+message WithdrawResponse {
+  int64 request_id = 1;  // 申请ID
+  bool success = 2;      // 是否成功
+}
+
+// 获取提现申请列表请求
+message GetWithdrawRequestsRequest {
+  int32 page = 1 [(validate.rules).int32 = {gt: 0}];      // 页码
+  int32 page_size = 2 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
+}
+
+// 提现申请信息
+message WithdrawRequestInfo {
+  int64 id = 1;                    // 申请ID
+  int64 amount = 2;                // 提现金额(单位:分)
+  int64 fee = 3;                   // 手续费(单位:分)
+  string status = 4;               // 状态(pending/approved/rejected)
+  string remark = 5;               // 备注说明
+  int64 auditor_id = 6;            // 审核人ID
+  int64 audit_time = 7;            // 审核时间(时间戳)
+  string audit_note = 8;           // 审核备注
+  int64 created_at = 9;            // 创建时间(时间戳)
+}
+
+// 获取提现申请列表响应
+message GetWithdrawRequestsResponse {
+  repeated WithdrawRequestInfo requests = 1;  // 申请列表
+  int32 total_count = 2;                     // 总数量
+  int32 current_page = 3;                   // 当前页码
+  int32 page_size = 4;                      // 每页数量
+}
+
+// 发送私聊红包请求
+message SendPrivateRedPacketRequest {
+  int64 receiver_id = 1 [(validate.rules).int64 = {gt: 0}];  // 接收者ID
+  int64 amount = 2 [(validate.rules).int64 = {gt: 0}];       // 红包金额(单位:分)
+  string message = 3;  // 祝福语
+}
+
+// 发送私聊红包响应
+message SendPrivateRedPacketResponse {
+  int64 red_packet_id = 1;  // 红包ID
+  bool success = 2;         // 是否成功
+}
+
+// 红包类型
+enum RedPacketType {
+  LUCKY = 0;   // 拼手气红包（随机金额）
+  NORMAL = 1;  // 普通红包（固定金额）
+}
+
+// 发送群聊红包请求
+message SendGroupRedPacketRequest {
+  int64 group_id = 1 [(validate.rules).int64 = {gt: 0}];  // 群组ID
+  RedPacketType type = 2;  // 红包类型(拼手气/普通)
+  int64 total_amount = 3 [(validate.rules).int64 = {gt: 0}];  // 红包总金额(单位:分,拼手气时使用)
+  int64 single_amount = 4;  // 单个红包金额(单位:分,普通红包时使用)
+  int32 count = 5 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 红包个数
+  string message = 6;  // 祝福语
+}
+
+// 发送群聊红包响应
+message SendGroupRedPacketResponse {
+  int64 red_packet_id = 1;  // 红包ID
+  bool success = 2;         // 是否成功
+}
+
+// 领取红包请求
+message ReceiveRedPacketRequest {
+  int64 red_packet_id = 1 [(validate.rules).int64 = {gt: 0}];  // 红包ID
+}
+
+// 领取红包响应
+message ReceiveRedPacketResponse {
+  int64 amount = 1;     // 领取金额(单位:分)
+  bool success = 2;     // 是否成功
+}
+
+// 获取红包详情请求
+message GetRedPacketDetailRequest {
+  int64 red_packet_id = 1 [(validate.rules).int64 = {gt: 0}];  // 红包ID
+}
+
+// 红包详情
+message RedPacketDetail {
+  int64 id = 1;                    // 红包ID
+  string type = 2;                 // 类型(private/group)
+  RedPacketType red_packet_type = 13;  // 红包分配类型(lucky/normal)
+  int64 sender_id = 3;             // 发送者ID
+  int64 receiver_id = 4;           // 接收者ID(私聊时使用)
+  int64 group_id = 5;              // 群组ID(群聊时使用)
+  int64 amount = 6;                 // 红包金额(单位:分,普通红包时为单个金额,拼手气红包时为总金额)
+  int64 total_amount = 7;           // 总金额(单位:分)
+  int32 count = 14;                 // 红包个数
+  int64 remaining_amount = 15;      // 剩余金额(单位:分)
+  int32 remaining_count = 16;       // 剩余个数
+  string status = 8;                // 状态
+  string message = 9;                // 祝福语
+  int64 expired_at = 10;             // 过期时间(时间戳)
+  int64 created_at = 11;            // 创建时间(时间戳)
+  repeated RedPacketReceiveInfo receives = 12;  // 领取记录(群聊时使用)
+}
+
+// 红包领取记录
+message RedPacketReceiveInfo {
+  int64 user_id = 1;      // 领取者ID
+  int64 amount = 2;       // 领取金额(单位:分)
+  int64 received_at = 3;  // 领取时间(时间戳)
+}
+
+// 获取红包详情响应
+message GetRedPacketDetailResponse {
+  RedPacketDetail detail = 1;  // 红包详情
+}
+
+// 私聊转账请求
+message SendPrivateTransferRequest {
+  int64 receiver_id = 1 [(validate.rules).int64 = {gt: 0}];  // 接收者ID
+  int64 amount = 2 [(validate.rules).int64 = {gt: 0}];      // 转账金额(单位:分)
+  string remark = 3;  // 转账备注
+}
+
+// 私聊转账响应
+message SendPrivateTransferResponse {
+  int64 transfer_id = 1;  // 转账ID
+  bool success = 2;        // 是否成功
+}
+
+// 群聊转账请求
+message SendGroupTransferRequest {
+  int64 group_id = 1 [(validate.rules).int64 = {gt: 0}];     // 群组ID
+  int64 receiver_id = 2 [(validate.rules).int64 = {gt: 0}]; // 接收者ID
+  int64 amount = 3 [(validate.rules).int64 = {gt: 0}];      // 转账金额(单位:分)
+  string remark = 4;  // 转账备注
+}
+
+// 群聊转账响应
+message SendGroupTransferResponse {
+  int64 transfer_id = 1;  // 转账ID
+  bool success = 2;        // 是否成功
+}
+
+// 接收转账请求
+message ReceiveTransferRequest {
+  int64 transfer_id = 1 [(validate.rules).int64 = {gt: 0}];  // 转账ID
+}
+
+// 接收转账响应
+message ReceiveTransferResponse {
+  bool success = 1;  // 是否成功
+}
+
+// 撤销转账请求
+message CancelTransferRequest {
+  int64 transfer_id = 1 [(validate.rules).int64 = {gt: 0}];  // 转账ID
+}
+
+// 撤销转账响应
+message CancelTransferResponse {
+  bool success = 1;  // 是否成功
+}
+
+// 获取转账详情请求
+message GetTransferDetailRequest {
+  int64 transfer_id = 1 [(validate.rules).int64 = {gt: 0}];  // 转账ID
+}
+
+// 转账详情
+message TransferDetail {
+  int64 id = 1;           // 转账ID
+  string type = 2;        // 类型(private/group)
+  int64 sender_id = 3;    // 发送者ID
+  int64 receiver_id = 4;  // 接收者ID
+  int64 group_id = 5;      // 群组ID(群聊时使用)
+  int64 amount = 6;        // 转账金额(单位:分)
+  string status = 7;       // 状态
+  string remark = 8;       // 转账备注
+  int64 created_at = 9;    // 创建时间(时间戳)
+}
+
+// 获取转账详情响应
+message GetTransferDetailResponse {
+  TransferDetail detail = 1;  // 转账详情
+}
+
+// 获取资金流水请求
+message GetBalanceFlowsRequest {
+  string flow_type = 1;   // 流水类型(可选,为空则查询所有)
+  int32 page = 2 [(validate.rules).int32 = {gt: 0}];      // 页码
+  int32 page_size = 3 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
+}
+
+// 资金流水信息
+message BalanceFlowInfo {
+  int64 id = 1;           // 流水ID
+  string type = 2;        // 流水类型
+  int64 amount = 3;       // 金额(单位:分,正数表示收入,负数表示支出)
+  int64 balance = 4;      // 操作后余额(单位:分)
+  int64 related_id = 5;   // 关联记录ID
+  string remark = 6;       // 备注说明
+  int64 created_at = 7;   // 创建时间(时间戳)
+}
+
+// 获取资金流水响应
+message GetBalanceFlowsResponse {
+  repeated BalanceFlowInfo flows = 1;  // 流水列表
+  int32 total_count = 2;               // 总数量
+  int32 current_page = 3;              // 当前页码
+  int32 page_size = 4;                  // 每页数量
+}
+
+// 资金服务定义
+service BalanceService {
+  // 获取余额
+  rpc GetBalance(google.protobuf.Empty) returns (GetBalanceResponse);
+  
+  // 充值申请
+  rpc Recharge(RechargeRequest) returns (RechargeResponse);
+  
+  // 获取充值申请列表
+  rpc GetRechargeRequests(GetRechargeRequestsRequest) returns (GetRechargeRequestsResponse);
+  
+  // 提现申请
+  rpc Withdraw(WithdrawRequest) returns (WithdrawResponse);
+  
+  // 获取提现申请列表
+  rpc GetWithdrawRequests(GetWithdrawRequestsRequest) returns (GetWithdrawRequestsResponse);
+  
+  // 发送私聊红包
+  rpc SendPrivateRedPacket(SendPrivateRedPacketRequest) returns (SendPrivateRedPacketResponse);
+  
+  // 发送群聊红包
+  rpc SendGroupRedPacket(SendGroupRedPacketRequest) returns (SendGroupRedPacketResponse);
+  
+  // 领取红包
+  rpc ReceiveRedPacket(ReceiveRedPacketRequest) returns (ReceiveRedPacketResponse);
+  
+  // 获取红包详情
+  rpc GetRedPacketDetail(GetRedPacketDetailRequest) returns (GetRedPacketDetailResponse);
+  
+  // 私聊转账
+  rpc SendPrivateTransfer(SendPrivateTransferRequest) returns (SendPrivateTransferResponse);
+  
+  // 群聊转账
+  rpc SendGroupTransfer(SendGroupTransferRequest) returns (SendGroupTransferResponse);
+  
+  // 接收转账
+  rpc ReceiveTransfer(ReceiveTransferRequest) returns (ReceiveTransferResponse);
+  
+  // 撤销转账
+  rpc CancelTransfer(CancelTransferRequest) returns (CancelTransferResponse);
+  
+  // 获取转账详情
+  rpc GetTransferDetail(GetTransferDetailRequest) returns (GetTransferDetailResponse);
+  
+  // 获取资金流水
+  rpc GetBalanceFlows(GetBalanceFlowsRequest) returns (GetBalanceFlowsResponse);
+}
+

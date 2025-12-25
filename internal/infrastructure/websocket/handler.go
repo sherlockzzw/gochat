@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/gorilla/websocket"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -58,7 +58,7 @@ func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 		if userIDStr != "" {
 			parsedID, parseErr := strconv.ParseUint(userIDStr, 10, 32)
 			if parseErr == nil {
-				userID = uint(parsedID)
+				userID = int64(parsedID)
 			}
 		}
 	}
@@ -82,7 +82,7 @@ func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 	client := &Client{
 		conn:   conn,
 		send:   make(chan []byte, 1024),
-		userID: uint(userID),
+		userID: int64(userID),
 		hub:    h.hub,
 	}
 
@@ -96,11 +96,11 @@ func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 
 	fmt.Printf("WebSocket连接已建立，用户ID: %d\n", uint(userID))
 	h.logger.Info("WebSocket connection established",
-		zap.Uint("userID", uint(userID)))
+		zap.Int64("userID", int64(userID)))
 }
 
 // parseUserIDFromToken 从JWT token中解析用户ID
-func (h *WebSocketHandler) parseUserIDFromToken(tokenString string) (uint, error) {
+func (h *WebSocketHandler) parseUserIDFromToken(tokenString string) (int64, error) {
 	// 获取加密密钥
 	encryptionKey := viper.GetString("token.encryptionKey")
 	if encryptionKey == "" {
@@ -138,19 +138,19 @@ func (h *WebSocketHandler) parseUserIDFromToken(tokenString string) (uint, error
 			if id, exists := identityMap["ID"]; exists {
 				switch v := id.(type) {
 				case float64:
-					return uint(v), nil
-				case uint:
+					return int64(v), nil
+				case int64:
 					return v, nil
-				case uint64:
-					return uint(v), nil
 				case int:
-					if v > 0 {
-						return uint(v), nil
-					}
+					return int64(v), nil
+				case uint:
+					return int64(v), nil
+				case uint64:
+					return int64(v), nil
 				case string:
-					parsedID, err := strconv.ParseUint(v, 10, 32)
+					parsedID, err := strconv.ParseInt(v, 10, 64)
 					if err == nil {
-						return uint(parsedID), nil
+						return parsedID, nil
 					}
 				}
 			}
@@ -161,19 +161,19 @@ func (h *WebSocketHandler) parseUserIDFromToken(tokenString string) (uint, error
 	if id, exists := claims["id"]; exists {
 		switch v := id.(type) {
 		case float64:
-			return uint(v), nil
-		case uint:
+			return int64(v), nil
+		case int64:
 			return v, nil
-		case uint64:
-			return uint(v), nil
 		case int:
-			if v > 0 {
-				return uint(v), nil
-			}
+			return int64(v), nil
+		case uint:
+			return int64(v), nil
+		case uint64:
+			return int64(v), nil
 		case string:
-			parsedID, err := strconv.ParseUint(v, 10, 32)
+			parsedID, err := strconv.ParseInt(v, 10, 64)
 			if err == nil {
-				return uint(parsedID), nil
+				return parsedID, nil
 			}
 		}
 	}
@@ -183,7 +183,7 @@ func (h *WebSocketHandler) parseUserIDFromToken(tokenString string) (uint, error
 
 // SendMessageToUser 发送消息给特定用户
 func (h *WebSocketHandler) SendMessageToUser(userID uint, message []byte) {
-	h.hub.SendToUser(userID, message)
+	h.hub.SendToUser(int64(userID), message)
 }
 
 // GetOnlineUsers 获取在线用户信息
@@ -201,15 +201,15 @@ func (h *WebSocketHandler) GetOnlineUsers() gin.HandlerFunc {
 func (h *WebSocketHandler) IsUserOnline() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userIDStr := c.Param("user_id")
-		userID, err := strconv.ParseUint(userIDStr, 10, 32)
+		userID, err := strconv.ParseInt(userIDStr, 10, 64)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 			return
 		}
 
-		isOnline := h.hub.IsUserOnline(uint(userID))
+		isOnline := h.hub.IsUserOnline(userID)
 		c.JSON(http.StatusOK, gin.H{
-			"user_id":   uint(userID),
+			"user_id":   userID,
 			"is_online": isOnline,
 		})
 	}

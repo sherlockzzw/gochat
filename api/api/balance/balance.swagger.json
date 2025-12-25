@@ -1,0 +1,586 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/balance/balance.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BalanceService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "balanceBalanceFlowInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "流水ID"
+        },
+        "type": {
+          "type": "string",
+          "title": "流水类型"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "金额(单位:分,正数表示收入,负数表示支出)"
+        },
+        "balance": {
+          "type": "string",
+          "format": "int64",
+          "title": "操作后余额(单位:分)"
+        },
+        "relatedId": {
+          "type": "string",
+          "format": "int64",
+          "title": "关联记录ID"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注说明"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间(时间戳)"
+        }
+      },
+      "title": "资金流水信息"
+    },
+    "balanceCancelTransferResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "撤销转账响应"
+    },
+    "balanceGetBalanceFlowsResponse": {
+      "type": "object",
+      "properties": {
+        "flows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/balanceBalanceFlowInfo"
+          },
+          "title": "流水列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        }
+      },
+      "title": "获取资金流水响应"
+    },
+    "balanceGetBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "string",
+          "format": "int64",
+          "title": "余额(单位:分)"
+        }
+      },
+      "title": "获取余额响应"
+    },
+    "balanceGetRechargeRequestsResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/balanceRechargeRequestInfo"
+          },
+          "title": "申请列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        }
+      },
+      "title": "获取充值申请列表响应"
+    },
+    "balanceGetRedPacketDetailResponse": {
+      "type": "object",
+      "properties": {
+        "detail": {
+          "$ref": "#/definitions/balanceRedPacketDetail",
+          "title": "红包详情"
+        }
+      },
+      "title": "获取红包详情响应"
+    },
+    "balanceGetTransferDetailResponse": {
+      "type": "object",
+      "properties": {
+        "detail": {
+          "$ref": "#/definitions/balanceTransferDetail",
+          "title": "转账详情"
+        }
+      },
+      "title": "获取转账详情响应"
+    },
+    "balanceGetWithdrawRequestsResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/balanceWithdrawRequestInfo"
+          },
+          "title": "申请列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        }
+      },
+      "title": "获取提现申请列表响应"
+    },
+    "balanceReceiveRedPacketResponse": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "领取金额(单位:分)"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "领取红包响应"
+    },
+    "balanceReceiveTransferResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "接收转账响应"
+    },
+    "balanceRechargeRequestInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "申请ID"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "充值金额(单位:分)"
+        },
+        "status": {
+          "type": "string",
+          "title": "状态(pending/approved/rejected)"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注说明"
+        },
+        "auditorId": {
+          "type": "string",
+          "format": "int64",
+          "title": "审核人ID"
+        },
+        "auditTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "审核时间(时间戳)"
+        },
+        "auditNote": {
+          "type": "string",
+          "title": "审核备注"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间(时间戳)"
+        }
+      },
+      "title": "充值申请信息"
+    },
+    "balanceRechargeResponse": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "format": "int64",
+          "title": "申请ID"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "充值申请响应"
+    },
+    "balanceRedPacketDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "红包ID"
+        },
+        "type": {
+          "type": "string",
+          "title": "类型(private/group)"
+        },
+        "redPacketType": {
+          "$ref": "#/definitions/balanceRedPacketType",
+          "title": "红包分配类型(lucky/normal)"
+        },
+        "senderId": {
+          "type": "string",
+          "format": "int64",
+          "title": "发送者ID"
+        },
+        "receiverId": {
+          "type": "string",
+          "format": "int64",
+          "title": "接收者ID(私聊时使用)"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "int64",
+          "title": "群组ID(群聊时使用)"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "红包金额(单位:分,普通红包时为单个金额,拼手气红包时为总金额)"
+        },
+        "totalAmount": {
+          "type": "string",
+          "format": "int64",
+          "title": "总金额(单位:分)"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "红包个数"
+        },
+        "remainingAmount": {
+          "type": "string",
+          "format": "int64",
+          "title": "剩余金额(单位:分)"
+        },
+        "remainingCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "剩余个数"
+        },
+        "status": {
+          "type": "string",
+          "title": "状态"
+        },
+        "message": {
+          "type": "string",
+          "title": "祝福语"
+        },
+        "expiredAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "过期时间(时间戳)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间(时间戳)"
+        },
+        "receives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/balanceRedPacketReceiveInfo"
+          },
+          "title": "领取记录(群聊时使用)"
+        }
+      },
+      "title": "红包详情"
+    },
+    "balanceRedPacketReceiveInfo": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "int64",
+          "title": "领取者ID"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "领取金额(单位:分)"
+        },
+        "receivedAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "领取时间(时间戳)"
+        }
+      },
+      "title": "红包领取记录"
+    },
+    "balanceRedPacketType": {
+      "type": "string",
+      "enum": [
+        "LUCKY",
+        "NORMAL"
+      ],
+      "default": "LUCKY",
+      "description": "- LUCKY: 拼手气红包（随机金额）\n - NORMAL: 普通红包（固定金额）",
+      "title": "红包类型"
+    },
+    "balanceSendGroupRedPacketResponse": {
+      "type": "object",
+      "properties": {
+        "redPacketId": {
+          "type": "string",
+          "format": "int64",
+          "title": "红包ID"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "发送群聊红包响应"
+    },
+    "balanceSendGroupTransferResponse": {
+      "type": "object",
+      "properties": {
+        "transferId": {
+          "type": "string",
+          "format": "int64",
+          "title": "转账ID"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "群聊转账响应"
+    },
+    "balanceSendPrivateRedPacketResponse": {
+      "type": "object",
+      "properties": {
+        "redPacketId": {
+          "type": "string",
+          "format": "int64",
+          "title": "红包ID"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "发送私聊红包响应"
+    },
+    "balanceSendPrivateTransferResponse": {
+      "type": "object",
+      "properties": {
+        "transferId": {
+          "type": "string",
+          "format": "int64",
+          "title": "转账ID"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "私聊转账响应"
+    },
+    "balanceTransferDetail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "转账ID"
+        },
+        "type": {
+          "type": "string",
+          "title": "类型(private/group)"
+        },
+        "senderId": {
+          "type": "string",
+          "format": "int64",
+          "title": "发送者ID"
+        },
+        "receiverId": {
+          "type": "string",
+          "format": "int64",
+          "title": "接收者ID"
+        },
+        "groupId": {
+          "type": "string",
+          "format": "int64",
+          "title": "群组ID(群聊时使用)"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "转账金额(单位:分)"
+        },
+        "status": {
+          "type": "string",
+          "title": "状态"
+        },
+        "remark": {
+          "type": "string",
+          "title": "转账备注"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间(时间戳)"
+        }
+      },
+      "title": "转账详情"
+    },
+    "balanceWithdrawRequestInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64",
+          "title": "申请ID"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "提现金额(单位:分)"
+        },
+        "fee": {
+          "type": "string",
+          "format": "int64",
+          "title": "手续费(单位:分)"
+        },
+        "status": {
+          "type": "string",
+          "title": "状态(pending/approved/rejected)"
+        },
+        "remark": {
+          "type": "string",
+          "title": "备注说明"
+        },
+        "auditorId": {
+          "type": "string",
+          "format": "int64",
+          "title": "审核人ID"
+        },
+        "auditTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "审核时间(时间戳)"
+        },
+        "auditNote": {
+          "type": "string",
+          "title": "审核备注"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64",
+          "title": "创建时间(时间戳)"
+        }
+      },
+      "title": "提现申请信息"
+    },
+    "balanceWithdrawResponse": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "format": "int64",
+          "title": "申请ID"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        }
+      },
+      "title": "提现申请响应"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

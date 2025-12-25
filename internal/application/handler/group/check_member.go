@@ -29,8 +29,8 @@ func (h *GroupHandler) CheckMemberInGroup(ctx *gin.Context) {
 }
 
 func (h *GroupHandler) checkMemberInGroupLogic(ctx *gin.Context, req *group.CheckMemberInGroupRequest) (resp *group.CheckMemberInGroupResponse, errCode code_msg.BusinessCode, err error) {
-	groupID := uint(req.GetGroupId())
-	userID := uint(req.GetUserId())
+	groupID := int64(req.GetGroupId())
+	userID := int64(req.GetUserId())
 
 	// 检查用户是否在群组中
 	isMember, err := h.dao.IsMemberInGroup(groupID, userID)

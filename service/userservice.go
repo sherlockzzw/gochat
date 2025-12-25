@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"gochat/middleware"
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 	"gochat/utils"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"

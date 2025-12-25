@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 
 	"gorm.io/gorm"
 )
@@ -23,7 +23,7 @@ func (d *GroupDao) CreateGroup(group *models.Group) error {
 }
 
 // GetGroupByID 根据ID获取群组
-func (d *GroupDao) GetGroupByID(groupID uint) (*models.Group, error) {
+func (d *GroupDao) GetGroupByID(groupID int64) (*models.Group, error) {
 	var group models.Group
 	err := d.db.Where("id = ?", groupID).First(&group).Error
 	if err != nil {
@@ -36,7 +36,7 @@ func (d *GroupDao) GetGroupByID(groupID uint) (*models.Group, error) {
 }
 
 // GetUserGroups 获取用户加入的群组列表
-func (d *GroupDao) GetUserGroups(userID uint) ([]*models.Group, error) {
+func (d *GroupDao) GetUserGroups(userID int64) ([]*models.Group, error) {
 	var groups []*models.Group
 	err := d.db.Table("`groups` AS g").
 		Select("g.*").
@@ -53,7 +53,7 @@ func (d *GroupDao) UpdateGroup(group *models.Group) error {
 }
 
 // AddMember 添加群成员（如果已存在则返回错误）
-func (d *GroupDao) AddMember(groupID, userID uint, role string, nickname string) error {
+func (d *GroupDao) AddMember(groupID, userID int64, role string, nickname string) error {
 	// 检查成员是否已存在
 	var existingMember models.GroupMember
 	err := d.db.Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
@@ -75,7 +75,7 @@ func (d *GroupDao) AddMember(groupID, userID uint, role string, nickname string)
 		UserID:   userID,
 		Role:     role,
 		Nickname: nickname,
-		JoinedAt: time.Now(),
+		JoinedAt: time.Now().Unix(),
 	}
 	
 	if err := d.db.Create(member).Error; err != nil {
@@ -89,7 +89,7 @@ func (d *GroupDao) AddMember(groupID, userID uint, role string, nickname string)
 }
 
 // AddMembers 批量添加群成员
-func (d *GroupDao) AddMembers(groupID uint, userIDs []uint, inviterID uint) error {
+func (d *GroupDao) AddMembers(groupID int64, userIDs []int64, inviterID int64) error {
 	// 开始事务
 	tx := d.db.Begin()
 	defer func() {
@@ -121,7 +121,7 @@ func (d *GroupDao) AddMembers(groupID uint, userIDs []uint, inviterID uint) erro
 			UserID:   userID,
 			Role:     models.GroupRoleMember,
 			Nickname: "",
-			JoinedAt: time.Now(),
+			JoinedAt: time.Now().Unix(),
 		}
 		
 		if err := tx.Create(member).Error; err != nil {
@@ -145,7 +145,7 @@ func (d *GroupDao) AddMembers(groupID uint, userIDs []uint, inviterID uint) erro
 }
 
 // RemoveMember 移除群成员
-func (d *GroupDao) RemoveMember(groupID, userID uint) error {
+func (d *GroupDao) RemoveMember(groupID, userID int64) error {
 	// 软删除成员
 	result := d.db.Model(&models.GroupMember{}).
 		Where("group_id = ? AND user_id = ?", groupID, userID).
@@ -166,7 +166,7 @@ func (d *GroupDao) RemoveMember(groupID, userID uint) error {
 }
 
 // GetGroupMembers 获取群成员列表
-func (d *GroupDao) GetGroupMembers(groupID uint) ([]*models.GroupMemberInfo, error) {
+func (d *GroupDao) GetGroupMembers(groupID int64) ([]*models.GroupMemberInfo, error) {
 	var members []*models.GroupMemberInfo
 	err := d.db.Table("group_members gm").
 		Select("gm.*, ub.name as user_name, ub.avatar as user_avatar, ub.phone as user_phone").
@@ -178,7 +178,7 @@ func (d *GroupDao) GetGroupMembers(groupID uint) ([]*models.GroupMemberInfo, err
 }
 
 // IsMemberInGroup 检查用户是否在群组中
-func (d *GroupDao) IsMemberInGroup(groupID, userID uint) (bool, error) {
+func (d *GroupDao) IsMemberInGroup(groupID, userID int64) (bool, error) {
 	var count int64
 	err := d.db.Model(&models.GroupMember{}).
 		Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
@@ -187,7 +187,7 @@ func (d *GroupDao) IsMemberInGroup(groupID, userID uint) (bool, error) {
 }
 
 // GetMemberRole 获取成员角色
-func (d *GroupDao) GetMemberRole(groupID, userID uint) (string, error) {
+func (d *GroupDao) GetMemberRole(groupID, userID int64) (string, error) {
 	var member models.GroupMember
 	err := d.db.Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
 		First(&member).Error
@@ -201,14 +201,14 @@ func (d *GroupDao) GetMemberRole(groupID, userID uint) (string, error) {
 }
 
 // UpdateMemberNickname 更新成员群内昵称
-func (d *GroupDao) UpdateMemberNickname(groupID, userID uint, nickname string) error {
+func (d *GroupDao) UpdateMemberNickname(groupID, userID int64, nickname string) error {
 	return d.db.Model(&models.GroupMember{}).
 		Where("group_id = ? AND user_id = ?", groupID, userID).
 		Update("nickname", nickname).Error
 }
 
 // GetGroupMemberCount 获取群成员数量
-func (d *GroupDao) GetGroupMemberCount(groupID uint) (int64, error) {
+func (d *GroupDao) GetGroupMemberCount(groupID int64) (int64, error) {
 	var count int64
 	err := d.db.Model(&models.GroupMember{}).
 		Where("group_id = ? AND deleted_at IS NULL", groupID).

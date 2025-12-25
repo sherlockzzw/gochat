@@ -5,7 +5,7 @@ import (
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -38,7 +38,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 	}
 
 	// 检查不能添加自己为好友
-	if userID == uint(req.GetFriendId()) {
+	if userID == int64(req.GetFriendId()) {
 		return &friend.AddFriendResponse{
 			Success: false,
 			Message: "不能添加自己为好友",
@@ -46,7 +46,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 	}
 
 	// 检查是否已经是好友
-	existingFriend, err := h.dao.CheckIsFriend(userID, uint(req.GetFriendId()))
+	existingFriend, err := h.dao.CheckIsFriend(userID, int64(req.GetFriendId()))
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
@@ -58,7 +58,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 	}
 
 	// 检查是否已有待处理的申请
-	existingRequest, err := h.dao.GetFriendRequest(userID, uint(req.GetFriendId()))
+	existingRequest, err := h.dao.GetFriendRequest(userID, int64(req.GetFriendId()))
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
@@ -72,7 +72,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 	// 创建好友申请
 	friendRequest := &models.FriendRequest{
 		FromUserID: userID,
-		ToUserID:   uint(req.GetFriendId()),
+		ToUserID:   int64(req.GetFriendId()),
 		Message:    req.GetMessage(),
 		Status:     "pending", // 待处理
 	}

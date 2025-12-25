@@ -2,6 +2,8 @@ package user
 
 import (
 	"fmt"
+	"time"
+
 	"gochat/api/api/user"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
@@ -96,8 +98,8 @@ func (h *UserHandler) updateUserProfileLogic(ctx *gin.Context, req *user.UpdateU
 		Email:     updatedUser.Email,
 		Avatar:    globalUtils.GetAvatarFullURL(updatedUser.Avatar, baseURL),
 		Signature: updatedUser.Signature,
-		CreatedAt: updatedUser.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt: updatedUser.UpdatedAt.Format("2006-01-02 15:04:05"),
+		CreatedAt: time.Unix(updatedUser.CreatedAt, 0).Format("2006-01-02 15:04:05"),
+		UpdatedAt: time.Unix(updatedUser.UpdatedAt, 0).Format("2006-01-02 15:04:05"),
 	}
 
 	resp = &user.UpdateUserProfileResponse{

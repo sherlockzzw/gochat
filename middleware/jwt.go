@@ -3,7 +3,7 @@ package middleware
 import (
 	"context"
 	"encoding/json"
-	"gochat/models"
+	"gochat/internal/infrastructure/models"
 	"gochat/utils"
 	"log"
 	"strconv"

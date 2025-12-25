@@ -17,6 +17,25 @@
   ],
   "paths": {},
   "definitions": {
+    "apichatGetUnreadCountResponse": {
+      "type": "object",
+      "properties": {
+        "totalUnread": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总未读数量"
+        },
+        "unreadByUser": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": "按用户分组的未读数量"
+        }
+      },
+      "title": "获取未读消息数量响应"
+    },
     "apichatUserInfo": {
       "type": "object",
       "properties": {
@@ -214,25 +233,6 @@
         }
       },
       "title": "获取消息历史响应"
-    },
-    "chatGetUnreadCountResponse": {
-      "type": "object",
-      "properties": {
-        "totalUnread": {
-          "type": "integer",
-          "format": "int32",
-          "title": "总未读数量"
-        },
-        "unreadByUser": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "title": "按用户分组的未读数量"
-        }
-      },
-      "title": "获取未读消息数量响应"
     },
     "chatMarkMessageReadResponse": {
       "type": "object",

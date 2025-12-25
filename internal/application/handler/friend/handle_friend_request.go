@@ -1,11 +1,15 @@
 package friend
 
 import (
+	"fmt"
 	"gochat/api/api/friend"
+	"gochat/internal/application/handler/common"
+	"gochat/internal/infrastructure/dao"
+	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
-	"gochat/internal/infrastructure/models"
+	globalUtils "gochat/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -58,19 +62,19 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 		return nil, code_msg.ServerError, err
 	}
 
+	// 查询申请详情获取申请人ID（用于创建好友关系和通知）
+	var fromUserID int64
+	friendRequest, err := h.dao.GetFriendRequestByID(requestID)
+	if err != nil {
+		return nil, code_msg.ServerError, err
+	}
+	if friendRequest == nil {
+		return nil, code_msg.FriendRequestNotExists, nil
+	}
+	fromUserID = friendRequest.FromUserID
+
 	// 如果同意申请，创建好友关系
 	if action == "accept" {
-		// 查询申请详情获取申请人ID
-		friendRequest, err := h.dao.GetFriendRequestByID(requestID)
-		if err != nil {
-			return nil, code_msg.ServerError, err
-		}
-		if friendRequest == nil {
-			return nil, code_msg.FriendRequestNotExists, nil
-		}
-
-		fromUserID := friendRequest.FromUserID
-
 		// 创建双向好友关系
 		friend1 := &models.Friend{
 			UserID:    userID,
@@ -89,6 +93,35 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 			return nil, code_msg.ServerError, err
 		}
 	}
+
+	// 创建通知：给申请者发送好友申请处理结果通知
+	userDao := dao.NewUserDao(globalUtils.DB)
+	handler, _ := userDao.GetUserByID(userID)
+	handlerName := "用户"
+	if handler != nil {
+		handlerName = handler.Name
+	}
+
+	var title, content string
+	if action == "accept" {
+		title = "好友申请已通过"
+		content = fmt.Sprintf("%s 已同意你的好友申请", handlerName)
+	} else {
+		title = "好友申请被拒绝"
+		content = fmt.Sprintf("%s 拒绝了你的好友申请", handlerName)
+	}
+
+	// 异步创建通知
+	go func() {
+		if err := common.CreateSystemNotification(
+			fromUserID,
+			title,
+			content,
+			requestID,
+		); err != nil {
+			fmt.Printf("Failed to create friend request handle notification: %v\n", err)
+		}
+	}()
 
 	return &friend.HandleFriendRequestResponse{
 		Success: true,

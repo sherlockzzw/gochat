@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package api.notification;
+
+option go_package = "gochat/api/api/notification";
+
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+// 通知服务
+service NotificationService {
+  // 获取通知列表
+  rpc GetNotifications(GetNotificationsRequest) returns (GetNotificationsResponse) {
+    option(google.api.http) = {
+      get:"/api/notification/list"
+    };
+  };
+
+  // 标记通知已读
+  rpc MarkAsRead(MarkAsReadRequest) returns (MarkAsReadResponse) {
+    option(google.api.http) = {
+      post:"/api/notification/read"
+      body:"*"
+    };
+  };
+
+  // 标记所有通知已读
+  rpc MarkAllAsRead(MarkAllAsReadRequest) returns (MarkAllAsReadResponse) {
+    option(google.api.http) = {
+      post:"/api/notification/read-all"
+      body:"*"
+    };
+  };
+
+  // 获取未读通知数量
+  rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse) {
+    option(google.api.http) = {
+      get:"/api/notification/unread-count"
+    };
+  };
+
+  // 删除通知
+  rpc DeleteNotification(DeleteNotificationRequest) returns (DeleteNotificationResponse) {
+    option(google.api.http) = {
+      post:"/api/notification/delete"
+      body:"*"
+    };
+  };
+}
+
+// 获取通知列表请求
+message GetNotificationsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1 [(validate.rules).int32 = {gt: 0}];      // 页码
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
+  // @inject_tag: form:"type"
+  string type = 3;  // 通知类型（可选，为空则查询所有）
+  // @inject_tag: form:"is_read"
+  string is_read = 4;  // 是否已读（可选，"true"/"false"/""，为空则查询所有）
+}
+
+// 获取通知列表响应
+message GetNotificationsResponse {
+  repeated NotificationInfo notifications = 1;  // 通知列表
+  int32 total_count = 2;                      // 总数量
+  int32 current_page = 3;                     // 当前页码
+  int32 page_size = 4;                        // 每页数量
+  int32 unread_count = 5;                     // 未读数量
+}
+
+// 通知信息
+message NotificationInfo {
+  uint64 id = 1;                              // 通知ID
+  string type = 2;                            // 通知类型
+  string title = 3;                           // 通知标题
+  string content = 4;                         // 通知内容
+  int64 amount = 5;                           // 金额(单位:分，如果有)
+  uint64 related_id = 6;                      // 关联记录ID
+  bool is_read = 7;                           // 是否已读
+  google.protobuf.Timestamp created_at = 8;  // 创建时间
+}
+
+// 标记通知已读请求
+message MarkAsReadRequest {
+  repeated uint64 notification_ids = 1 [(validate.rules).repeated.min_items = 1];  // 通知ID列表
+}
+
+// 标记通知已读响应
+message MarkAsReadResponse {
+  bool success = 1;        // 是否成功
+  int32 updated_count = 2; // 更新的数量
+}
+
+// 标记所有通知已读请求
+message MarkAllAsReadRequest {
+  // 空请求
+}
+
+// 标记所有通知已读响应
+message MarkAllAsReadResponse {
+  bool success = 1;        // 是否成功
+  int32 updated_count = 2; // 更新的数量
+}
+
+// 获取未读通知数量请求
+message GetUnreadCountRequest {
+  // 空请求
+}
+
+// 获取未读通知数量响应
+message GetUnreadCountResponse {
+  int32 count = 1;  // 未读数量
+}
+
+// 删除通知请求
+message DeleteNotificationRequest {
+  repeated uint64 notification_ids = 1 [(validate.rules).repeated.min_items = 1];  // 通知ID列表
+}
+
+// 删除通知响应
+message DeleteNotificationResponse {
+  bool success = 1;        // 是否成功
+  int32 deleted_count = 2; // 删除的数量
+}
+

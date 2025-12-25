@@ -1,12 +1,15 @@
 package balance
 
 import (
+	"fmt"
 	"gochat/api/api/balance"
+	"gochat/internal/application/handler/common"
 	"gochat/internal/infrastructure/dao"
 	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
 	"gochat/internal/pkg/utils"
+	globalUtils "gochat/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -301,6 +304,33 @@ func (h *BalanceHandler) receiveTransferLogic(ctx *gin.Context, req *balance.Rec
 
 	if err != nil {
 		return nil, code_msg.ServerError, err
+	}
+
+	// 创建通知：给发送者发送转账被接收通知
+	transfer, _ := h.dao.GetTransfer(transferID)
+	if transfer != nil {
+		userDao := dao.NewUserDao(globalUtils.DB)
+		receiver, _ := userDao.GetUserByID(userID)
+		receiverName := "用户"
+		if receiver != nil {
+			receiverName = receiver.Name
+		}
+
+		title := "转账已接收"
+		content := fmt.Sprintf("%s 已接收你的转账 %.2f元", receiverName, float64(transfer.Amount)/100.0)
+
+		// 异步创建通知
+		go func() {
+			if err := common.CreateTransferNotification(
+				transfer.SenderID,
+				title,
+				content,
+				transfer.Amount,
+				transferID,
+			); err != nil {
+				fmt.Printf("Failed to create transfer receive notification: %v\n", err)
+			}
+		}()
 	}
 
 	return &balance.ReceiveTransferResponse{

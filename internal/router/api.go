@@ -170,4 +170,23 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 		// 获取通话记录
 		callRoute.GET("records", api.CallHandler.GetCallRecords)
 	}
+
+	// 通知相关接口
+	notificationRoute := r.Group("notification")
+	{
+		// 获取通知列表
+		notificationRoute.GET("list", api.NotificationHandler.GetNotifications)
+
+		// 标记通知已读
+		notificationRoute.POST("read", api.NotificationHandler.MarkAsRead)
+
+		// 标记所有通知已读
+		notificationRoute.POST("read-all", api.NotificationHandler.MarkAllAsRead)
+
+		// 获取未读通知数量
+		notificationRoute.GET("unread-count", api.NotificationHandler.GetUnreadCount)
+
+		// 删除通知
+		notificationRoute.POST("delete", api.NotificationHandler.DeleteNotification)
+	}
 }

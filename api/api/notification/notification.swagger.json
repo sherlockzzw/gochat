@@ -1,0 +1,393 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/notification/notification.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "NotificationService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/notification/delete": {
+      "post": {
+        "summary": "删除通知",
+        "operationId": "NotificationService_DeleteNotification",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/notificationDeleteNotificationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/notificationDeleteNotificationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/api/notification/list": {
+      "get": {
+        "summary": "获取通知列表",
+        "operationId": "NotificationService_GetNotifications",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/notificationGetNotificationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "description": "@inject_tag: form:\"page\"\n\n页码",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "description": "@inject_tag: form:\"page_size\"\n\n每页数量",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "type",
+            "description": "@inject_tag: form:\"type\"\n\n通知类型（可选，为空则查询所有）",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "isRead",
+            "description": "@inject_tag: form:\"is_read\"\n\n是否已读（可选，\"true\"/\"false\"/\"\"，为空则查询所有）",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/api/notification/read": {
+      "post": {
+        "summary": "标记通知已读",
+        "operationId": "NotificationService_MarkAsRead",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/notificationMarkAsReadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/notificationMarkAsReadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/api/notification/read-all": {
+      "post": {
+        "summary": "标记所有通知已读",
+        "operationId": "NotificationService_MarkAllAsRead",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/notificationMarkAllAsReadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "空请求",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/notificationMarkAllAsReadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/api/notification/unread-count": {
+      "get": {
+        "summary": "获取未读通知数量",
+        "operationId": "NotificationService_GetUnreadCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apinotificationGetUnreadCountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apinotificationGetUnreadCountResponse": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "title": "未读数量"
+        }
+      },
+      "title": "获取未读通知数量响应"
+    },
+    "notificationDeleteNotificationRequest": {
+      "type": "object",
+      "properties": {
+        "notificationIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uint64"
+          },
+          "title": "通知ID列表"
+        }
+      },
+      "title": "删除通知请求"
+    },
+    "notificationDeleteNotificationResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "deletedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "删除的数量"
+        }
+      },
+      "title": "删除通知响应"
+    },
+    "notificationGetNotificationsResponse": {
+      "type": "object",
+      "properties": {
+        "notifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/notificationNotificationInfo"
+          },
+          "title": "通知列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        },
+        "unreadCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "未读数量"
+        }
+      },
+      "title": "获取通知列表响应"
+    },
+    "notificationMarkAllAsReadRequest": {
+      "type": "object",
+      "description": "空请求",
+      "title": "标记所有通知已读请求"
+    },
+    "notificationMarkAllAsReadResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "updatedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "更新的数量"
+        }
+      },
+      "title": "标记所有通知已读响应"
+    },
+    "notificationMarkAsReadRequest": {
+      "type": "object",
+      "properties": {
+        "notificationIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uint64"
+          },
+          "title": "通知ID列表"
+        }
+      },
+      "title": "标记通知已读请求"
+    },
+    "notificationMarkAsReadResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "updatedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "更新的数量"
+        }
+      },
+      "title": "标记通知已读响应"
+    },
+    "notificationNotificationInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "title": "通知ID"
+        },
+        "type": {
+          "type": "string",
+          "title": "通知类型"
+        },
+        "title": {
+          "type": "string",
+          "title": "通知标题"
+        },
+        "content": {
+          "type": "string",
+          "title": "通知内容"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64",
+          "title": "金额(单位:分，如果有)"
+        },
+        "relatedId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "关联记录ID"
+        },
+        "isRead": {
+          "type": "boolean",
+          "title": "是否已读"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "创建时间"
+        }
+      },
+      "title": "通知信息"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

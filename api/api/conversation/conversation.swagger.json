@@ -1,0 +1,491 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/conversation/conversation.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ConversationService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/conversation/clear-unread": {
+      "post": {
+        "summary": "清除未读数",
+        "operationId": "ConversationService_ClearUnreadCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/conversationClearUnreadCountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/conversationClearUnreadCountRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConversationService"
+        ]
+      }
+    },
+    "/api/conversation/delete": {
+      "post": {
+        "summary": "删除会话",
+        "operationId": "ConversationService_DeleteConversation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/conversationDeleteConversationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/conversationDeleteConversationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConversationService"
+        ]
+      }
+    },
+    "/api/conversation/hide": {
+      "post": {
+        "summary": "设置会话隐藏",
+        "operationId": "ConversationService_HideConversation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/conversationHideConversationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/conversationHideConversationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConversationService"
+        ]
+      }
+    },
+    "/api/conversation/list": {
+      "get": {
+        "summary": "获取会话列表",
+        "operationId": "ConversationService_GetConversations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/conversationGetConversationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "description": "@inject_tag: form:\"page\"\n\n页码",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "description": "@inject_tag: form:\"page_size\"\n\n每页数量",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "includeHidden",
+            "description": "@inject_tag: form:\"include_hidden\"\n\n是否包含隐藏的会话（默认false）",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "ConversationService"
+        ]
+      }
+    },
+    "/api/conversation/mute": {
+      "post": {
+        "summary": "设置会话静音",
+        "operationId": "ConversationService_MuteConversation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/conversationMuteConversationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/conversationMuteConversationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConversationService"
+        ]
+      }
+    },
+    "/api/conversation/pin": {
+      "post": {
+        "summary": "设置会话置顶",
+        "operationId": "ConversationService_PinConversation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/conversationPinConversationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/conversationPinConversationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ConversationService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "conversationClearUnreadCountRequest": {
+      "type": "object",
+      "properties": {
+        "otherUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "对方用户ID（私聊时使用，群聊时为0）"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID（群聊时使用，私聊时为0）"
+        }
+      },
+      "title": "清除未读数请求"
+    },
+    "conversationClearUnreadCountResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "clearedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "清除的未读数量"
+        }
+      },
+      "title": "清除未读数响应"
+    },
+    "conversationConversationInfo": {
+      "type": "object",
+      "properties": {
+        "otherUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "对方用户ID（私聊时使用）"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID（群聊时使用）"
+        },
+        "lastMessage": {
+          "type": "string",
+          "title": "最后一条消息内容"
+        },
+        "lastMessageType": {
+          "type": "integer",
+          "format": "int32",
+          "title": "最后一条消息类型"
+        },
+        "unreadCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "未读数量"
+        },
+        "lastMessageAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "最后消息时间"
+        },
+        "isPinned": {
+          "type": "boolean",
+          "title": "是否置顶"
+        },
+        "isMuted": {
+          "type": "boolean",
+          "title": "是否静音"
+        },
+        "isHidden": {
+          "type": "boolean",
+          "title": "是否隐藏"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "创建时间"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "title": "更新时间"
+        }
+      },
+      "title": "会话信息"
+    },
+    "conversationDeleteConversationRequest": {
+      "type": "object",
+      "properties": {
+        "otherUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "对方用户ID（私聊时使用，群聊时为0）"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID（群聊时使用，私聊时为0）"
+        }
+      },
+      "title": "删除会话请求"
+    },
+    "conversationDeleteConversationResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "删除会话响应"
+    },
+    "conversationGetConversationsResponse": {
+      "type": "object",
+      "properties": {
+        "conversations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/conversationConversationInfo"
+          },
+          "title": "会话列表"
+        },
+        "totalCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "总数量"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32",
+          "title": "当前页码"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "title": "每页数量"
+        }
+      },
+      "title": "获取会话列表响应"
+    },
+    "conversationHideConversationRequest": {
+      "type": "object",
+      "properties": {
+        "otherUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "对方用户ID（私聊时使用，群聊时为0）"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID（群聊时使用，私聊时为0）"
+        },
+        "isHidden": {
+          "type": "boolean",
+          "title": "是否隐藏"
+        }
+      },
+      "title": "设置会话隐藏请求"
+    },
+    "conversationHideConversationResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "设置会话隐藏响应"
+    },
+    "conversationMuteConversationRequest": {
+      "type": "object",
+      "properties": {
+        "otherUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "对方用户ID（私聊时使用，群聊时为0）"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID（群聊时使用，私聊时为0）"
+        },
+        "isMuted": {
+          "type": "boolean",
+          "title": "是否静音"
+        }
+      },
+      "title": "设置会话静音请求"
+    },
+    "conversationMuteConversationResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "设置会话静音响应"
+    },
+    "conversationPinConversationRequest": {
+      "type": "object",
+      "properties": {
+        "otherUserId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "对方用户ID（私聊时使用，群聊时为0）"
+        },
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID（群聊时使用，私聊时为0）"
+        },
+        "isPinned": {
+          "type": "boolean",
+          "title": "是否置顶"
+        }
+      },
+      "title": "设置会话置顶请求"
+    },
+    "conversationPinConversationResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "title": "设置会话置顶响应"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

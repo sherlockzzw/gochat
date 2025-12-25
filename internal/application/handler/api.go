@@ -4,6 +4,7 @@ import (
 	"gochat/internal/application/handler/balance"
 	"gochat/internal/application/handler/call"
 	"gochat/internal/application/handler/chat"
+	"gochat/internal/application/handler/conversation"
 	"gochat/internal/application/handler/friend"
 	"gochat/internal/application/handler/group"
 	"gochat/internal/application/handler/notification"
@@ -19,6 +20,7 @@ type API struct {
 	BalanceHandler      *balance.BalanceHandler
 	CallHandler         *call.CallHandler
 	NotificationHandler *notification.NotificationHandler
+	ConversationHandler *conversation.ConversationHandler
 }
 
 // NewApi 用户端接口注册
@@ -32,5 +34,6 @@ func NewApi() *API {
 		BalanceHandler:      balance.NewBalanceHandler(server),
 		CallHandler:         call.NewCallHandler(server),
 		NotificationHandler: notification.NewNotificationHandler(server),
+		ConversationHandler: conversation.NewConversationHandler(server),
 	}
 }

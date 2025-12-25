@@ -1,0 +1,152 @@
+syntax = "proto3";
+
+package api.conversation;
+
+option go_package = "gochat/api/api/conversation";
+
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+// 会话服务
+service ConversationService {
+  // 获取会话列表
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse) {
+    option(google.api.http) = {
+      get:"/api/conversation/list"
+    };
+  };
+
+  // 设置会话置顶
+  rpc PinConversation(PinConversationRequest) returns (PinConversationResponse) {
+    option(google.api.http) = {
+      post:"/api/conversation/pin"
+      body:"*"
+    };
+  };
+
+  // 设置会话静音
+  rpc MuteConversation(MuteConversationRequest) returns (MuteConversationResponse) {
+    option(google.api.http) = {
+      post:"/api/conversation/mute"
+      body:"*"
+    };
+  };
+
+  // 设置会话隐藏
+  rpc HideConversation(HideConversationRequest) returns (HideConversationResponse) {
+    option(google.api.http) = {
+      post:"/api/conversation/hide"
+      body:"*"
+    };
+  };
+
+  // 删除会话
+  rpc DeleteConversation(DeleteConversationRequest) returns (DeleteConversationResponse) {
+    option(google.api.http) = {
+      post:"/api/conversation/delete"
+      body:"*"
+    };
+  };
+
+  // 清除未读数
+  rpc ClearUnreadCount(ClearUnreadCountRequest) returns (ClearUnreadCountResponse) {
+    option(google.api.http) = {
+      post:"/api/conversation/clear-unread"
+      body:"*"
+    };
+  };
+}
+
+// 获取会话列表请求
+message GetConversationsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1 [(validate.rules).int32 = {gt: 0}];      // 页码
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2 [(validate.rules).int32 = {gt: 0, lte: 100}];  // 每页数量
+  // @inject_tag: form:"include_hidden"
+  bool include_hidden = 3;  // 是否包含隐藏的会话（默认false）
+}
+
+// 获取会话列表响应
+message GetConversationsResponse {
+  repeated ConversationInfo conversations = 1;  // 会话列表
+  int32 total_count = 2;                        // 总数量
+  int32 current_page = 3;                       // 当前页码
+  int32 page_size = 4;                          // 每页数量
+}
+
+// 会话信息
+message ConversationInfo {
+  uint32 other_user_id = 1;                     // 对方用户ID（私聊时使用）
+  uint32 group_id = 2;                          // 群组ID（群聊时使用）
+  string last_message = 3;                      // 最后一条消息内容
+  int32 last_message_type = 4;                 // 最后一条消息类型
+  int32 unread_count = 5;                      // 未读数量
+  google.protobuf.Timestamp last_message_at = 6; // 最后消息时间
+  bool is_pinned = 7;                          // 是否置顶
+  bool is_muted = 8;                           // 是否静音
+  bool is_hidden = 9;                          // 是否隐藏
+  google.protobuf.Timestamp created_at = 10;   // 创建时间
+  google.protobuf.Timestamp updated_at = 11;    // 更新时间
+}
+
+// 设置会话置顶请求
+message PinConversationRequest {
+  uint32 other_user_id = 1;  // 对方用户ID（私聊时使用，群聊时为0）
+  uint32 group_id = 2;        // 群组ID（群聊时使用，私聊时为0）
+  bool is_pinned = 3;         // 是否置顶
+}
+
+// 设置会话置顶响应
+message PinConversationResponse {
+  bool success = 1;
+}
+
+// 设置会话静音请求
+message MuteConversationRequest {
+  uint32 other_user_id = 1;  // 对方用户ID（私聊时使用，群聊时为0）
+  uint32 group_id = 2;        // 群组ID（群聊时使用，私聊时为0）
+  bool is_muted = 3;          // 是否静音
+}
+
+// 设置会话静音响应
+message MuteConversationResponse {
+  bool success = 1;
+}
+
+// 设置会话隐藏请求
+message HideConversationRequest {
+  uint32 other_user_id = 1;  // 对方用户ID（私聊时使用，群聊时为0）
+  uint32 group_id = 2;        // 群组ID（群聊时使用，私聊时为0）
+  bool is_hidden = 3;         // 是否隐藏
+}
+
+// 设置会话隐藏响应
+message HideConversationResponse {
+  bool success = 1;
+}
+
+// 删除会话请求
+message DeleteConversationRequest {
+  uint32 other_user_id = 1;  // 对方用户ID（私聊时使用，群聊时为0）
+  uint32 group_id = 2;        // 群组ID（群聊时使用，私聊时为0）
+}
+
+// 删除会话响应
+message DeleteConversationResponse {
+  bool success = 1;
+}
+
+// 清除未读数请求
+message ClearUnreadCountRequest {
+  uint32 other_user_id = 1;  // 对方用户ID（私聊时使用，群聊时为0）
+  uint32 group_id = 2;        // 群组ID（群聊时使用，私聊时为0）
+}
+
+// 清除未读数响应
+message ClearUnreadCountResponse {
+  bool success = 1;
+  int32 cleared_count = 2;   // 清除的未读数量
+}
+

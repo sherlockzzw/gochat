@@ -337,6 +337,17 @@ func (d *ChatDao) MarkMessagesAsRead(fromUserID, toUserID int64, messageID strin
 		fmt.Printf("Failed to update conversation unread count: %v\n", err)
 	}
 
+	// 更新会话设置的未读数量
+	convDao := NewConversationDao(d.mysqlDB)
+	unreadCount, err := d.GetUnreadCount(toUserID)
+	if err == nil {
+		if count, ok := unreadCount[fromUserID]; ok {
+			convDao.UpdateUnreadCount(toUserID, fromUserID, 0, count)
+		} else {
+			convDao.UpdateUnreadCount(toUserID, fromUserID, 0, 0)
+		}
+	}
+
 	return result.ModifiedCount, nil
 }
 
@@ -428,6 +439,12 @@ func (d *ChatDao) updateUserConversation(userID, otherUserID int64, message *mod
 		// 如果是接收者，增加未读数量
 		if userID == message.ToUserID {
 			updates["unread_count"] = gorm.Expr("unread_count + 1")
+			// 同时更新会话设置的未读数量
+			convDao := NewConversationDao(d.mysqlDB)
+			setting, _ := convDao.GetOrCreateConversationSetting(userID, otherUserID, 0)
+			if setting != nil {
+				convDao.UpdateUnreadCount(userID, otherUserID, 0, setting.UnreadCount+1)
+			}
 		}
 
 		err = d.mysqlDB.Model(&conversation).Updates(updates).Error

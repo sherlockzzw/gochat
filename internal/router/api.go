@@ -189,4 +189,26 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 		// 删除通知
 		notificationRoute.POST("delete", api.NotificationHandler.DeleteNotification)
 	}
+
+	// 会话相关接口
+	conversationRoute := r.Group("conversation")
+	{
+		// 获取会话列表
+		conversationRoute.GET("list", api.ConversationHandler.GetConversations)
+
+		// 设置会话置顶
+		conversationRoute.POST("pin", api.ConversationHandler.PinConversation)
+
+		// 设置会话静音
+		conversationRoute.POST("mute", api.ConversationHandler.MuteConversation)
+
+		// 设置会话隐藏
+		conversationRoute.POST("hide", api.ConversationHandler.HideConversation)
+
+		// 删除会话
+		conversationRoute.POST("delete", api.ConversationHandler.DeleteConversation)
+
+		// 清除未读数
+		conversationRoute.POST("clear-unread", api.ConversationHandler.ClearUnreadCount)
+	}
 }

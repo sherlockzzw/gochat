@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"gochat/api/api/friend"
 	"gochat/internal/application/handler/common"
-	"gochat/internal/infrastructure/dao"
 	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
-	"gochat/internal/pkg/utils"
-	globalUtils "gochat/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -37,9 +34,9 @@ func (h *FriendHandler) HandleFriendRequest(ctx *gin.Context) {
 
 func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.HandleFriendRequestRequest) (resp *friend.HandleFriendRequestResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	userID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	userID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	requestID := int64(req.GetRequestId())
@@ -105,8 +102,7 @@ func (h *FriendHandler) handleFriendRequestLogic(ctx *gin.Context, req *friend.H
 	}
 
 	// 创建通知：给申请者发送好友申请处理结果通知
-	userDao := dao.NewUserDao(globalUtils.DB)
-	handler, _ := userDao.GetUserByID(userID)
+	handler, _ := h.userDao.GetUserByID(userID)
 	handlerName := "用户"
 	if handler != nil {
 		handlerName = handler.Name

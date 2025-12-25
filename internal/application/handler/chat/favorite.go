@@ -2,12 +2,10 @@ package chat
 
 import (
 	"gochat/api/api/chat"
-	"gochat/internal/infrastructure/dao"
+	"gochat/internal/application/handler/common"
 	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
-	"gochat/internal/pkg/utils"
-	globalUtils "gochat/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -36,9 +34,9 @@ func (h *ChatHandler) FavoriteMessage(ctx *gin.Context) {
 
 func (h *ChatHandler) favoriteMessageLogic(ctx *gin.Context, req *chat.FavoriteMessageRequest) (resp *chat.FavoriteMessageResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	userID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	userID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	messageID := req.GetMessageId()
@@ -62,8 +60,7 @@ func (h *ChatHandler) favoriteMessageLogic(ctx *gin.Context, req *chat.FavoriteM
 	}
 
 	// 检查是否已经收藏
-	favoriteDao := dao.NewMessageFavoriteDao(globalUtils.DB)
-	existing, err := favoriteDao.GetFavorite(userID, messageID)
+	existing, err := h.favoriteDao.GetFavorite(userID, messageID)
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
@@ -75,7 +72,7 @@ func (h *ChatHandler) favoriteMessageLogic(ctx *gin.Context, req *chat.FavoriteM
 	}
 
 	// 创建收藏
-	err = favoriteDao.CreateFavorite(userID, messageID)
+	err = h.favoriteDao.CreateFavorite(userID, messageID)
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
@@ -107,9 +104,9 @@ func (h *ChatHandler) UnfavoriteMessage(ctx *gin.Context) {
 
 func (h *ChatHandler) unfavoriteMessageLogic(ctx *gin.Context, req *chat.UnfavoriteMessageRequest) (resp *chat.UnfavoriteMessageResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	userID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	userID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	messageID := req.GetMessageId()
@@ -118,8 +115,7 @@ func (h *ChatHandler) unfavoriteMessageLogic(ctx *gin.Context, req *chat.Unfavor
 	}
 
 	// 取消收藏
-	favoriteDao := dao.NewMessageFavoriteDao(globalUtils.DB)
-	err = favoriteDao.DeleteFavorite(userID, messageID)
+	err = h.favoriteDao.DeleteFavorite(userID, messageID)
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
@@ -151,17 +147,16 @@ func (h *ChatHandler) GetFavoriteMessages(ctx *gin.Context) {
 
 func (h *ChatHandler) getFavoriteMessagesLogic(ctx *gin.Context, req *chat.GetFavoriteMessagesRequest) (resp *chat.GetFavoriteMessagesResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	userID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	userID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	page := req.GetPage()
 	pageSize := req.GetPageSize()
 
 	// 获取收藏的消息ID列表
-	favoriteDao := dao.NewMessageFavoriteDao(globalUtils.DB)
-	messageIDs, total, err := favoriteDao.GetFavoriteMessageIDs(userID, page, pageSize)
+	messageIDs, total, err := h.favoriteDao.GetFavoriteMessageIDs(userID, page, pageSize)
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}

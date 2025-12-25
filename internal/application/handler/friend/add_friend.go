@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"gochat/api/api/friend"
 	"gochat/internal/application/handler/common"
-	"gochat/internal/infrastructure/dao"
 	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
-	"gochat/internal/pkg/utils"
-	globalUtils "gochat/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -37,9 +34,9 @@ func (h *FriendHandler) AddFriend(ctx *gin.Context) {
 
 func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRequest) (resp *friend.AddFriendResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	userID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	userID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	// 检查不能添加自己为好友
@@ -57,8 +54,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 	}
 
 	// 检查目标用户是否存在
-	userDao := dao.NewUserDao(globalUtils.DB)
-	targetUser, err := userDao.GetUserByID(int64(req.GetFriendId()))
+	targetUser, err := h.userDao.GetUserByID(int64(req.GetFriendId()))
 	if err != nil {
 		return nil, code_msg.ServerError, err
 	}
@@ -113,7 +109,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 
 		// 创建通知：通知对方已添加为好友
 		go func() {
-			sender, _ := userDao.GetUserByID(userID)
+			sender, _ := h.userDao.GetUserByID(userID)
 			senderName := "用户"
 			if sender != nil {
 				senderName = sender.Name
@@ -146,7 +142,7 @@ func (h *FriendHandler) addFriendLogic(ctx *gin.Context, req *friend.AddFriendRe
 	}
 
 	// 创建通知：给接收者发送好友申请通知
-	sender, _ := userDao.GetUserByID(userID)
+	sender, _ := h.userDao.GetUserByID(userID)
 	senderName := "用户"
 	if sender != nil {
 		senderName = sender.Name

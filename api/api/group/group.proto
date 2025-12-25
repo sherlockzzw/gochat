@@ -142,6 +142,118 @@ message CheckMemberInGroupResponse {
   string role = 2;                     // 角色（如果在群组中）
 }
 
+// 群主任命管理员请求
+message AppointAdminRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+  // @inject_tag: form:"user_id"
+  uint32 user_id = 2;                   // 要任命为管理员的用户ID
+}
+
+// 群主任命管理员响应
+message AppointAdminResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 移除管理员请求
+message RemoveAdminRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+  // @inject_tag: form:"user_id"
+  uint32 user_id = 2;                   // 要移除的管理员用户ID
+}
+
+// 移除管理员响应
+message RemoveAdminResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 禁言成员请求
+message MuteMemberRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+  // @inject_tag: form:"user_id"
+  uint32 user_id = 2;                   // 被禁言用户ID
+  // @inject_tag: form:"mute_duration"
+  int32 mute_duration = 3;             // 禁言时长（秒），0表示永久禁言
+  // @inject_tag: form:"reason"
+  string reason = 4;                    // 禁言原因（可选）
+}
+
+// 禁言成员响应
+message MuteMemberResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 解除禁言请求
+message UnmuteMemberRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+  // @inject_tag: form:"user_id"
+  uint32 user_id = 2;                   // 被禁言用户ID
+}
+
+// 解除禁言响应
+message UnmuteMemberResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 解散群组请求
+message DissolveGroupRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+}
+
+// 解散群组响应
+message DissolveGroupResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 转让群组请求
+message TransferGroupRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+  // @inject_tag: form:"new_owner_id"
+  uint32 new_owner_id = 2;              // 新群主ID
+}
+
+// 转让群组响应
+message TransferGroupResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 退出群组请求
+message LeaveGroupRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+}
+
+// 退出群组响应
+message LeaveGroupResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
+// 管理员删除消息请求
+message DeleteGroupMessageRequest {
+  // @inject_tag: form:"group_id"
+  uint32 group_id = 1;                  // 群ID
+  // @inject_tag: form:"message_id"
+  string message_id = 2;                // 消息ID
+}
+
+// 管理员删除消息响应
+message DeleteGroupMessageResponse {
+  bool success = 1;                     // 是否成功
+  string error_message = 2;            // 错误信息
+}
+
 // 群组服务定义
 service GroupService {
   // 创建群组
@@ -167,5 +279,29 @@ service GroupService {
   
   // 检查用户是否在群组中
   rpc CheckMemberInGroup(CheckMemberInGroupRequest) returns (CheckMemberInGroupResponse);
+  
+  // 群主任命管理员
+  rpc AppointAdmin(AppointAdminRequest) returns (AppointAdminResponse);
+  
+  // 移除管理员
+  rpc RemoveAdmin(RemoveAdminRequest) returns (RemoveAdminResponse);
+  
+  // 禁言成员
+  rpc MuteMember(MuteMemberRequest) returns (MuteMemberResponse);
+  
+  // 解除禁言
+  rpc UnmuteMember(UnmuteMemberRequest) returns (UnmuteMemberResponse);
+  
+  // 解散群组
+  rpc DissolveGroup(DissolveGroupRequest) returns (DissolveGroupResponse);
+  
+  // 转让群组
+  rpc TransferGroup(TransferGroupRequest) returns (TransferGroupResponse);
+  
+  // 退出群组
+  rpc LeaveGroup(LeaveGroupRequest) returns (LeaveGroupResponse);
+  
+  // 管理员删除消息
+  rpc DeleteGroupMessage(DeleteGroupMessageRequest) returns (DeleteGroupMessageResponse);
 }
 

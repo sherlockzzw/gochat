@@ -35,6 +35,7 @@ const (
 	InvalidSmsCode       BusinessCode = 4203
 	InvalidToken         BusinessCode = 4204
 	PasswordError        BusinessCode = 4205
+	AccountLocked        BusinessCode = 4206 // 账户已被锁定
 )
 
 const (
@@ -102,6 +103,7 @@ func GetMsg(code BusinessCode) string {
 		InvalidToken:         "Token无效",
 		UserNameExisted:      "用户名已存在",
 		PasswordError:        "密码错误",
+		AccountLocked:        "账户已被锁定",
 
 		// 群组相关
 		GroupNotFound:        "群组不存在",

@@ -44,6 +44,8 @@ func (h *GroupHandler) getGroupInfoLogic(ctx *gin.Context, req *group.GetGroupIn
 		return &group.GetGroupInfoResponse{}, code_msg.NotFound, nil
 	}
 
+	// 成员可以查看群信息（不需要额外权限检查，因为任何成员都可以查看）
+
 	// 获取群成员列表
 	members, err := h.dao.GetGroupMembers(groupID)
 	if err != nil {

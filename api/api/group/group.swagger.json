@@ -44,6 +44,20 @@
       },
       "title": "添加群成员响应"
     },
+    "groupAppointAdminResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "群主任命管理员响应"
+    },
     "groupCheckMemberInGroupResponse": {
       "type": "object",
       "properties": {
@@ -75,6 +89,34 @@
         }
       },
       "title": "创建群组响应"
+    },
+    "groupDeleteGroupMessageResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "管理员删除消息响应"
+    },
+    "groupDissolveGroupResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "解散群组响应"
     },
     "groupGetGroupInfoResponse": {
       "type": "object",
@@ -225,6 +267,48 @@
       },
       "title": "群成员信息"
     },
+    "groupLeaveGroupResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "退出群组响应"
+    },
+    "groupMuteMemberResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "禁言成员响应"
+    },
+    "groupRemoveAdminResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "移除管理员响应"
+    },
     "groupRemoveGroupMemberResponse": {
       "type": "object",
       "properties": {
@@ -238,6 +322,34 @@
         }
       },
       "title": "移除群成员响应"
+    },
+    "groupTransferGroupResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "转让群组响应"
+    },
+    "groupUnmuteMemberResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "解除禁言响应"
     },
     "groupUpdateGroupInfoResponse": {
       "type": "object",

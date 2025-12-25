@@ -145,10 +145,18 @@
           "type": "string",
           "title": "引用的消息ID"
         },
+        "quotedMessage": {
+          "$ref": "#/definitions/chatChatMessage",
+          "title": "被引用的消息详细信息（仅引用消息时返回）"
+        },
         "contactUserId": {
           "type": "integer",
           "format": "int64",
           "title": "分享的联系人ID"
+        },
+        "contactUser": {
+          "$ref": "#/definitions/apichatUserInfo",
+          "title": "联系人详细信息（仅联系人分享消息时返回）"
         },
         "redPacketId": {
           "type": "integer",

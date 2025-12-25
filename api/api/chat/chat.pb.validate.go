@@ -89,7 +89,65 @@ func (m *ChatMessage) validate(all bool) error {
 
 	// no validation rules for QuoteMessageId
 
+	if all {
+		switch v := interface{}(m.GetQuotedMessage()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChatMessageValidationError{
+					field:  "QuotedMessage",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChatMessageValidationError{
+					field:  "QuotedMessage",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetQuotedMessage()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChatMessageValidationError{
+				field:  "QuotedMessage",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	// no validation rules for ContactUserId
+
+	if all {
+		switch v := interface{}(m.GetContactUser()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChatMessageValidationError{
+					field:  "ContactUser",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChatMessageValidationError{
+					field:  "ContactUser",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetContactUser()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChatMessageValidationError{
+				field:  "ContactUser",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	// no validation rules for RedPacketId
 

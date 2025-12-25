@@ -27,6 +27,14 @@ const (
 	GroupService_GetGroupMembers_FullMethodName    = "/api.group.GroupService/GetGroupMembers"
 	GroupService_UpdateGroupInfo_FullMethodName    = "/api.group.GroupService/UpdateGroupInfo"
 	GroupService_CheckMemberInGroup_FullMethodName = "/api.group.GroupService/CheckMemberInGroup"
+	GroupService_AppointAdmin_FullMethodName       = "/api.group.GroupService/AppointAdmin"
+	GroupService_RemoveAdmin_FullMethodName        = "/api.group.GroupService/RemoveAdmin"
+	GroupService_MuteMember_FullMethodName         = "/api.group.GroupService/MuteMember"
+	GroupService_UnmuteMember_FullMethodName       = "/api.group.GroupService/UnmuteMember"
+	GroupService_DissolveGroup_FullMethodName      = "/api.group.GroupService/DissolveGroup"
+	GroupService_TransferGroup_FullMethodName      = "/api.group.GroupService/TransferGroup"
+	GroupService_LeaveGroup_FullMethodName         = "/api.group.GroupService/LeaveGroup"
+	GroupService_DeleteGroupMessage_FullMethodName = "/api.group.GroupService/DeleteGroupMessage"
 )
 
 // GroupServiceClient is the client API for GroupService service.
@@ -51,6 +59,22 @@ type GroupServiceClient interface {
 	UpdateGroupInfo(ctx context.Context, in *UpdateGroupInfoRequest, opts ...grpc.CallOption) (*UpdateGroupInfoResponse, error)
 	// 检查用户是否在群组中
 	CheckMemberInGroup(ctx context.Context, in *CheckMemberInGroupRequest, opts ...grpc.CallOption) (*CheckMemberInGroupResponse, error)
+	// 群主任命管理员
+	AppointAdmin(ctx context.Context, in *AppointAdminRequest, opts ...grpc.CallOption) (*AppointAdminResponse, error)
+	// 移除管理员
+	RemoveAdmin(ctx context.Context, in *RemoveAdminRequest, opts ...grpc.CallOption) (*RemoveAdminResponse, error)
+	// 禁言成员
+	MuteMember(ctx context.Context, in *MuteMemberRequest, opts ...grpc.CallOption) (*MuteMemberResponse, error)
+	// 解除禁言
+	UnmuteMember(ctx context.Context, in *UnmuteMemberRequest, opts ...grpc.CallOption) (*UnmuteMemberResponse, error)
+	// 解散群组
+	DissolveGroup(ctx context.Context, in *DissolveGroupRequest, opts ...grpc.CallOption) (*DissolveGroupResponse, error)
+	// 转让群组
+	TransferGroup(ctx context.Context, in *TransferGroupRequest, opts ...grpc.CallOption) (*TransferGroupResponse, error)
+	// 退出群组
+	LeaveGroup(ctx context.Context, in *LeaveGroupRequest, opts ...grpc.CallOption) (*LeaveGroupResponse, error)
+	// 管理员删除消息
+	DeleteGroupMessage(ctx context.Context, in *DeleteGroupMessageRequest, opts ...grpc.CallOption) (*DeleteGroupMessageResponse, error)
 }
 
 type groupServiceClient struct {
@@ -141,6 +165,86 @@ func (c *groupServiceClient) CheckMemberInGroup(ctx context.Context, in *CheckMe
 	return out, nil
 }
 
+func (c *groupServiceClient) AppointAdmin(ctx context.Context, in *AppointAdminRequest, opts ...grpc.CallOption) (*AppointAdminResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AppointAdminResponse)
+	err := c.cc.Invoke(ctx, GroupService_AppointAdmin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) RemoveAdmin(ctx context.Context, in *RemoveAdminRequest, opts ...grpc.CallOption) (*RemoveAdminResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveAdminResponse)
+	err := c.cc.Invoke(ctx, GroupService_RemoveAdmin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) MuteMember(ctx context.Context, in *MuteMemberRequest, opts ...grpc.CallOption) (*MuteMemberResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MuteMemberResponse)
+	err := c.cc.Invoke(ctx, GroupService_MuteMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) UnmuteMember(ctx context.Context, in *UnmuteMemberRequest, opts ...grpc.CallOption) (*UnmuteMemberResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UnmuteMemberResponse)
+	err := c.cc.Invoke(ctx, GroupService_UnmuteMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) DissolveGroup(ctx context.Context, in *DissolveGroupRequest, opts ...grpc.CallOption) (*DissolveGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DissolveGroupResponse)
+	err := c.cc.Invoke(ctx, GroupService_DissolveGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) TransferGroup(ctx context.Context, in *TransferGroupRequest, opts ...grpc.CallOption) (*TransferGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TransferGroupResponse)
+	err := c.cc.Invoke(ctx, GroupService_TransferGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) LeaveGroup(ctx context.Context, in *LeaveGroupRequest, opts ...grpc.CallOption) (*LeaveGroupResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaveGroupResponse)
+	err := c.cc.Invoke(ctx, GroupService_LeaveGroup_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *groupServiceClient) DeleteGroupMessage(ctx context.Context, in *DeleteGroupMessageRequest, opts ...grpc.CallOption) (*DeleteGroupMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteGroupMessageResponse)
+	err := c.cc.Invoke(ctx, GroupService_DeleteGroupMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GroupServiceServer is the server API for GroupService service.
 // All implementations must embed UnimplementedGroupServiceServer
 // for forward compatibility.
@@ -163,6 +267,22 @@ type GroupServiceServer interface {
 	UpdateGroupInfo(context.Context, *UpdateGroupInfoRequest) (*UpdateGroupInfoResponse, error)
 	// 检查用户是否在群组中
 	CheckMemberInGroup(context.Context, *CheckMemberInGroupRequest) (*CheckMemberInGroupResponse, error)
+	// 群主任命管理员
+	AppointAdmin(context.Context, *AppointAdminRequest) (*AppointAdminResponse, error)
+	// 移除管理员
+	RemoveAdmin(context.Context, *RemoveAdminRequest) (*RemoveAdminResponse, error)
+	// 禁言成员
+	MuteMember(context.Context, *MuteMemberRequest) (*MuteMemberResponse, error)
+	// 解除禁言
+	UnmuteMember(context.Context, *UnmuteMemberRequest) (*UnmuteMemberResponse, error)
+	// 解散群组
+	DissolveGroup(context.Context, *DissolveGroupRequest) (*DissolveGroupResponse, error)
+	// 转让群组
+	TransferGroup(context.Context, *TransferGroupRequest) (*TransferGroupResponse, error)
+	// 退出群组
+	LeaveGroup(context.Context, *LeaveGroupRequest) (*LeaveGroupResponse, error)
+	// 管理员删除消息
+	DeleteGroupMessage(context.Context, *DeleteGroupMessageRequest) (*DeleteGroupMessageResponse, error)
 	mustEmbedUnimplementedGroupServiceServer()
 }
 
@@ -196,6 +316,30 @@ func (UnimplementedGroupServiceServer) UpdateGroupInfo(context.Context, *UpdateG
 }
 func (UnimplementedGroupServiceServer) CheckMemberInGroup(context.Context, *CheckMemberInGroupRequest) (*CheckMemberInGroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckMemberInGroup not implemented")
+}
+func (UnimplementedGroupServiceServer) AppointAdmin(context.Context, *AppointAdminRequest) (*AppointAdminResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AppointAdmin not implemented")
+}
+func (UnimplementedGroupServiceServer) RemoveAdmin(context.Context, *RemoveAdminRequest) (*RemoveAdminResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveAdmin not implemented")
+}
+func (UnimplementedGroupServiceServer) MuteMember(context.Context, *MuteMemberRequest) (*MuteMemberResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MuteMember not implemented")
+}
+func (UnimplementedGroupServiceServer) UnmuteMember(context.Context, *UnmuteMemberRequest) (*UnmuteMemberResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnmuteMember not implemented")
+}
+func (UnimplementedGroupServiceServer) DissolveGroup(context.Context, *DissolveGroupRequest) (*DissolveGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DissolveGroup not implemented")
+}
+func (UnimplementedGroupServiceServer) TransferGroup(context.Context, *TransferGroupRequest) (*TransferGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TransferGroup not implemented")
+}
+func (UnimplementedGroupServiceServer) LeaveGroup(context.Context, *LeaveGroupRequest) (*LeaveGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaveGroup not implemented")
+}
+func (UnimplementedGroupServiceServer) DeleteGroupMessage(context.Context, *DeleteGroupMessageRequest) (*DeleteGroupMessageResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroupMessage not implemented")
 }
 func (UnimplementedGroupServiceServer) mustEmbedUnimplementedGroupServiceServer() {}
 func (UnimplementedGroupServiceServer) testEmbeddedByValue()                      {}
@@ -362,6 +506,150 @@ func _GroupService_CheckMemberInGroup_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GroupService_AppointAdmin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AppointAdminRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).AppointAdmin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_AppointAdmin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).AppointAdmin(ctx, req.(*AppointAdminRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_RemoveAdmin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveAdminRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).RemoveAdmin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_RemoveAdmin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).RemoveAdmin(ctx, req.(*RemoveAdminRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_MuteMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MuteMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).MuteMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_MuteMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).MuteMember(ctx, req.(*MuteMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_UnmuteMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnmuteMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).UnmuteMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_UnmuteMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).UnmuteMember(ctx, req.(*UnmuteMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_DissolveGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DissolveGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).DissolveGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_DissolveGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).DissolveGroup(ctx, req.(*DissolveGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_TransferGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TransferGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).TransferGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_TransferGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).TransferGroup(ctx, req.(*TransferGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_LeaveGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaveGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).LeaveGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_LeaveGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).LeaveGroup(ctx, req.(*LeaveGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GroupService_DeleteGroupMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteGroupMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServiceServer).DeleteGroupMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupService_DeleteGroupMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServiceServer).DeleteGroupMessage(ctx, req.(*DeleteGroupMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GroupService_ServiceDesc is the grpc.ServiceDesc for GroupService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -400,6 +688,38 @@ var GroupService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckMemberInGroup",
 			Handler:    _GroupService_CheckMemberInGroup_Handler,
+		},
+		{
+			MethodName: "AppointAdmin",
+			Handler:    _GroupService_AppointAdmin_Handler,
+		},
+		{
+			MethodName: "RemoveAdmin",
+			Handler:    _GroupService_RemoveAdmin_Handler,
+		},
+		{
+			MethodName: "MuteMember",
+			Handler:    _GroupService_MuteMember_Handler,
+		},
+		{
+			MethodName: "UnmuteMember",
+			Handler:    _GroupService_UnmuteMember_Handler,
+		},
+		{
+			MethodName: "DissolveGroup",
+			Handler:    _GroupService_DissolveGroup_Handler,
+		},
+		{
+			MethodName: "TransferGroup",
+			Handler:    _GroupService_TransferGroup_Handler,
+		},
+		{
+			MethodName: "LeaveGroup",
+			Handler:    _GroupService_LeaveGroup_Handler,
+		},
+		{
+			MethodName: "DeleteGroupMessage",
+			Handler:    _GroupService_DeleteGroupMessage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

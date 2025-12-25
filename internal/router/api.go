@@ -120,6 +120,33 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 
 		// 检查用户是否在群组中
 		groupRoute.GET("members/check", api.GroupHandler.CheckMemberInGroup)
+
+		// 更新群组信息（仅群主）
+		groupRoute.POST("update", api.GroupHandler.UpdateGroupInfo)
+
+		// 群主权限：任命管理员
+		groupRoute.POST("admin/appoint", api.GroupHandler.AppointAdmin)
+
+		// 群主权限：移除管理员
+		groupRoute.POST("admin/remove", api.GroupHandler.RemoveAdmin)
+
+		// 群主/管理员权限：禁言成员
+		groupRoute.POST("mute", api.GroupHandler.MuteMember)
+
+		// 群主/管理员权限：解除禁言
+		groupRoute.POST("unmute", api.GroupHandler.UnmuteMember)
+
+		// 群主权限：解散群组
+		groupRoute.POST("dissolve", api.GroupHandler.DissolveGroup)
+
+		// 群主权限：转让群组
+		groupRoute.POST("transfer", api.GroupHandler.TransferGroup)
+
+		// 成员权限：退出群组
+		groupRoute.POST("leave", api.GroupHandler.LeaveGroup)
+
+		// 管理员权限：删除消息
+		groupRoute.POST("message/delete", api.GroupHandler.DeleteGroupMessage)
 	}
 
 	// 资金相关接口

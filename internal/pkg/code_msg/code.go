@@ -45,4 +45,7 @@ var CodeMsg = map[BusinessCode]string{
 	FriendRequestExists:     "已发送过好友申请，请等待对方处理",
 	CannotAddSelf:           "不能添加自己为好友",
 	InvalidOperation:        "无效的操作类型",
+
+	// 登录相关
+	AccountLocked: "账户已被锁定",
 }

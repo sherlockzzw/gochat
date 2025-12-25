@@ -216,3 +216,69 @@ func (d *GroupDao) GetGroupMemberCount(groupID int64) (int64, error) {
 	return count, err
 }
 
+// UpdateMemberRole 更新成员角色
+func (d *GroupDao) UpdateMemberRole(groupID, userID int64, role string) error {
+	return d.db.Model(&models.GroupMember{}).
+		Where("group_id = ? AND user_id = ?", groupID, userID).
+		Update("role", role).Error
+}
+
+// GetGroupMember 获取群成员信息
+func (d *GroupDao) GetGroupMember(groupID, userID int64) (*models.GroupMember, error) {
+	var member models.GroupMember
+	err := d.db.Where("group_id = ? AND user_id = ? AND deleted_at IS NULL", groupID, userID).
+		First(&member).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &member, nil
+}
+
+// DissolveGroup 解散群组（软删除）
+func (d *GroupDao) DissolveGroup(groupID int64) error {
+	now := time.Now().Unix()
+	// 软删除群组
+	err := d.db.Model(&models.Group{}).
+		Where("id = ?", groupID).
+		Update("deleted_at", now).Error
+	if err != nil {
+		return err
+	}
+	// 软删除所有成员
+	return d.db.Model(&models.GroupMember{}).
+		Where("group_id = ?", groupID).
+		Update("deleted_at", now).Error
+}
+
+// TransferGroup 转让群组
+func (d *GroupDao) TransferGroup(groupID, oldOwnerID, newOwnerID int64) error {
+	// 使用事务确保原子性
+	return d.db.Transaction(func(tx *gorm.DB) error {
+		// 更新群组owner_id
+		if err := tx.Model(&models.Group{}).
+			Where("id = ?", groupID).
+			Update("owner_id", newOwnerID).Error; err != nil {
+			return err
+		}
+
+		// 更新原群主角色为member
+		if err := tx.Model(&models.GroupMember{}).
+			Where("group_id = ? AND user_id = ?", groupID, oldOwnerID).
+			Update("role", models.GroupRoleMember).Error; err != nil {
+			return err
+		}
+
+		// 更新新群主角色为owner
+		if err := tx.Model(&models.GroupMember{}).
+			Where("group_id = ? AND user_id = ?", groupID, newOwnerID).
+			Update("role", models.GroupRoleOwner).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+

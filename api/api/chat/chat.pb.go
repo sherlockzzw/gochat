@@ -169,16 +169,18 @@ type ChatMessage struct {
 	FileName    string                 `protobuf:"bytes,7,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`                                     // 文件名
 	FileSize    int64                  `protobuf:"varint,8,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`                                    // 文件大小
 	// 扩展字段
-	VideoUrl       string `protobuf:"bytes,13,opt,name=video_url,json=videoUrl,proto3" json:"video_url,omitempty"`                     // 视频URL
-	VideoThumb     string `protobuf:"bytes,14,opt,name=video_thumb,json=videoThumb,proto3" json:"video_thumb,omitempty"`               // 视频缩略图
-	VoiceUrl       string `protobuf:"bytes,15,opt,name=voice_url,json=voiceUrl,proto3" json:"voice_url,omitempty"`                     // 语音URL
-	VoiceDuration  int32  `protobuf:"varint,16,opt,name=voice_duration,json=voiceDuration,proto3" json:"voice_duration,omitempty"`     // 语音时长（秒）
-	EmojiUrl       string `protobuf:"bytes,17,opt,name=emoji_url,json=emojiUrl,proto3" json:"emoji_url,omitempty"`                     // 表情包URL
-	MergeMessages  string `protobuf:"bytes,18,opt,name=merge_messages,json=mergeMessages,proto3" json:"merge_messages,omitempty"`      // JSON数组，合并消息的message_id列表
-	QuoteMessageId string `protobuf:"bytes,19,opt,name=quote_message_id,json=quoteMessageId,proto3" json:"quote_message_id,omitempty"` // 引用的消息ID
-	ContactUserId  uint32 `protobuf:"varint,20,opt,name=contact_user_id,json=contactUserId,proto3" json:"contact_user_id,omitempty"`   // 分享的联系人ID
-	RedPacketId    uint32 `protobuf:"varint,21,opt,name=red_packet_id,json=redPacketId,proto3" json:"red_packet_id,omitempty"`         // 关联的红包ID
-	TransferId     uint32 `protobuf:"varint,22,opt,name=transfer_id,json=transferId,proto3" json:"transfer_id,omitempty"`              // 关联的转账ID
+	VideoUrl       string       `protobuf:"bytes,13,opt,name=video_url,json=videoUrl,proto3" json:"video_url,omitempty"`                     // 视频URL
+	VideoThumb     string       `protobuf:"bytes,14,opt,name=video_thumb,json=videoThumb,proto3" json:"video_thumb,omitempty"`               // 视频缩略图
+	VoiceUrl       string       `protobuf:"bytes,15,opt,name=voice_url,json=voiceUrl,proto3" json:"voice_url,omitempty"`                     // 语音URL
+	VoiceDuration  int32        `protobuf:"varint,16,opt,name=voice_duration,json=voiceDuration,proto3" json:"voice_duration,omitempty"`     // 语音时长（秒）
+	EmojiUrl       string       `protobuf:"bytes,17,opt,name=emoji_url,json=emojiUrl,proto3" json:"emoji_url,omitempty"`                     // 表情包URL
+	MergeMessages  string       `protobuf:"bytes,18,opt,name=merge_messages,json=mergeMessages,proto3" json:"merge_messages,omitempty"`      // JSON数组，合并消息的message_id列表
+	QuoteMessageId string       `protobuf:"bytes,19,opt,name=quote_message_id,json=quoteMessageId,proto3" json:"quote_message_id,omitempty"` // 引用的消息ID
+	QuotedMessage  *ChatMessage `protobuf:"bytes,26,opt,name=quoted_message,json=quotedMessage,proto3" json:"quoted_message,omitempty"`      // 被引用的消息详细信息（仅引用消息时返回）
+	ContactUserId  uint32       `protobuf:"varint,20,opt,name=contact_user_id,json=contactUserId,proto3" json:"contact_user_id,omitempty"`   // 分享的联系人ID
+	ContactUser    *UserInfo    `protobuf:"bytes,27,opt,name=contact_user,json=contactUser,proto3" json:"contact_user,omitempty"`            // 联系人详细信息（仅联系人分享消息时返回）
+	RedPacketId    uint32       `protobuf:"varint,21,opt,name=red_packet_id,json=redPacketId,proto3" json:"red_packet_id,omitempty"`         // 关联的红包ID
+	TransferId     uint32       `protobuf:"varint,22,opt,name=transfer_id,json=transferId,proto3" json:"transfer_id,omitempty"`              // 关联的转账ID
 	// 状态字段
 	IsRecalled    bool                 `protobuf:"varint,23,opt,name=is_recalled,json=isRecalled,proto3" json:"is_recalled,omitempty"`  // 是否已撤回
 	IsDeleted     bool                 `protobuf:"varint,24,opt,name=is_deleted,json=isDeleted,proto3" json:"is_deleted,omitempty"`     // 是否已删除
@@ -332,11 +334,25 @@ func (x *ChatMessage) GetQuoteMessageId() string {
 	return ""
 }
 
+func (x *ChatMessage) GetQuotedMessage() *ChatMessage {
+	if x != nil {
+		return x.QuotedMessage
+	}
+	return nil
+}
+
 func (x *ChatMessage) GetContactUserId() uint32 {
 	if x != nil {
 		return x.ContactUserId
 	}
 	return 0
+}
+
+func (x *ChatMessage) GetContactUser() *UserInfo {
+	if x != nil {
+		return x.ContactUser
+	}
+	return nil
 }
 
 func (x *ChatMessage) GetRedPacketId() uint32 {
@@ -1951,7 +1967,7 @@ var File_api_chat_chat_proto protoreflect.FileDescriptor
 
 const file_api_chat_chat_proto_rawDesc = "" +
 	"\n" +
-	"\x13api/chat/chat.proto\x12\bapi.chat\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17validate/validate.proto\"\x86\a\n" +
+	"\x13api/chat/chat.proto\x12\bapi.chat\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17validate/validate.proto\"\xfb\a\n" +
 	"\vChatMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
 	"\ffrom_user_id\x18\x02 \x01(\rR\n" +
@@ -1971,8 +1987,10 @@ const file_api_chat_chat_proto_rawDesc = "" +
 	"\x0evoice_duration\x18\x10 \x01(\x05R\rvoiceDuration\x12\x1b\n" +
 	"\temoji_url\x18\x11 \x01(\tR\bemojiUrl\x12%\n" +
 	"\x0emerge_messages\x18\x12 \x01(\tR\rmergeMessages\x12(\n" +
-	"\x10quote_message_id\x18\x13 \x01(\tR\x0equoteMessageId\x12&\n" +
-	"\x0fcontact_user_id\x18\x14 \x01(\rR\rcontactUserId\x12\"\n" +
+	"\x10quote_message_id\x18\x13 \x01(\tR\x0equoteMessageId\x12<\n" +
+	"\x0equoted_message\x18\x1a \x01(\v2\x15.api.chat.ChatMessageR\rquotedMessage\x12&\n" +
+	"\x0fcontact_user_id\x18\x14 \x01(\rR\rcontactUserId\x125\n" +
+	"\fcontact_user\x18\x1b \x01(\v2\x12.api.chat.UserInfoR\vcontactUser\x12\"\n" +
 	"\rred_packet_id\x18\x15 \x01(\rR\vredPacketId\x12\x1f\n" +
 	"\vtransfer_id\x18\x16 \x01(\rR\n" +
 	"transferId\x12\x1f\n" +
@@ -2196,47 +2214,49 @@ var file_api_chat_chat_proto_goTypes = []any{
 }
 var file_api_chat_chat_proto_depIdxs = []int32{
 	0,  // 0: api.chat.ChatMessage.message_type:type_name -> api.chat.MessageType
-	1,  // 1: api.chat.ChatMessage.status:type_name -> api.chat.MessageStatus
-	29, // 2: api.chat.ChatMessage.created_at:type_name -> google.protobuf.Timestamp
-	29, // 3: api.chat.ChatMessage.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 4: api.chat.SendMessageRequest.message_type:type_name -> api.chat.MessageType
-	2,  // 5: api.chat.SendMessageResponse.message:type_name -> api.chat.ChatMessage
-	29, // 6: api.chat.GetMessageHistoryRequest.before_time:type_name -> google.protobuf.Timestamp
-	2,  // 7: api.chat.GetMessageHistoryResponse.messages:type_name -> api.chat.ChatMessage
-	9,  // 8: api.chat.SearchUserResponse.users:type_name -> api.chat.UserInfo
-	29, // 9: api.chat.UserInfo.last_seen:type_name -> google.protobuf.Timestamp
-	28, // 10: api.chat.GetUnreadCountResponse.unread_by_user:type_name -> api.chat.GetUnreadCountResponse.UnreadByUserEntry
-	2,  // 11: api.chat.ForwardMessageResponse.messages:type_name -> api.chat.ChatMessage
-	2,  // 12: api.chat.GetFavoriteMessagesResponse.messages:type_name -> api.chat.ChatMessage
-	7,  // 13: api.chat.ChatService.SearchUser:input_type -> api.chat.SearchUserRequest
-	3,  // 14: api.chat.ChatService.SendMessage:input_type -> api.chat.SendMessageRequest
-	5,  // 15: api.chat.ChatService.GetMessageHistory:input_type -> api.chat.GetMessageHistoryRequest
-	10, // 16: api.chat.ChatService.MarkMessageRead:input_type -> api.chat.MarkMessageReadRequest
-	12, // 17: api.chat.ChatService.GetUnreadCount:input_type -> api.chat.GetUnreadCountRequest
-	14, // 18: api.chat.ChatService.UploadFile:input_type -> api.chat.UploadFileRequest
-	16, // 19: api.chat.ChatService.RecallMessage:input_type -> api.chat.RecallMessageRequest
-	18, // 20: api.chat.ChatService.DeleteMessage:input_type -> api.chat.DeleteMessageRequest
-	20, // 21: api.chat.ChatService.ForwardMessage:input_type -> api.chat.ForwardMessageRequest
-	22, // 22: api.chat.ChatService.FavoriteMessage:input_type -> api.chat.FavoriteMessageRequest
-	24, // 23: api.chat.ChatService.UnfavoriteMessage:input_type -> api.chat.UnfavoriteMessageRequest
-	26, // 24: api.chat.ChatService.GetFavoriteMessages:input_type -> api.chat.GetFavoriteMessagesRequest
-	8,  // 25: api.chat.ChatService.SearchUser:output_type -> api.chat.SearchUserResponse
-	4,  // 26: api.chat.ChatService.SendMessage:output_type -> api.chat.SendMessageResponse
-	6,  // 27: api.chat.ChatService.GetMessageHistory:output_type -> api.chat.GetMessageHistoryResponse
-	11, // 28: api.chat.ChatService.MarkMessageRead:output_type -> api.chat.MarkMessageReadResponse
-	13, // 29: api.chat.ChatService.GetUnreadCount:output_type -> api.chat.GetUnreadCountResponse
-	15, // 30: api.chat.ChatService.UploadFile:output_type -> api.chat.UploadFileResponse
-	17, // 31: api.chat.ChatService.RecallMessage:output_type -> api.chat.RecallMessageResponse
-	19, // 32: api.chat.ChatService.DeleteMessage:output_type -> api.chat.DeleteMessageResponse
-	21, // 33: api.chat.ChatService.ForwardMessage:output_type -> api.chat.ForwardMessageResponse
-	23, // 34: api.chat.ChatService.FavoriteMessage:output_type -> api.chat.FavoriteMessageResponse
-	25, // 35: api.chat.ChatService.UnfavoriteMessage:output_type -> api.chat.UnfavoriteMessageResponse
-	27, // 36: api.chat.ChatService.GetFavoriteMessages:output_type -> api.chat.GetFavoriteMessagesResponse
-	25, // [25:37] is the sub-list for method output_type
-	13, // [13:25] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	2,  // 1: api.chat.ChatMessage.quoted_message:type_name -> api.chat.ChatMessage
+	9,  // 2: api.chat.ChatMessage.contact_user:type_name -> api.chat.UserInfo
+	1,  // 3: api.chat.ChatMessage.status:type_name -> api.chat.MessageStatus
+	29, // 4: api.chat.ChatMessage.created_at:type_name -> google.protobuf.Timestamp
+	29, // 5: api.chat.ChatMessage.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 6: api.chat.SendMessageRequest.message_type:type_name -> api.chat.MessageType
+	2,  // 7: api.chat.SendMessageResponse.message:type_name -> api.chat.ChatMessage
+	29, // 8: api.chat.GetMessageHistoryRequest.before_time:type_name -> google.protobuf.Timestamp
+	2,  // 9: api.chat.GetMessageHistoryResponse.messages:type_name -> api.chat.ChatMessage
+	9,  // 10: api.chat.SearchUserResponse.users:type_name -> api.chat.UserInfo
+	29, // 11: api.chat.UserInfo.last_seen:type_name -> google.protobuf.Timestamp
+	28, // 12: api.chat.GetUnreadCountResponse.unread_by_user:type_name -> api.chat.GetUnreadCountResponse.UnreadByUserEntry
+	2,  // 13: api.chat.ForwardMessageResponse.messages:type_name -> api.chat.ChatMessage
+	2,  // 14: api.chat.GetFavoriteMessagesResponse.messages:type_name -> api.chat.ChatMessage
+	7,  // 15: api.chat.ChatService.SearchUser:input_type -> api.chat.SearchUserRequest
+	3,  // 16: api.chat.ChatService.SendMessage:input_type -> api.chat.SendMessageRequest
+	5,  // 17: api.chat.ChatService.GetMessageHistory:input_type -> api.chat.GetMessageHistoryRequest
+	10, // 18: api.chat.ChatService.MarkMessageRead:input_type -> api.chat.MarkMessageReadRequest
+	12, // 19: api.chat.ChatService.GetUnreadCount:input_type -> api.chat.GetUnreadCountRequest
+	14, // 20: api.chat.ChatService.UploadFile:input_type -> api.chat.UploadFileRequest
+	16, // 21: api.chat.ChatService.RecallMessage:input_type -> api.chat.RecallMessageRequest
+	18, // 22: api.chat.ChatService.DeleteMessage:input_type -> api.chat.DeleteMessageRequest
+	20, // 23: api.chat.ChatService.ForwardMessage:input_type -> api.chat.ForwardMessageRequest
+	22, // 24: api.chat.ChatService.FavoriteMessage:input_type -> api.chat.FavoriteMessageRequest
+	24, // 25: api.chat.ChatService.UnfavoriteMessage:input_type -> api.chat.UnfavoriteMessageRequest
+	26, // 26: api.chat.ChatService.GetFavoriteMessages:input_type -> api.chat.GetFavoriteMessagesRequest
+	8,  // 27: api.chat.ChatService.SearchUser:output_type -> api.chat.SearchUserResponse
+	4,  // 28: api.chat.ChatService.SendMessage:output_type -> api.chat.SendMessageResponse
+	6,  // 29: api.chat.ChatService.GetMessageHistory:output_type -> api.chat.GetMessageHistoryResponse
+	11, // 30: api.chat.ChatService.MarkMessageRead:output_type -> api.chat.MarkMessageReadResponse
+	13, // 31: api.chat.ChatService.GetUnreadCount:output_type -> api.chat.GetUnreadCountResponse
+	15, // 32: api.chat.ChatService.UploadFile:output_type -> api.chat.UploadFileResponse
+	17, // 33: api.chat.ChatService.RecallMessage:output_type -> api.chat.RecallMessageResponse
+	19, // 34: api.chat.ChatService.DeleteMessage:output_type -> api.chat.DeleteMessageResponse
+	21, // 35: api.chat.ChatService.ForwardMessage:output_type -> api.chat.ForwardMessageResponse
+	23, // 36: api.chat.ChatService.FavoriteMessage:output_type -> api.chat.FavoriteMessageResponse
+	25, // 37: api.chat.ChatService.UnfavoriteMessage:output_type -> api.chat.UnfavoriteMessageResponse
+	27, // 38: api.chat.ChatService.GetFavoriteMessages:output_type -> api.chat.GetFavoriteMessagesResponse
+	27, // [27:39] is the sub-list for method output_type
+	15, // [15:27] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_api_chat_chat_proto_init() }

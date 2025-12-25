@@ -5,16 +5,12 @@ import (
 	"fmt"
 	"gochat/api/api/chat"
 	"gochat/internal/application/handler/common"
-	"gochat/internal/infrastructure/dao"
+	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
-	"gochat/internal/pkg/utils"
-	"gochat/internal/infrastructure/models"
-	globalUtils "gochat/utils"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // SendMessage 发送消息
@@ -39,27 +35,26 @@ func (h *ChatHandler) SendMessage(ctx *gin.Context) {
 
 func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageRequest) (resp *chat.SendMessageResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	fromUserID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	fromUserID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	// 验证消息类型：私聊或群聊二选一
 	groupID := int64(req.GetGroupId())
 	toUserID := int64(req.GetToUserId())
-	
+
 	if groupID == 0 && toUserID == 0 {
 		return nil, code_msg.BadRequest, nil
 	}
-	
+
 	if groupID > 0 && toUserID > 0 {
 		return nil, code_msg.BadRequest, nil
 	}
 
 	// 如果是私聊，验证是否为好友关系（删除好友后不能发送新消息）
 	if toUserID > 0 {
-		friendDao := dao.NewFriendDao(globalUtils.DB)
-		friendRelation, err := friendDao.CheckIsFriend(fromUserID, toUserID)
+		friendRelation, err := h.friendDao.CheckIsFriend(fromUserID, toUserID)
 		if err != nil {
 			return nil, code_msg.ServerError, err
 		}
@@ -74,14 +69,31 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 
 	// 如果是群聊，验证用户是否在群组中
 	if groupID > 0 {
-		groupDao := dao.NewGroupDao(globalUtils.DB)
-		isMember, err := groupDao.IsMemberInGroup(groupID, fromUserID)
+		isMember, err := h.groupDao.IsMemberInGroup(groupID, fromUserID)
 		if err != nil {
 			return nil, code_msg.ServerError, err
 		}
 		if !isMember {
 			return nil, code_msg.NotGroupMember, nil
 		}
+
+		// 检查是否被禁言
+		isMuted, err := h.muteDao.IsMuted(groupID, fromUserID)
+		if err != nil {
+			return nil, code_msg.ServerError, err
+		}
+		if isMuted {
+			return nil, code_msg.BadRequest, nil
+		}
+	}
+
+	// 验证消息类型相关的业务逻辑
+	validateCode, validateErr := h.validateMessageType(&req, fromUserID)
+	if validateCode != 0 {
+		return nil, validateCode, validateErr
+	}
+	if validateErr != nil {
+		return nil, code_msg.ServerError, validateErr
 	}
 
 	// 处理合并消息ID列表
@@ -127,34 +139,8 @@ func (h *ChatHandler) sendMessageLogic(ctx *gin.Context, req chat.SendMessageReq
 	// 通过WebSocket实时推送消息
 	h.sendMessageViaWebSocket(message)
 
-	// 转换为响应格式
-	chatMessage := &chat.ChatMessage{
-		Id:             message.MessageID,
-		FromUserId:     uint32(message.FromUserID),
-		ToUserId:       uint32(message.ToUserID),
-		GroupId:        uint32(message.GroupID),
-		MessageType:    chat.MessageType(message.MessageType),
-		Content:        message.Content,
-		FileUrl:        message.FileURL,
-		FileName:       message.FileName,
-		FileSize:       message.FileSize,
-		VideoUrl:       message.VideoURL,
-		VideoThumb:     message.VideoThumb,
-		VoiceUrl:       message.VoiceURL,
-		VoiceDuration:  int32(message.VoiceDuration),
-		EmojiUrl:       message.EmojiURL,
-		MergeMessages:  message.MergeMessages,
-		QuoteMessageId: message.QuoteMessageID,
-		ContactUserId:  uint32(message.ContactUserID),
-		RedPacketId:    uint32(message.RedPacketID),
-		TransferId:     uint32(message.TransferID),
-		IsRecalled:     message.IsRecalled,
-		IsDeleted:      message.IsDeleted,
-		ReadStatus:     int32(message.ReadStatus),
-		Status:         chat.MessageStatus(message.Status),
-		CreatedAt:      timestamppb.New(time.Unix(message.CreatedAt, 0)),
-		UpdatedAt:      timestamppb.New(time.Unix(message.UpdatedAt, 0)),
-	}
+	// 转换为响应格式（包含详细信息）
+	chatMessage := h.convertToChatMessageWithDetails(message)
 
 	resp = &chat.SendMessageResponse{
 		Message: chatMessage,
@@ -183,24 +169,24 @@ func (h *ChatHandler) GetMessageHistory(ctx *gin.Context) {
 
 	// 手动构建响应结构体，确保messages字段始终存在（即使为空数组）
 	// 将protobuf消息转换为map，确保JSON序列化正确
-		messagesList := make([]map[string]interface{}, 0)
+	messagesList := make([]map[string]interface{}, 0)
 	for _, msg := range resp.GetMessages() {
 		msgMap := map[string]interface{}{
-			"id":              msg.GetId(),
-			"from_user_id":    msg.GetFromUserId(),
-			"to_user_id":      msg.GetToUserId(),
-			"group_id":        msg.GetGroupId(),
-			"message_type":    msg.GetMessageType(),
-			"content":         msg.GetContent(),
-			"file_url":        msg.GetFileUrl(),
-			"file_name":       msg.GetFileName(),
-			"file_size":       msg.GetFileSize(),
-			"video_url":      msg.GetVideoUrl(),
-			"video_thumb":     msg.GetVideoThumb(),
-			"voice_url":      msg.GetVoiceUrl(),
-			"voice_duration": msg.GetVoiceDuration(),
-			"emoji_url":      msg.GetEmojiUrl(),
-			"merge_messages": msg.GetMergeMessages(),
+			"id":               msg.GetId(),
+			"from_user_id":     msg.GetFromUserId(),
+			"to_user_id":       msg.GetToUserId(),
+			"group_id":         msg.GetGroupId(),
+			"message_type":     msg.GetMessageType(),
+			"content":          msg.GetContent(),
+			"file_url":         msg.GetFileUrl(),
+			"file_name":        msg.GetFileName(),
+			"file_size":        msg.GetFileSize(),
+			"video_url":        msg.GetVideoUrl(),
+			"video_thumb":      msg.GetVideoThumb(),
+			"voice_url":        msg.GetVoiceUrl(),
+			"voice_duration":   msg.GetVoiceDuration(),
+			"emoji_url":        msg.GetEmojiUrl(),
+			"merge_messages":   msg.GetMergeMessages(),
 			"quote_message_id": msg.GetQuoteMessageId(),
 			"contact_user_id":  msg.GetContactUserId(),
 			"red_packet_id":    msg.GetRedPacketId(),
@@ -208,7 +194,7 @@ func (h *ChatHandler) GetMessageHistory(ctx *gin.Context) {
 			"is_recalled":      msg.GetIsRecalled(),
 			"is_deleted":       msg.GetIsDeleted(),
 			"read_status":      msg.GetReadStatus(),
-			"status":          msg.GetStatus(),
+			"status":           msg.GetStatus(),
 		}
 
 		// 处理时间戳
@@ -235,9 +221,9 @@ func (h *ChatHandler) GetMessageHistory(ctx *gin.Context) {
 
 func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessageHistoryRequest) (resp *chat.GetMessageHistoryResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	fromUserID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	fromUserID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	// 解析时间参数
@@ -250,7 +236,7 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 	// 判断是私聊还是群聊
 	groupID := int64(req.GetGroupId())
 	otherUserID := int64(req.GetOtherUserId())
-	
+
 	if groupID == 0 && otherUserID == 0 {
 		return &chat.GetMessageHistoryResponse{
 			Messages:    []*chat.ChatMessage{},
@@ -263,8 +249,7 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 
 	// 如果是群聊，验证用户是否在群组中
 	if groupID > 0 {
-		groupDao := dao.NewGroupDao(globalUtils.DB)
-		isMember, err := groupDao.IsMemberInGroup(groupID, fromUserID)
+		isMember, err := h.groupDao.IsMemberInGroup(groupID, fromUserID)
 		if err != nil {
 			return nil, code_msg.ServerError, err
 		}
@@ -298,39 +283,10 @@ func (h *ChatHandler) getMessageHistoryLogic(ctx *gin.Context, req chat.GetMessa
 
 	fmt.Printf("从数据库查询到 %d 条消息，总数: %d\n", len(messages), totalCount)
 
-	// 转换为响应格式
+	// 转换为响应格式（包含详细信息）
 	var chatMessages []*chat.ChatMessage
 	for _, msg := range messages {
-		chatMsg := &chat.ChatMessage{
-			Id:             msg.MessageID,
-			FromUserId:     uint32(msg.FromUserID),
-			ToUserId:       uint32(msg.ToUserID),
-			GroupId:        uint32(msg.GroupID),
-			MessageType:    chat.MessageType(msg.MessageType),
-			Content:        msg.Content,
-			FileUrl:        msg.FileURL,
-			FileName:       msg.FileName,
-			FileSize:       msg.FileSize,
-			// 扩展字段
-			VideoUrl:       msg.VideoURL,
-			VideoThumb:     msg.VideoThumb,
-			VoiceUrl:       msg.VoiceURL,
-			VoiceDuration:  int32(msg.VoiceDuration),
-			EmojiUrl:       msg.EmojiURL,
-			MergeMessages:  msg.MergeMessages,
-			QuoteMessageId: msg.QuoteMessageID,
-			ContactUserId:  uint32(msg.ContactUserID),
-			// 红包和转账字段（重要！）
-			RedPacketId: uint32(msg.RedPacketID),
-			TransferId:  uint32(msg.TransferID),
-			// 状态字段
-			IsRecalled: msg.IsRecalled,
-			IsDeleted:  msg.IsDeleted,
-			ReadStatus: int32(msg.ReadStatus),
-			Status:     chat.MessageStatus(msg.Status),
-			CreatedAt:  timestamppb.New(time.Unix(msg.CreatedAt, 0)),
-			UpdatedAt:  timestamppb.New(time.Unix(msg.UpdatedAt, 0)),
-		}
+		chatMsg := h.convertToChatMessageWithDetails(msg)
 		chatMessages = append(chatMessages, chatMsg)
 	}
 
@@ -384,9 +340,9 @@ func (h *ChatHandler) MarkMessageRead(ctx *gin.Context) {
 
 func (h *ChatHandler) markMessageReadLogic(ctx *gin.Context, req chat.MarkMessageReadRequest) (resp *chat.MarkMessageReadResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	toUserID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	toUserID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	// 标记消息为已读
@@ -430,9 +386,9 @@ func (h *ChatHandler) GetUnreadCount(ctx *gin.Context) {
 
 func (h *ChatHandler) getUnreadCountLogic(ctx *gin.Context, req chat.GetUnreadCountRequest) (resp *chat.GetUnreadCountResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	userID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	userID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	// 获取未读消息数量
@@ -487,37 +443,36 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 	// 判断是私聊还是群聊
 	if message.GroupID > 0 {
 		// 群聊：推送给所有群成员（包括发送者自己）
-		groupDao := dao.NewGroupDao(globalUtils.DB)
-		members, err := groupDao.GetGroupMembers(message.GroupID)
+		members, err := h.groupDao.GetGroupMembers(message.GroupID)
 		if err != nil {
 			fmt.Printf("获取群成员失败: %v\n", err)
 			return
 		}
-		
+
 		if len(members) == 0 {
 			fmt.Printf("警告: 群组 %d 没有成员，无法推送消息\n", message.GroupID)
 			return
 		}
-		
+
 		fmt.Printf("准备通过WebSocket推送群聊消息给群组 %d 的 %d 个成员，消息长度: %d\n",
 			message.GroupID, len(members), len(messageBytes))
-		
+
 		// 统计推送结果
 		successCount := 0
 		onlineCount := 0
 		offlineCount := 0
-		
+
 		// 获取在线用户列表
 		onlineUserIDs := make(map[int64]bool)
 		onlineIDs := common.GetOnlineUserIDs()
 		for _, uid := range onlineIDs {
 			onlineUserIDs[uid] = true
 		}
-		
+
 		// 遍历所有成员，推送给每个人（包括发送者自己）
 		for _, member := range members {
 			userID := member.UserID
-			
+
 			// 检查用户是否在线
 			isOnline := onlineUserIDs[userID]
 			if isOnline {
@@ -525,27 +480,27 @@ func (h *ChatHandler) sendMessageViaWebSocket(message *models.ChatMessage) {
 			} else {
 				offlineCount++
 			}
-			
+
 			// 发送消息给每个成员（无论在线与否都尝试发送）
 			// SendToUser会检查用户是否在线，如果不在线会记录日志但不阻塞
 			// 消息已经保存到数据库，离线用户上线后可以通过历史消息获取
 			common.SendToUser(userID, messageBytes)
-			
+
 			// 记录日志（只记录前10个成员，避免日志过多）
 			if successCount < 10 {
 				status := "离线"
 				if isOnline {
 					status = "在线"
 				}
-				fmt.Printf("  - 推送消息给成员 %d (用户ID: %d, 状态: %s)\n", 
+				fmt.Printf("  - 推送消息给成员 %d (用户ID: %d, 状态: %s)\n",
 					member.ID, userID, status)
 			}
 			successCount++
 		}
-		
+
 		fmt.Printf("群聊消息推送完成: 群组ID=%d, 总成员数=%d, 在线=%d, 离线=%d, 消息ID=%s\n",
 			message.GroupID, len(members), onlineCount, offlineCount, message.MessageID)
-		
+
 		// 如果所有成员都离线，记录警告
 		if onlineCount == 0 && len(members) > 0 {
 			fmt.Printf("警告: 群组 %d 的所有 %d 个成员都不在线，消息已保存但无法实时推送\n",

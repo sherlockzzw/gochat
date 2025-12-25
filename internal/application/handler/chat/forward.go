@@ -4,12 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"gochat/api/api/chat"
-	"gochat/internal/infrastructure/dao"
 	"gochat/internal/infrastructure/models"
 	"gochat/internal/pkg/analysis"
 	"gochat/internal/pkg/code_msg"
-	"gochat/internal/pkg/utils"
-	globalUtils "gochat/utils"
+	"gochat/internal/application/handler/common"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -38,9 +36,9 @@ func (h *ChatHandler) ForwardMessage(ctx *gin.Context) {
 
 func (h *ChatHandler) forwardMessageLogic(ctx *gin.Context, req *chat.ForwardMessageRequest) (resp *chat.ForwardMessageResponse, errCode code_msg.BusinessCode, err error) {
 	// 从JWT中获取当前用户ID
-	fromUserID, err := utils.GetCurrentUserID(ctx)
-	if err != nil {
-		return nil, code_msg.ServerError, err
+	fromUserID, errCode, err := common.GetUserIDFromContext(ctx)
+	if errCode != 0 {
+		return nil, errCode, err
 	}
 
 	// 验证参数：私聊或群聊二选一
@@ -63,8 +61,7 @@ func (h *ChatHandler) forwardMessageLogic(ctx *gin.Context, req *chat.ForwardMes
 
 	// 如果是群聊，验证用户是否在群组中
 	if groupID > 0 {
-		groupDao := dao.NewGroupDao(globalUtils.DB)
-		isMember, err := groupDao.IsMemberInGroup(groupID, fromUserID)
+		isMember, err := h.groupDao.IsMemberInGroup(groupID, fromUserID)
 		if err != nil {
 			return nil, code_msg.ServerError, err
 		}
@@ -75,8 +72,7 @@ func (h *ChatHandler) forwardMessageLogic(ctx *gin.Context, req *chat.ForwardMes
 
 	// 如果是私聊，验证是否为好友关系
 	if toUserID > 0 {
-		friendDao := dao.NewFriendDao(globalUtils.DB)
-		friendRelation, err := friendDao.CheckIsFriend(fromUserID, toUserID)
+		friendRelation, err := h.friendDao.CheckIsFriend(fromUserID, toUserID)
 		if err != nil {
 			return nil, code_msg.ServerError, err
 		}

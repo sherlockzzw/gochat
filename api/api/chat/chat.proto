@@ -51,7 +51,9 @@ message ChatMessage {
   string emoji_url = 17;            // 表情包URL
   string merge_messages = 18;       // JSON数组，合并消息的message_id列表
   string quote_message_id = 19;     // 引用的消息ID
+  ChatMessage quoted_message = 26;   // 被引用的消息详细信息（仅引用消息时返回）
   uint32 contact_user_id = 20;      // 分享的联系人ID
+  UserInfo contact_user = 27;       // 联系人详细信息（仅联系人分享消息时返回）
   uint32 red_packet_id = 21;        // 关联的红包ID
   uint32 transfer_id = 22;           // 关联的转账ID
   // 状态字段

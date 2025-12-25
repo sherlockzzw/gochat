@@ -39,6 +39,7 @@ func setup(cmd *cobra.Command, args []string) {
 	_ = msl.Set("gorm:table_options", "COMMENT='好友申请表'").AutoMigrate(&models.FriendRequest{})
 	_ = msl.Set("gorm:table_options", "COMMENT='群组表'").AutoMigrate(&models.Group{})
 	_ = msl.Set("gorm:table_options", "COMMENT='群组成员表'").AutoMigrate(&models.GroupMember{})
+	_ = msl.Set("gorm:table_options", "COMMENT='群组禁言表'").AutoMigrate(&models.GroupMute{})
 
 	// 资金相关表
 	_ = msl.Set("gorm:table_options", "COMMENT='用户余额表'").AutoMigrate(&models.UserBalance{})

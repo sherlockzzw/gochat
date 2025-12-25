@@ -196,6 +196,39 @@
         ]
       }
     },
+    "/api/call/start-group": {
+      "post": {
+        "summary": "发起群聊通话",
+        "operationId": "CallService_StartGroupCall",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/callStartGroupCallResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/callStartGroupCallRequest"
+            }
+          }
+        ],
+        "tags": [
+          "CallService"
+        ]
+      }
+    },
     "/api/call/start-private": {
       "post": {
         "summary": "发起私聊通话",
@@ -426,6 +459,57 @@
         }
       },
       "title": "拒绝通话响应"
+    },
+    "callStartGroupCallRequest": {
+      "type": "object",
+      "properties": {
+        "groupId": {
+          "type": "integer",
+          "format": "int64",
+          "title": "群组ID"
+        },
+        "type": {
+          "type": "string",
+          "title": "voice/video"
+        },
+        "memberIds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": "选择的成员ID列表（可选，为空则通知全部成员）"
+        }
+      },
+      "title": "发起群聊通话请求"
+    },
+    "callStartGroupCallResponse": {
+      "type": "object",
+      "properties": {
+        "roomId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "房间ID"
+        },
+        "roomToken": {
+          "type": "string",
+          "title": "房间令牌"
+        },
+        "invitedCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "邀请的成员数量"
+        },
+        "success": {
+          "type": "boolean",
+          "title": "是否成功"
+        },
+        "errorMessage": {
+          "type": "string",
+          "title": "错误信息"
+        }
+      },
+      "title": "发起群聊通话响应"
     },
     "callStartPrivateCallRequest": {
       "type": "object",

@@ -18,6 +18,14 @@ service CallService {
     };
   };
 
+  // 发起群聊通话
+  rpc StartGroupCall(StartGroupCallRequest) returns (StartGroupCallResponse) {
+    option(google.api.http) = {
+      post:"/api/call/start-group"
+      body:"*"
+    };
+  };
+
   // 接受通话
   rpc AcceptCall(AcceptCallRequest) returns (AcceptCallResponse) {
     option(google.api.http) = {
@@ -70,6 +78,22 @@ message StartPrivateCallResponse {
   string room_token = 2;   // 房间令牌
   bool success = 3;        // 是否成功
   string error_message = 4; // 错误信息
+}
+
+// 发起群聊通话请求
+message StartGroupCallRequest {
+  uint32 group_id = 1 [(validate.rules).uint32.gt = 0]; // 群组ID
+  string type = 2 [(validate.rules).string = {in: ["voice", "video"]}]; // voice/video
+  repeated uint32 member_ids = 3; // 选择的成员ID列表（可选，为空则通知全部成员）
+}
+
+// 发起群聊通话响应
+message StartGroupCallResponse {
+  uint64 room_id = 1;      // 房间ID
+  string room_token = 2;   // 房间令牌
+  int32 invited_count = 3;  // 邀请的成员数量
+  bool success = 4;        // 是否成功
+  string error_message = 5; // 错误信息
 }
 
 // 接受通话请求

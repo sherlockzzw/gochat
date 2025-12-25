@@ -146,6 +146,144 @@ func (x *StartPrivateCallResponse) GetErrorMessage() string {
 	return ""
 }
 
+// 发起群聊通话请求
+type StartGroupCallRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GroupId       uint32                 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`              // 群组ID
+	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`                                    // voice/video
+	MemberIds     []uint32               `protobuf:"varint,3,rep,packed,name=member_ids,json=memberIds,proto3" json:"member_ids,omitempty"` // 选择的成员ID列表（可选，为空则通知全部成员）
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartGroupCallRequest) Reset() {
+	*x = StartGroupCallRequest{}
+	mi := &file_api_call_call_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartGroupCallRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartGroupCallRequest) ProtoMessage() {}
+
+func (x *StartGroupCallRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_call_call_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartGroupCallRequest.ProtoReflect.Descriptor instead.
+func (*StartGroupCallRequest) Descriptor() ([]byte, []int) {
+	return file_api_call_call_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *StartGroupCallRequest) GetGroupId() uint32 {
+	if x != nil {
+		return x.GroupId
+	}
+	return 0
+}
+
+func (x *StartGroupCallRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *StartGroupCallRequest) GetMemberIds() []uint32 {
+	if x != nil {
+		return x.MemberIds
+	}
+	return nil
+}
+
+// 发起群聊通话响应
+type StartGroupCallResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RoomId        uint64                 `protobuf:"varint,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`                   // 房间ID
+	RoomToken     string                 `protobuf:"bytes,2,opt,name=room_token,json=roomToken,proto3" json:"room_token,omitempty"`           // 房间令牌
+	InvitedCount  int32                  `protobuf:"varint,3,opt,name=invited_count,json=invitedCount,proto3" json:"invited_count,omitempty"` // 邀请的成员数量
+	Success       bool                   `protobuf:"varint,4,opt,name=success,proto3" json:"success,omitempty"`                               // 是否成功
+	ErrorMessage  string                 `protobuf:"bytes,5,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`  // 错误信息
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartGroupCallResponse) Reset() {
+	*x = StartGroupCallResponse{}
+	mi := &file_api_call_call_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartGroupCallResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartGroupCallResponse) ProtoMessage() {}
+
+func (x *StartGroupCallResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_call_call_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartGroupCallResponse.ProtoReflect.Descriptor instead.
+func (*StartGroupCallResponse) Descriptor() ([]byte, []int) {
+	return file_api_call_call_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *StartGroupCallResponse) GetRoomId() uint64 {
+	if x != nil {
+		return x.RoomId
+	}
+	return 0
+}
+
+func (x *StartGroupCallResponse) GetRoomToken() string {
+	if x != nil {
+		return x.RoomToken
+	}
+	return ""
+}
+
+func (x *StartGroupCallResponse) GetInvitedCount() int32 {
+	if x != nil {
+		return x.InvitedCount
+	}
+	return 0
+}
+
+func (x *StartGroupCallResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *StartGroupCallResponse) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
 // 接受通话请求
 type AcceptCallRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -156,7 +294,7 @@ type AcceptCallRequest struct {
 
 func (x *AcceptCallRequest) Reset() {
 	*x = AcceptCallRequest{}
-	mi := &file_api_call_call_proto_msgTypes[2]
+	mi := &file_api_call_call_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -168,7 +306,7 @@ func (x *AcceptCallRequest) String() string {
 func (*AcceptCallRequest) ProtoMessage() {}
 
 func (x *AcceptCallRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[2]
+	mi := &file_api_call_call_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -181,7 +319,7 @@ func (x *AcceptCallRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcceptCallRequest.ProtoReflect.Descriptor instead.
 func (*AcceptCallRequest) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{2}
+	return file_api_call_call_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AcceptCallRequest) GetRoomId() uint64 {
@@ -202,7 +340,7 @@ type AcceptCallResponse struct {
 
 func (x *AcceptCallResponse) Reset() {
 	*x = AcceptCallResponse{}
-	mi := &file_api_call_call_proto_msgTypes[3]
+	mi := &file_api_call_call_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -214,7 +352,7 @@ func (x *AcceptCallResponse) String() string {
 func (*AcceptCallResponse) ProtoMessage() {}
 
 func (x *AcceptCallResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[3]
+	mi := &file_api_call_call_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -227,7 +365,7 @@ func (x *AcceptCallResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AcceptCallResponse.ProtoReflect.Descriptor instead.
 func (*AcceptCallResponse) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{3}
+	return file_api_call_call_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AcceptCallResponse) GetSuccess() bool {
@@ -255,7 +393,7 @@ type RejectCallRequest struct {
 
 func (x *RejectCallRequest) Reset() {
 	*x = RejectCallRequest{}
-	mi := &file_api_call_call_proto_msgTypes[4]
+	mi := &file_api_call_call_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -267,7 +405,7 @@ func (x *RejectCallRequest) String() string {
 func (*RejectCallRequest) ProtoMessage() {}
 
 func (x *RejectCallRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[4]
+	mi := &file_api_call_call_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -280,7 +418,7 @@ func (x *RejectCallRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RejectCallRequest.ProtoReflect.Descriptor instead.
 func (*RejectCallRequest) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{4}
+	return file_api_call_call_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RejectCallRequest) GetRoomId() uint64 {
@@ -308,7 +446,7 @@ type RejectCallResponse struct {
 
 func (x *RejectCallResponse) Reset() {
 	*x = RejectCallResponse{}
-	mi := &file_api_call_call_proto_msgTypes[5]
+	mi := &file_api_call_call_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -320,7 +458,7 @@ func (x *RejectCallResponse) String() string {
 func (*RejectCallResponse) ProtoMessage() {}
 
 func (x *RejectCallResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[5]
+	mi := &file_api_call_call_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -333,7 +471,7 @@ func (x *RejectCallResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RejectCallResponse.ProtoReflect.Descriptor instead.
 func (*RejectCallResponse) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{5}
+	return file_api_call_call_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RejectCallResponse) GetSuccess() bool {
@@ -361,7 +499,7 @@ type CancelCallRequest struct {
 
 func (x *CancelCallRequest) Reset() {
 	*x = CancelCallRequest{}
-	mi := &file_api_call_call_proto_msgTypes[6]
+	mi := &file_api_call_call_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -373,7 +511,7 @@ func (x *CancelCallRequest) String() string {
 func (*CancelCallRequest) ProtoMessage() {}
 
 func (x *CancelCallRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[6]
+	mi := &file_api_call_call_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -386,7 +524,7 @@ func (x *CancelCallRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelCallRequest.ProtoReflect.Descriptor instead.
 func (*CancelCallRequest) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{6}
+	return file_api_call_call_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CancelCallRequest) GetRoomId() uint64 {
@@ -414,7 +552,7 @@ type CancelCallResponse struct {
 
 func (x *CancelCallResponse) Reset() {
 	*x = CancelCallResponse{}
-	mi := &file_api_call_call_proto_msgTypes[7]
+	mi := &file_api_call_call_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -426,7 +564,7 @@ func (x *CancelCallResponse) String() string {
 func (*CancelCallResponse) ProtoMessage() {}
 
 func (x *CancelCallResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[7]
+	mi := &file_api_call_call_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -439,7 +577,7 @@ func (x *CancelCallResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelCallResponse.ProtoReflect.Descriptor instead.
 func (*CancelCallResponse) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{7}
+	return file_api_call_call_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CancelCallResponse) GetSuccess() bool {
@@ -466,7 +604,7 @@ type EndCallRequest struct {
 
 func (x *EndCallRequest) Reset() {
 	*x = EndCallRequest{}
-	mi := &file_api_call_call_proto_msgTypes[8]
+	mi := &file_api_call_call_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -478,7 +616,7 @@ func (x *EndCallRequest) String() string {
 func (*EndCallRequest) ProtoMessage() {}
 
 func (x *EndCallRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[8]
+	mi := &file_api_call_call_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -491,7 +629,7 @@ func (x *EndCallRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EndCallRequest.ProtoReflect.Descriptor instead.
 func (*EndCallRequest) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{8}
+	return file_api_call_call_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *EndCallRequest) GetRoomId() uint64 {
@@ -512,7 +650,7 @@ type EndCallResponse struct {
 
 func (x *EndCallResponse) Reset() {
 	*x = EndCallResponse{}
-	mi := &file_api_call_call_proto_msgTypes[9]
+	mi := &file_api_call_call_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -524,7 +662,7 @@ func (x *EndCallResponse) String() string {
 func (*EndCallResponse) ProtoMessage() {}
 
 func (x *EndCallResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[9]
+	mi := &file_api_call_call_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -537,7 +675,7 @@ func (x *EndCallResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EndCallResponse.ProtoReflect.Descriptor instead.
 func (*EndCallResponse) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{9}
+	return file_api_call_call_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *EndCallResponse) GetSuccess() bool {
@@ -569,7 +707,7 @@ type GetCallRecordsRequest struct {
 
 func (x *GetCallRecordsRequest) Reset() {
 	*x = GetCallRecordsRequest{}
-	mi := &file_api_call_call_proto_msgTypes[10]
+	mi := &file_api_call_call_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -581,7 +719,7 @@ func (x *GetCallRecordsRequest) String() string {
 func (*GetCallRecordsRequest) ProtoMessage() {}
 
 func (x *GetCallRecordsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[10]
+	mi := &file_api_call_call_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -594,7 +732,7 @@ func (x *GetCallRecordsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCallRecordsRequest.ProtoReflect.Descriptor instead.
 func (*GetCallRecordsRequest) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{10}
+	return file_api_call_call_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetCallRecordsRequest) GetPage() int32 {
@@ -631,7 +769,7 @@ type GetCallRecordsResponse struct {
 
 func (x *GetCallRecordsResponse) Reset() {
 	*x = GetCallRecordsResponse{}
-	mi := &file_api_call_call_proto_msgTypes[11]
+	mi := &file_api_call_call_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -643,7 +781,7 @@ func (x *GetCallRecordsResponse) String() string {
 func (*GetCallRecordsResponse) ProtoMessage() {}
 
 func (x *GetCallRecordsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[11]
+	mi := &file_api_call_call_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -656,7 +794,7 @@ func (x *GetCallRecordsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCallRecordsResponse.ProtoReflect.Descriptor instead.
 func (*GetCallRecordsResponse) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{11}
+	return file_api_call_call_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetCallRecordsResponse) GetRecords() []*CallRecord {
@@ -709,7 +847,7 @@ type CallRecord struct {
 
 func (x *CallRecord) Reset() {
 	*x = CallRecord{}
-	mi := &file_api_call_call_proto_msgTypes[12]
+	mi := &file_api_call_call_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -721,7 +859,7 @@ func (x *CallRecord) String() string {
 func (*CallRecord) ProtoMessage() {}
 
 func (x *CallRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_api_call_call_proto_msgTypes[12]
+	mi := &file_api_call_call_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -734,7 +872,7 @@ func (x *CallRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallRecord.ProtoReflect.Descriptor instead.
 func (*CallRecord) Descriptor() ([]byte, []int) {
-	return file_api_call_call_proto_rawDescGZIP(), []int{12}
+	return file_api_call_call_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CallRecord) GetId() uint64 {
@@ -842,7 +980,19 @@ const file_api_call_call_proto_rawDesc = "" +
 	"\n" +
 	"room_token\x18\x02 \x01(\tR\troomToken\x12\x18\n" +
 	"\asuccess\x18\x03 \x01(\bR\asuccess\x12#\n" +
-	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"5\n" +
+	"\rerror_message\x18\x04 \x01(\tR\ferrorMessage\"\x83\x01\n" +
+	"\x15StartGroupCallRequest\x12\"\n" +
+	"\bgroup_id\x18\x01 \x01(\rB\a\xfaB\x04*\x02 \x00R\agroupId\x12'\n" +
+	"\x04type\x18\x02 \x01(\tB\x13\xfaB\x10r\x0eR\x05voiceR\x05videoR\x04type\x12\x1d\n" +
+	"\n" +
+	"member_ids\x18\x03 \x03(\rR\tmemberIds\"\xb4\x01\n" +
+	"\x16StartGroupCallResponse\x12\x17\n" +
+	"\aroom_id\x18\x01 \x01(\x04R\x06roomId\x12\x1d\n" +
+	"\n" +
+	"room_token\x18\x02 \x01(\tR\troomToken\x12#\n" +
+	"\rinvited_count\x18\x03 \x01(\x05R\finvitedCount\x12\x18\n" +
+	"\asuccess\x18\x04 \x01(\bR\asuccess\x12#\n" +
+	"\rerror_message\x18\x05 \x01(\tR\ferrorMessage\"5\n" +
 	"\x11AcceptCallRequest\x12 \n" +
 	"\aroom_id\x18\x01 \x01(\x04B\a\xfaB\x042\x02 \x00R\x06roomId\"S\n" +
 	"\x12AcceptCallResponse\x12\x18\n" +
@@ -892,9 +1042,10 @@ const file_api_call_call_proto_rawDesc = "" +
 	"started_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x125\n" +
 	"\bended_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\aendedAt\x129\n" +
 	"\n" +
-	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt2\x88\x05\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt2\xff\x05\n" +
 	"\vCallService\x12}\n" +
-	"\x10StartPrivateCall\x12!.api.call.StartPrivateCallRequest\x1a\".api.call.StartPrivateCallResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/call/start-private\x12d\n" +
+	"\x10StartPrivateCall\x12!.api.call.StartPrivateCallRequest\x1a\".api.call.StartPrivateCallResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/call/start-private\x12u\n" +
+	"\x0eStartGroupCall\x12\x1f.api.call.StartGroupCallRequest\x1a .api.call.StartGroupCallResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/call/start-group\x12d\n" +
 	"\n" +
 	"AcceptCall\x12\x1b.api.call.AcceptCallRequest\x1a\x1c.api.call.AcceptCallResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/call/accept\x12d\n" +
 	"\n" +
@@ -916,42 +1067,46 @@ func file_api_call_call_proto_rawDescGZIP() []byte {
 	return file_api_call_call_proto_rawDescData
 }
 
-var file_api_call_call_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_api_call_call_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_api_call_call_proto_goTypes = []any{
 	(*StartPrivateCallRequest)(nil),  // 0: api.call.StartPrivateCallRequest
 	(*StartPrivateCallResponse)(nil), // 1: api.call.StartPrivateCallResponse
-	(*AcceptCallRequest)(nil),        // 2: api.call.AcceptCallRequest
-	(*AcceptCallResponse)(nil),       // 3: api.call.AcceptCallResponse
-	(*RejectCallRequest)(nil),        // 4: api.call.RejectCallRequest
-	(*RejectCallResponse)(nil),       // 5: api.call.RejectCallResponse
-	(*CancelCallRequest)(nil),        // 6: api.call.CancelCallRequest
-	(*CancelCallResponse)(nil),       // 7: api.call.CancelCallResponse
-	(*EndCallRequest)(nil),           // 8: api.call.EndCallRequest
-	(*EndCallResponse)(nil),          // 9: api.call.EndCallResponse
-	(*GetCallRecordsRequest)(nil),    // 10: api.call.GetCallRecordsRequest
-	(*GetCallRecordsResponse)(nil),   // 11: api.call.GetCallRecordsResponse
-	(*CallRecord)(nil),               // 12: api.call.CallRecord
-	(*timestamp.Timestamp)(nil),      // 13: google.protobuf.Timestamp
+	(*StartGroupCallRequest)(nil),    // 2: api.call.StartGroupCallRequest
+	(*StartGroupCallResponse)(nil),   // 3: api.call.StartGroupCallResponse
+	(*AcceptCallRequest)(nil),        // 4: api.call.AcceptCallRequest
+	(*AcceptCallResponse)(nil),       // 5: api.call.AcceptCallResponse
+	(*RejectCallRequest)(nil),        // 6: api.call.RejectCallRequest
+	(*RejectCallResponse)(nil),       // 7: api.call.RejectCallResponse
+	(*CancelCallRequest)(nil),        // 8: api.call.CancelCallRequest
+	(*CancelCallResponse)(nil),       // 9: api.call.CancelCallResponse
+	(*EndCallRequest)(nil),           // 10: api.call.EndCallRequest
+	(*EndCallResponse)(nil),          // 11: api.call.EndCallResponse
+	(*GetCallRecordsRequest)(nil),    // 12: api.call.GetCallRecordsRequest
+	(*GetCallRecordsResponse)(nil),   // 13: api.call.GetCallRecordsResponse
+	(*CallRecord)(nil),               // 14: api.call.CallRecord
+	(*timestamp.Timestamp)(nil),      // 15: google.protobuf.Timestamp
 }
 var file_api_call_call_proto_depIdxs = []int32{
-	12, // 0: api.call.GetCallRecordsResponse.records:type_name -> api.call.CallRecord
-	13, // 1: api.call.CallRecord.started_at:type_name -> google.protobuf.Timestamp
-	13, // 2: api.call.CallRecord.ended_at:type_name -> google.protobuf.Timestamp
-	13, // 3: api.call.CallRecord.created_at:type_name -> google.protobuf.Timestamp
+	14, // 0: api.call.GetCallRecordsResponse.records:type_name -> api.call.CallRecord
+	15, // 1: api.call.CallRecord.started_at:type_name -> google.protobuf.Timestamp
+	15, // 2: api.call.CallRecord.ended_at:type_name -> google.protobuf.Timestamp
+	15, // 3: api.call.CallRecord.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: api.call.CallService.StartPrivateCall:input_type -> api.call.StartPrivateCallRequest
-	2,  // 5: api.call.CallService.AcceptCall:input_type -> api.call.AcceptCallRequest
-	4,  // 6: api.call.CallService.RejectCall:input_type -> api.call.RejectCallRequest
-	6,  // 7: api.call.CallService.CancelCall:input_type -> api.call.CancelCallRequest
-	8,  // 8: api.call.CallService.EndCall:input_type -> api.call.EndCallRequest
-	10, // 9: api.call.CallService.GetCallRecords:input_type -> api.call.GetCallRecordsRequest
-	1,  // 10: api.call.CallService.StartPrivateCall:output_type -> api.call.StartPrivateCallResponse
-	3,  // 11: api.call.CallService.AcceptCall:output_type -> api.call.AcceptCallResponse
-	5,  // 12: api.call.CallService.RejectCall:output_type -> api.call.RejectCallResponse
-	7,  // 13: api.call.CallService.CancelCall:output_type -> api.call.CancelCallResponse
-	9,  // 14: api.call.CallService.EndCall:output_type -> api.call.EndCallResponse
-	11, // 15: api.call.CallService.GetCallRecords:output_type -> api.call.GetCallRecordsResponse
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
+	2,  // 5: api.call.CallService.StartGroupCall:input_type -> api.call.StartGroupCallRequest
+	4,  // 6: api.call.CallService.AcceptCall:input_type -> api.call.AcceptCallRequest
+	6,  // 7: api.call.CallService.RejectCall:input_type -> api.call.RejectCallRequest
+	8,  // 8: api.call.CallService.CancelCall:input_type -> api.call.CancelCallRequest
+	10, // 9: api.call.CallService.EndCall:input_type -> api.call.EndCallRequest
+	12, // 10: api.call.CallService.GetCallRecords:input_type -> api.call.GetCallRecordsRequest
+	1,  // 11: api.call.CallService.StartPrivateCall:output_type -> api.call.StartPrivateCallResponse
+	3,  // 12: api.call.CallService.StartGroupCall:output_type -> api.call.StartGroupCallResponse
+	5,  // 13: api.call.CallService.AcceptCall:output_type -> api.call.AcceptCallResponse
+	7,  // 14: api.call.CallService.RejectCall:output_type -> api.call.RejectCallResponse
+	9,  // 15: api.call.CallService.CancelCall:output_type -> api.call.CancelCallResponse
+	11, // 16: api.call.CallService.EndCall:output_type -> api.call.EndCallResponse
+	13, // 17: api.call.CallService.GetCallRecords:output_type -> api.call.GetCallRecordsResponse
+	11, // [11:18] is the sub-list for method output_type
+	4,  // [4:11] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -968,7 +1123,7 @@ func file_api_call_call_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_call_call_proto_rawDesc), len(file_api_call_call_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

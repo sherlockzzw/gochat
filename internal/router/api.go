@@ -152,6 +152,9 @@ func privateRouter(r *gin.RouterGroup, api *handler.API) {
 		// 发起私聊通话
 		callRoute.POST("start-private", api.CallHandler.StartPrivateCall)
 
+		// 发起群聊通话
+		callRoute.POST("start-group", api.CallHandler.StartGroupCall)
+
 		// 接受通话
 		callRoute.POST("accept", api.CallHandler.AcceptCall)
 

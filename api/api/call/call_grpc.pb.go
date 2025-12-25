@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	CallService_StartPrivateCall_FullMethodName = "/api.call.CallService/StartPrivateCall"
+	CallService_StartGroupCall_FullMethodName   = "/api.call.CallService/StartGroupCall"
 	CallService_AcceptCall_FullMethodName       = "/api.call.CallService/AcceptCall"
 	CallService_RejectCall_FullMethodName       = "/api.call.CallService/RejectCall"
 	CallService_CancelCall_FullMethodName       = "/api.call.CallService/CancelCall"
@@ -35,6 +36,8 @@ const (
 type CallServiceClient interface {
 	// 发起私聊通话
 	StartPrivateCall(ctx context.Context, in *StartPrivateCallRequest, opts ...grpc.CallOption) (*StartPrivateCallResponse, error)
+	// 发起群聊通话
+	StartGroupCall(ctx context.Context, in *StartGroupCallRequest, opts ...grpc.CallOption) (*StartGroupCallResponse, error)
 	// 接受通话
 	AcceptCall(ctx context.Context, in *AcceptCallRequest, opts ...grpc.CallOption) (*AcceptCallResponse, error)
 	// 拒绝通话
@@ -59,6 +62,16 @@ func (c *callServiceClient) StartPrivateCall(ctx context.Context, in *StartPriva
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StartPrivateCallResponse)
 	err := c.cc.Invoke(ctx, CallService_StartPrivateCall_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *callServiceClient) StartGroupCall(ctx context.Context, in *StartGroupCallRequest, opts ...grpc.CallOption) (*StartGroupCallResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StartGroupCallResponse)
+	err := c.cc.Invoke(ctx, CallService_StartGroupCall_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,6 +136,8 @@ func (c *callServiceClient) GetCallRecords(ctx context.Context, in *GetCallRecor
 type CallServiceServer interface {
 	// 发起私聊通话
 	StartPrivateCall(context.Context, *StartPrivateCallRequest) (*StartPrivateCallResponse, error)
+	// 发起群聊通话
+	StartGroupCall(context.Context, *StartGroupCallRequest) (*StartGroupCallResponse, error)
 	// 接受通话
 	AcceptCall(context.Context, *AcceptCallRequest) (*AcceptCallResponse, error)
 	// 拒绝通话
@@ -145,6 +160,9 @@ type UnimplementedCallServiceServer struct{}
 
 func (UnimplementedCallServiceServer) StartPrivateCall(context.Context, *StartPrivateCallRequest) (*StartPrivateCallResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPrivateCall not implemented")
+}
+func (UnimplementedCallServiceServer) StartGroupCall(context.Context, *StartGroupCallRequest) (*StartGroupCallResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartGroupCall not implemented")
 }
 func (UnimplementedCallServiceServer) AcceptCall(context.Context, *AcceptCallRequest) (*AcceptCallResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AcceptCall not implemented")
@@ -196,6 +214,24 @@ func _CallService_StartPrivateCall_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CallServiceServer).StartPrivateCall(ctx, req.(*StartPrivateCallRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CallService_StartGroupCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartGroupCallRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CallServiceServer).StartGroupCall(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CallService_StartGroupCall_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CallServiceServer).StartGroupCall(ctx, req.(*StartGroupCallRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,6 +336,10 @@ var CallService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartPrivateCall",
 			Handler:    _CallService_StartPrivateCall_Handler,
+		},
+		{
+			MethodName: "StartGroupCall",
+			Handler:    _CallService_StartGroupCall_Handler,
 		},
 		{
 			MethodName: "AcceptCall",

@@ -274,6 +274,247 @@ var _ interface {
 	ErrorName() string
 } = StartPrivateCallResponseValidationError{}
 
+// Validate checks the field values on StartGroupCallRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartGroupCallRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartGroupCallRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartGroupCallRequestMultiError, or nil if none found.
+func (m *StartGroupCallRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartGroupCallRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetGroupId() <= 0 {
+		err := StartGroupCallRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := _StartGroupCallRequest_Type_InLookup[m.GetType()]; !ok {
+		err := StartGroupCallRequestValidationError{
+			field:  "Type",
+			reason: "value must be in list [voice video]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return StartGroupCallRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartGroupCallRequestMultiError is an error wrapping multiple validation
+// errors returned by StartGroupCallRequest.ValidateAll() if the designated
+// constraints aren't met.
+type StartGroupCallRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartGroupCallRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartGroupCallRequestMultiError) AllErrors() []error { return m }
+
+// StartGroupCallRequestValidationError is the validation error returned by
+// StartGroupCallRequest.Validate if the designated constraints aren't met.
+type StartGroupCallRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartGroupCallRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartGroupCallRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartGroupCallRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartGroupCallRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartGroupCallRequestValidationError) ErrorName() string {
+	return "StartGroupCallRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartGroupCallRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartGroupCallRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartGroupCallRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartGroupCallRequestValidationError{}
+
+var _StartGroupCallRequest_Type_InLookup = map[string]struct{}{
+	"voice": {},
+	"video": {},
+}
+
+// Validate checks the field values on StartGroupCallResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartGroupCallResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartGroupCallResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartGroupCallResponseMultiError, or nil if none found.
+func (m *StartGroupCallResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartGroupCallResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RoomId
+
+	// no validation rules for RoomToken
+
+	// no validation rules for InvitedCount
+
+	// no validation rules for Success
+
+	// no validation rules for ErrorMessage
+
+	if len(errors) > 0 {
+		return StartGroupCallResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartGroupCallResponseMultiError is an error wrapping multiple validation
+// errors returned by StartGroupCallResponse.ValidateAll() if the designated
+// constraints aren't met.
+type StartGroupCallResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartGroupCallResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartGroupCallResponseMultiError) AllErrors() []error { return m }
+
+// StartGroupCallResponseValidationError is the validation error returned by
+// StartGroupCallResponse.Validate if the designated constraints aren't met.
+type StartGroupCallResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartGroupCallResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartGroupCallResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartGroupCallResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartGroupCallResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartGroupCallResponseValidationError) ErrorName() string {
+	return "StartGroupCallResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartGroupCallResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartGroupCallResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartGroupCallResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartGroupCallResponseValidationError{}
+
 // Validate checks the field values on AcceptCallRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

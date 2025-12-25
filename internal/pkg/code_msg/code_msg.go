@@ -52,9 +52,11 @@ const (
 	// 群组相关
 	GroupNotFound        BusinessCode = 4401 // 群组不存在
 	NotGroupMember       BusinessCode = 4402 // 不在群组中
+	NotInGroup           BusinessCode = 4402 // 不在群组中（NotGroupMember的别名，使用相同错误码）
 	NoPermission         BusinessCode = 4403 // 没有权限
 	CannotRemoveOwner    BusinessCode = 4404 // 不能移除群主
 	CannotRemoveAdmin    BusinessCode = 4405 // 管理员不能移除其他管理员
+	UserNotInGroup       BusinessCode = 4406 // 用户不在群组中
 
 	// 好友相关
 	NotFriend            BusinessCode = 4501 // 不是好友关系
@@ -104,9 +106,11 @@ func GetMsg(code BusinessCode) string {
 		// 群组相关
 		GroupNotFound:        "群组不存在",
 		NotGroupMember:       "不在群组中",
+		// NotInGroup 使用与 NotGroupMember 相同的错误码，不需要单独定义
 		NoPermission:         "没有权限",
 		CannotRemoveOwner:    "不能移除群主",
 		CannotRemoveAdmin:    "管理员不能移除其他管理员",
+		UserNotInGroup:       "用户不在群组中",
 
 		// 好友相关
 		NotFriend:            "不是好友关系",

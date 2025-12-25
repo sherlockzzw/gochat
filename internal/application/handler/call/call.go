@@ -9,8 +9,9 @@ import (
 )
 
 type CallHandler struct {
-	response *response.SvcRequest
-	dao      *dao.CallDao
+	response       *response.SvcRequest
+	dao            *dao.CallDao
+	timeoutManager *websocket.CallTimeoutManager
 }
 
 func NewCallHandler(server *component.ApiServer) *CallHandler {
@@ -27,6 +28,7 @@ func NewCallHandler(server *component.ApiServer) *CallHandler {
 		// 从配置文件读取超时时间，默认60秒
 		timeoutSeconds := 60 // 可以从viper读取
 		timeoutManager := websocket.NewCallTimeoutManager(timeoutSeconds, handler.dao, wsHub)
+		handler.timeoutManager = timeoutManager
 		websocket.SetCallTimeoutManager(timeoutManager)
 		// 设置到utils以便其他模块访问
 		utils.SetCallTimeoutManager(timeoutManager)

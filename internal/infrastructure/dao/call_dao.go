@@ -94,6 +94,19 @@ func (d *CallDao) CreateParticipant(participant *models.CallParticipant) error {
 	return d.db.Create(participant).Error
 }
 
+// CreateParticipants 批量创建参与者
+func (d *CallDao) CreateParticipants(participants []*models.CallParticipant) error {
+	if len(participants) == 0 {
+		return nil
+	}
+	now := time.Now().Unix()
+	for _, p := range participants {
+		p.CreatedAt = now
+		p.UpdatedAt = now
+	}
+	return d.db.Create(participants).Error
+}
+
 // GetParticipant 获取参与者
 func (d *CallDao) GetParticipant(roomID, userID int64) (*models.CallParticipant, error) {
 	var participant models.CallParticipant

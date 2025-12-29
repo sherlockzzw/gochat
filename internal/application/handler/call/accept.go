@@ -87,28 +87,30 @@ func (h *CallHandler) acceptCallLogic(ctx *gin.Context, req *call.AcceptCallRequ
 		}
 	}
 
-	// 获取所有参与者，通知他们通话已连接
-	participants, err := h.dao.GetRoomParticipants(roomID)
-	if err == nil {
-		wsHub := getWebSocketHub()
-		if wsHub != nil {
-			acceptMessage := map[string]interface{}{
-				"type":       "call_accept",
-				"room_id":    roomID,
-				"room_token": room.RoomToken,
-				"user_id":    userID,
-			}
+		// 获取所有参与者，通知他们通话已连接
+		participants, err := h.dao.GetRoomParticipants(roomID)
+		if err == nil {
+			wsHub := getWebSocketHub()
+			if wsHub != nil {
+				acceptMessage := map[string]interface{}{
+					"type":       "call_accept",
+					"room_id":    roomID,
+					"room_token": room.RoomToken,
+					"user_id":    userID,
+					"media_type": room.Type, // 传递媒体类型（voice/video）
+					"call_type":  room.CallType, // 传递通话类型（private/group）
+				}
 
-			acceptBytes, _ := json.Marshal(acceptMessage)
+				acceptBytes, _ := json.Marshal(acceptMessage)
 
-			// 通知所有参与者
-			for _, p := range participants {
-				if p.UserID != userID {
-					wsHub.SendToUser(p.UserID, acceptBytes)
+				// 通知所有参与者
+				for _, p := range participants {
+					if p.UserID != userID {
+						wsHub.SendToUser(p.UserID, acceptBytes)
+					}
 				}
 			}
 		}
-	}
 
 	resp = &call.AcceptCallResponse{
 		Success: true,

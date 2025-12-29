@@ -96,3 +96,4 @@ func (h *GroupHandler) removeAdminLogic(ctx *gin.Context, req *group.RemoveAdmin
 	}, 0, nil
 }
 
+

@@ -30,6 +30,22 @@ service AdminUser {
       get:"/admin/user/info"
     };
   };
+  
+  // 更新用户
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option(google.api.http) = {
+      put:"/admin/user/update"
+      body:"*"
+    };
+  };
+  
+  // 禁用用户
+  rpc DisableUser(DisableUserRequest) returns (DisableUserResponse) {
+    option(google.api.http) = {
+      post:"/admin/user/disable"
+      body:"*"
+    };
+  };
 }
 
 // 创建用户请求
@@ -97,4 +113,33 @@ message UserInfo {
   string device_info = 11;
   string created_at = 12;
   string updated_at = 13;
+  int32 status = 14; // 状态(0禁用,1启用)
+  int64 balance = 15; // 余额(单位:分)
+}
+
+// 更新用户请求
+message UpdateUserRequest {
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  string name = 2;
+  string phone = 3;
+  string email = 4;
+  int32 status = 5;
+}
+
+// 更新用户响应
+message UpdateUserResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 禁用用户请求
+message DisableUserRequest {
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  string reason = 2;
+}
+
+// 禁用用户响应
+message DisableUserResponse {
+  int32 code = 1;
+  string message = 2;
 }

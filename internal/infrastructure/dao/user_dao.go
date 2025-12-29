@@ -21,6 +21,27 @@ func (d *UserDao) GetUserList() ([]*models.UserBasic, error) {
 	return users, err
 }
 
+// GetUserListWithPagination 分页获取用户列表
+func (d *UserDao) GetUserListWithPagination(page, pageSize int) ([]*models.UserBasic, int64, error) {
+	var users []*models.UserBasic
+	var total int64
+
+	query := d.db.Model(&models.UserBasic{})
+
+	// 获取总数
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 分页查询
+	offset := (page - 1) * pageSize
+	if err := query.Offset(offset).Limit(pageSize).Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
+}
+
 // CreateUser 创建用户
 func (d *UserDao) CreateUser(user *models.UserBasic) error {
 	return d.db.Create(user).Error

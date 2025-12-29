@@ -1,0 +1,488 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "admin/config/config.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AdminConfig"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/admin/config/emoji": {
+      "get": {
+        "summary": "获取表情包配置",
+        "operationId": "AdminConfig_GetEmojiConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configGetEmojiConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      },
+      "post": {
+        "summary": "更新表情包配置",
+        "operationId": "AdminConfig_UpdateEmojiConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateEmojiConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateEmojiConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminConfig"
+        ]
+      }
+    },
+    "/admin/config/group": {
+      "get": {
+        "summary": "获取群组配置",
+        "operationId": "AdminConfig_GetGroupConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configGetGroupConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      },
+      "post": {
+        "summary": "更新群组配置",
+        "operationId": "AdminConfig_UpdateGroupConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateGroupConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateGroupConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminConfig"
+        ]
+      }
+    },
+    "/admin/config/redpacket": {
+      "get": {
+        "summary": "获取红包配置",
+        "operationId": "AdminConfig_GetRedPacketConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configGetRedPacketConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      },
+      "post": {
+        "summary": "更新红包配置",
+        "operationId": "AdminConfig_UpdateRedPacketConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateRedPacketConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateRedPacketConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminConfig"
+        ]
+      }
+    },
+    "/admin/config/translate": {
+      "get": {
+        "summary": "获取易翻译配置",
+        "operationId": "AdminConfig_GetTranslateConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configGetTranslateConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdminConfig"
+        ]
+      },
+      "post": {
+        "summary": "更新易翻译配置",
+        "operationId": "AdminConfig_UpdateTranslateConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateTranslateConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_configUpdateTranslateConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminConfig"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "admin_configGetEmojiConfigResponse": {
+      "type": "object",
+      "properties": {
+        "allowCustom": {
+          "type": "boolean"
+        },
+        "maxSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "maxCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "获取表情包配置响应"
+    },
+    "admin_configGetGroupConfigResponse": {
+      "type": "object",
+      "properties": {
+        "allowCreate": {
+          "type": "boolean"
+        },
+        "redpacketEnabled": {
+          "type": "boolean"
+        },
+        "redpacketLimit": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "获取群组配置响应"
+    },
+    "admin_configGetRedPacketConfigResponse": {
+      "type": "object",
+      "properties": {
+        "privateMin": {
+          "type": "string",
+          "format": "int64"
+        },
+        "privateMax": {
+          "type": "string",
+          "format": "int64"
+        },
+        "privateCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "groupMin": {
+          "type": "string",
+          "format": "int64"
+        },
+        "groupMax": {
+          "type": "string",
+          "format": "int64"
+        },
+        "groupCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "获取红包配置响应"
+    },
+    "admin_configGetTranslateConfigResponse": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "dailyLimit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "apiKey": {
+          "type": "string"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "获取易翻译配置响应"
+    },
+    "admin_configUpdateEmojiConfigRequest": {
+      "type": "object",
+      "properties": {
+        "allowCustom": {
+          "type": "boolean"
+        },
+        "maxSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "maxCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "更新表情包配置请求"
+    },
+    "admin_configUpdateEmojiConfigResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "更新表情包配置响应"
+    },
+    "admin_configUpdateGroupConfigRequest": {
+      "type": "object",
+      "properties": {
+        "allowCreate": {
+          "type": "boolean"
+        },
+        "redpacketEnabled": {
+          "type": "boolean"
+        },
+        "redpacketLimit": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "更新群组配置请求"
+    },
+    "admin_configUpdateGroupConfigResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "更新群组配置响应"
+    },
+    "admin_configUpdateRedPacketConfigRequest": {
+      "type": "object",
+      "properties": {
+        "privateMin": {
+          "type": "string",
+          "format": "int64"
+        },
+        "privateMax": {
+          "type": "string",
+          "format": "int64"
+        },
+        "privateCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "groupMin": {
+          "type": "string",
+          "format": "int64"
+        },
+        "groupMax": {
+          "type": "string",
+          "format": "int64"
+        },
+        "groupCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "更新红包配置请求"
+    },
+    "admin_configUpdateRedPacketConfigResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "更新红包配置响应"
+    },
+    "admin_configUpdateTranslateConfigRequest": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "dailyLimit": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "apiKey": {
+          "type": "string"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "更新易翻译配置请求"
+    },
+    "admin_configUpdateTranslateConfigResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "更新易翻译配置响应"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

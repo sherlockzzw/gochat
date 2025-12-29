@@ -49,3 +49,4 @@ func (h *NotificationHandler) getUnreadCountLogic(ctx *gin.Context, req *notific
 	return resp, 0, nil
 }
 
+

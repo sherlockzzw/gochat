@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package admin_content;
+
+option go_package = "gochat/api/admin/content";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// 内容安全管理服务
+service AdminContent {
+  // 获取违规内容
+  rpc GetViolations(GetViolationsRequest) returns (GetViolationsResponse) {
+    option(google.api.http) = {
+      get:"/admin/content/violations"
+    };
+  };
+  
+  // 删除违规内容
+  rpc DeleteViolation(DeleteViolationRequest) returns (DeleteViolationResponse) {
+    option(google.api.http) = {
+      post:"/admin/content/violation/delete"
+      body:"*"
+    };
+  };
+  
+  // 获取异常操作
+  rpc GetAbnormalOperations(GetAbnormalOperationsRequest) returns (GetAbnormalOperationsResponse) {
+    option(google.api.http) = {
+      get:"/admin/content/abnormal"
+    };
+  };
+  
+  // 拦截异常操作
+  rpc BlockAbnormalOperation(BlockAbnormalOperationRequest) returns (BlockAbnormalOperationResponse) {
+    option(google.api.http) = {
+      post:"/admin/content/abnormal/block"
+      body:"*"
+    };
+  };
+}
+
+// 获取违规内容请求
+message GetViolationsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+  // @inject_tag: form:"type"
+  string type = 3;
+  // @inject_tag: form:"status"
+  string status = 4;
+}
+
+// 获取违规内容响应
+message GetViolationsResponse {
+  repeated ViolationInfo violations = 1;
+  int32 total = 2;
+}
+
+// 违规内容信息
+message ViolationInfo {
+  int64 id = 1;
+  string type = 2;
+  int64 user_id = 3;
+  string user_name = 4;
+  string content = 5;
+  string reason = 6;
+  string status = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+// 删除违规内容请求
+message DeleteViolationRequest {
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+}
+
+// 删除违规内容响应
+message DeleteViolationResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 获取异常操作请求
+message GetAbnormalOperationsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+  // @inject_tag: form:"type"
+  string type = 3;
+}
+
+// 获取异常操作响应
+message GetAbnormalOperationsResponse {
+  repeated AbnormalOperationInfo operations = 1;
+  int32 total = 2;
+}
+
+// 异常操作信息
+message AbnormalOperationInfo {
+  int64 id = 1;
+  string type = 2;
+  int64 user_id = 3;
+  string user_name = 4;
+  string description = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+// 拦截异常操作请求
+message BlockAbnormalOperationRequest {
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  string reason = 2;
+}
+
+// 拦截异常操作响应
+message BlockAbnormalOperationResponse {
+  int32 code = 1;
+  string message = 2;
+}
+

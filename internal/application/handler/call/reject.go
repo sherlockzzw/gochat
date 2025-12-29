@@ -118,6 +118,8 @@ func (h *CallHandler) rejectCallLogic(ctx *gin.Context, req *call.RejectCallRequ
 				"room_id":    roomID,
 				"room_token": room.RoomToken,
 				"user_id":    userID,
+				"media_type": room.Type, // 传递媒体类型（voice/video）
+				"call_type":  room.CallType, // 传递通话类型（private/group）
 				"reason":     req.GetReason(),
 			}
 

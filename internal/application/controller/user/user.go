@@ -23,3 +23,4 @@ func NewControllerUser(apiServer *component.ApiServer) *ControllerUser {
 		logger:    apiServer.Logger,
 	}
 }
+

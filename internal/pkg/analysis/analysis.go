@@ -27,6 +27,19 @@ func BindParameter[k any](c *gin.Context, response *response.SvcRequest) (res k,
 		fmt.Print(err)
 	} else if c.Request.Method == "POST" {
 		err = c.ShouldBindJSON(&res)
+	} else if c.Request.Method == "PUT" || c.Request.Method == "DELETE" {
+		// PUT和DELETE方法需要绑定URI参数和body
+		if err = c.ShouldBindUri(&res); err != nil {
+			response.JsonError(c, err, "参数绑定失败")
+			return res, err
+		}
+		// 如果有body，也绑定body
+		if c.Request.ContentLength > 0 {
+			if err = c.ShouldBindJSON(&res); err != nil {
+				response.JsonError(c, err, "参数绑定失败")
+				return res, err
+			}
+		}
 	} else {
 		response.JsonError(c, err, "方法不允许")
 		return

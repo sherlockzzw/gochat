@@ -79,3 +79,4 @@ func (h *GroupHandler) leaveGroupLogic(ctx *gin.Context, req *group.LeaveGroupRe
 	}, 0, nil
 }
 
+

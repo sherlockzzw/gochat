@@ -96,3 +96,4 @@ func (h *GroupHandler) appointAdminLogic(ctx *gin.Context, req *group.AppointAdm
 	}, 0, nil
 }
 
+

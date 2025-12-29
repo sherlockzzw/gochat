@@ -63,6 +63,13 @@ func setup(cmd *cobra.Command, args []string) {
 	_ = msl.Set("gorm:table_options", "COMMENT='通话参与者表'").AutoMigrate(&models.CallParticipant{})
 	_ = msl.Set("gorm:table_options", "COMMENT='通话记录表'").AutoMigrate(&models.CallRecord{})
 
+	// 管理后台相关表
+	_ = msl.Set("gorm:table_options", "COMMENT='权限组表'").AutoMigrate(&models.PermissionGroup{})
+	_ = msl.Set("gorm:table_options", "COMMENT='用户权限组关联表'").AutoMigrate(&models.UserPermissionGroup{})
+	_ = msl.Set("gorm:table_options", "COMMENT='系统配置表'").AutoMigrate(&models.SystemConfig{})
+	_ = msl.Set("gorm:table_options", "COMMENT='管理员操作日志表'").AutoMigrate(&models.AdminLog{})
+	_ = msl.Set("gorm:table_options", "COMMENT='违规内容表'").AutoMigrate(&models.ContentViolation{})
+
 	fmt.Println("✅ 数据库结构更新完成")
 }
 

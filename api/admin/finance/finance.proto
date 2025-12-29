@@ -1,0 +1,226 @@
+syntax = "proto3";
+
+package admin_finance;
+
+option go_package = "gochat/api/admin/finance";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// 资金管理服务
+service AdminFinance {
+  // 获取资金配置
+  rpc GetFinanceConfig(GetFinanceConfigRequest) returns (GetFinanceConfigResponse) {
+    option(google.api.http) = {
+      get:"/admin/finance/config"
+    };
+  };
+  
+  // 更新资金配置
+  rpc UpdateFinanceConfig(UpdateFinanceConfigRequest) returns (UpdateFinanceConfigResponse) {
+    option(google.api.http) = {
+      post:"/admin/finance/config"
+      body:"*"
+    };
+  };
+  
+  // 获取资金流水
+  rpc GetFinanceRecords(GetFinanceRecordsRequest) returns (GetFinanceRecordsResponse) {
+    option(google.api.http) = {
+      get:"/admin/finance/records"
+    };
+  };
+  
+  // 获取待审核充值
+  rpc GetPendingRecharges(GetPendingRechargesRequest) returns (GetPendingRechargesResponse) {
+    option(google.api.http) = {
+      get:"/admin/finance/recharge/pending"
+    };
+  };
+  
+  // 审核充值
+  rpc AuditRecharge(AuditRechargeRequest) returns (AuditRechargeResponse) {
+    option(google.api.http) = {
+      post:"/admin/finance/recharge/audit"
+      body:"*"
+    };
+  };
+  
+  // 获取待审核提现
+  rpc GetPendingWithdraws(GetPendingWithdrawsRequest) returns (GetPendingWithdrawsResponse) {
+    option(google.api.http) = {
+      get:"/admin/finance/withdraw/pending"
+    };
+  };
+  
+  // 审核提现
+  rpc AuditWithdraw(AuditWithdrawRequest) returns (AuditWithdrawResponse) {
+    option(google.api.http) = {
+      post:"/admin/finance/withdraw/audit"
+      body:"*"
+    };
+  };
+  
+  // 调整用户余额
+  rpc AdjustBalance(AdjustBalanceRequest) returns (AdjustBalanceResponse) {
+    option(google.api.http) = {
+      post:"/admin/finance/balance/adjust"
+      body:"*"
+    };
+  };
+}
+
+// 获取资金配置请求
+message GetFinanceConfigRequest {
+}
+
+// 获取资金配置响应
+message GetFinanceConfigResponse {
+  bool recharge_enabled = 1;
+  bool withdraw_enabled = 2;
+  int64 recharge_daily_limit = 3;
+  int64 withdraw_daily_limit = 4;
+  int32 withdraw_daily_count = 5;
+  int64 withdraw_fee_rate = 6;
+}
+
+// 更新资金配置请求
+message UpdateFinanceConfigRequest {
+  bool recharge_enabled = 1;
+  bool withdraw_enabled = 2;
+  int64 recharge_daily_limit = 3;
+  int64 withdraw_daily_limit = 4;
+  int32 withdraw_daily_count = 5;
+  int64 withdraw_fee_rate = 6;
+}
+
+// 更新资金配置响应
+message UpdateFinanceConfigResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 获取资金流水请求
+message GetFinanceRecordsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+  // @inject_tag: form:"user_id"
+  int64 user_id = 3;
+  // @inject_tag: form:"type"
+  string type = 4;
+  // @inject_tag: form:"start_time"
+  int64 start_time = 5;
+  // @inject_tag: form:"end_time"
+  int64 end_time = 6;
+}
+
+// 获取资金流水响应
+message GetFinanceRecordsResponse {
+  repeated FinanceRecord records = 1;
+  int32 total = 2;
+}
+
+// 资金流水记录
+message FinanceRecord {
+  int64 id = 1;
+  int64 user_id = 2;
+  string type = 3;
+  int64 amount = 4;
+  int64 balance = 5;
+  int64 related_id = 6;
+  string remark = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+// 获取待审核充值请求
+message GetPendingRechargesRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+}
+
+// 获取待审核充值响应
+message GetPendingRechargesResponse {
+  repeated RechargeInfo recharges = 1;
+  int32 total = 2;
+}
+
+// 充值信息
+message RechargeInfo {
+  int64 id = 1;
+  int64 user_id = 2;
+  string user_name = 3;
+  int64 amount = 4;
+  string status = 5;
+  string remark = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+// 审核充值请求
+message AuditRechargeRequest {
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  string action = 2 [(validate.rules).string = {in: ["approve", "reject"]}];
+  string note = 3;
+}
+
+// 审核充值响应
+message AuditRechargeResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 获取待审核提现请求
+message GetPendingWithdrawsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+}
+
+// 获取待审核提现响应
+message GetPendingWithdrawsResponse {
+  repeated WithdrawInfo withdraws = 1;
+  int32 total = 2;
+}
+
+// 提现信息
+message WithdrawInfo {
+  int64 id = 1;
+  int64 user_id = 2;
+  string user_name = 3;
+  int64 amount = 4;
+  int64 fee = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+// 审核提现请求
+message AuditWithdrawRequest {
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  string action = 2 [(validate.rules).string = {in: ["approve", "reject"]}];
+  string note = 3;
+}
+
+// 审核提现响应
+message AuditWithdrawResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 调整用户余额请求
+message AdjustBalanceRequest {
+  int64 user_id = 1 [(validate.rules).int64.gt = 0];
+  int64 amount = 2;
+  string reason = 3 [(validate.rules).string.min_len = 1];
+}
+
+// 调整用户余额响应
+message AdjustBalanceResponse {
+  int32 code = 1;
+  string message = 2;
+}
+

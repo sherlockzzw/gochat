@@ -60,3 +60,4 @@ func (h *FriendHandler) setFriendGroupLogic(ctx *gin.Context, req *friend.SetFri
 	}, 0, nil
 }
 
+

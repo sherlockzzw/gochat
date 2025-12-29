@@ -38,3 +38,4 @@ func ValidateRequired(value interface{}, fieldName string) (code_msg.BusinessCod
 	return 0, nil
 }
 
+

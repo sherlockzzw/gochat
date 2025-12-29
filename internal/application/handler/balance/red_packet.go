@@ -203,9 +203,9 @@ func (h *BalanceHandler) sendGroupRedPacketLogic(ctx *gin.Context, req *balance.
 			GroupID:         groupID,
 			Amount:          singleAmount, // 普通红包时存储单个金额，拼手气红包时存储总金额
 			TotalAmount:     totalAmount,
-			Count:           count,
-			RemainingAmount: totalAmount, // 剩余金额，用于并发控制
-			RemainingCount:  count,       // 剩余个数，用于并发控制
+			Count:           int32(count),
+			RemainingAmount: totalAmount,  // 剩余金额，用于并发控制
+			RemainingCount:  int32(count), // 剩余个数，用于并发控制
 			Status:          models.RedPacketStatusSent,
 			Message:         req.GetMessage(),
 			ExpiredAt:       now + 86400, // 群聊红包24小时过期

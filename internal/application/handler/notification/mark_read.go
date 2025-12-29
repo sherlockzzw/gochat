@@ -102,3 +102,4 @@ func (h *NotificationHandler) markAllAsReadLogic(ctx *gin.Context, req *notifica
 	return resp, 0, nil
 }
 
+

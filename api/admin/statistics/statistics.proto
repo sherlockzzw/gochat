@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package admin_statistics;
+
+option go_package = "gochat/api/admin/statistics";
+
+import "google/api/annotations.proto";
+
+// 数据统计服务
+service AdminStatistics {
+  // 功能使用统计
+  rpc GetUsageStatistics(GetUsageStatisticsRequest) returns (GetUsageStatisticsResponse) {
+    option(google.api.http) = {
+      get:"/admin/statistics/usage"
+    };
+  };
+  
+  // 资金流水统计
+  rpc GetFinanceStatistics(GetFinanceStatisticsRequest) returns (GetFinanceStatisticsResponse) {
+    option(google.api.http) = {
+      get:"/admin/statistics/finance"
+    };
+  };
+  
+  // 终端统计
+  rpc GetTerminalStatistics(GetTerminalStatisticsRequest) returns (GetTerminalStatisticsResponse) {
+    option(google.api.http) = {
+      get:"/admin/statistics/terminal"
+    };
+  };
+}
+
+// 获取功能使用统计请求
+message GetUsageStatisticsRequest {
+  // @inject_tag: form:"start_time"
+  int64 start_time = 1;
+  // @inject_tag: form:"end_time"
+  int64 end_time = 2;
+}
+
+// 获取功能使用统计响应
+message GetUsageStatisticsResponse {
+  map<string, int64> usage_data = 1;
+}
+
+// 获取资金流水统计请求
+message GetFinanceStatisticsRequest {
+  // @inject_tag: form:"start_time"
+  int64 start_time = 1;
+  // @inject_tag: form:"end_time"
+  int64 end_time = 2;
+}
+
+// 获取资金流水统计响应
+message GetFinanceStatisticsResponse {
+  int64 total_recharge = 1;
+  int64 total_withdraw = 2;
+  int64 total_redpacket = 3;
+  int64 total_transfer = 4;
+}
+
+// 获取终端统计请求
+message GetTerminalStatisticsRequest {
+  // @inject_tag: form:"start_time"
+  int64 start_time = 1;
+  // @inject_tag: form:"end_time"
+  int64 end_time = 2;
+}
+
+// 获取终端统计响应
+message GetTerminalStatisticsResponse {
+  map<string, int64> terminal_data = 1;
+}
+

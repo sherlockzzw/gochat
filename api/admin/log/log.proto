@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package admin_log;
+
+option go_package = "gochat/api/admin/log";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// 操作日志服务
+service AdminLog {
+  // 获取操作日志
+  rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
+    option(google.api.http) = {
+      get:"/admin/log/list"
+    };
+  };
+}
+
+// 获取操作日志请求
+message GetLogsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+  // @inject_tag: form:"action_type"
+  string action_type = 3;
+  // @inject_tag: form:"target_type"
+  string target_type = 4;
+  // @inject_tag: form:"start_time"
+  int64 start_time = 5;
+  // @inject_tag: form:"end_time"
+  int64 end_time = 6;
+}
+
+// 获取操作日志响应
+message GetLogsResponse {
+  repeated LogInfo logs = 1;
+  int32 total = 2;
+}
+
+// 日志信息
+message LogInfo {
+  int64 id = 1;
+  int64 admin_id = 2;
+  string admin_name = 3;
+  string action_type = 4;
+  string description = 5;
+  string target_type = 6;
+  int64 target_id = 7;
+  string ip_address = 8;
+  google.protobuf.Timestamp created_at = 9;
+}
+

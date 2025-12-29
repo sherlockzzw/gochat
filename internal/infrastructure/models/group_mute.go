@@ -22,3 +22,4 @@ func (GroupMute) TableName() string {
 	return "group_mutes"
 }
 
+

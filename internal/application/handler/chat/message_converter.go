@@ -75,3 +75,4 @@ func (h *ChatHandler) convertToChatMessageWithDetails(message *models.ChatMessag
 	return chatMsg
 }
 
+

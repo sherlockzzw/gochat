@@ -19,3 +19,4 @@ func (MessageFavorite) TableName() string {
 	return "message_favorites"
 }
 
+

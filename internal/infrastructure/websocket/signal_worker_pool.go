@@ -141,3 +141,4 @@ func (p *SignalWorkerPool) Stats() map[string]interface{} {
 		"queue_cap":  cap(p.jobQueue),
 	}
 }
+

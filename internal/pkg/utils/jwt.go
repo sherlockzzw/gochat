@@ -78,3 +78,9 @@ func GetCurrentUserID(ctx *gin.Context) (int64, error) {
 
 	return 0, fmt.Errorf("ID field has unexpected type: %T", userIDInterface)
 }
+
+// GetCurrentAdminID 从JWT token中获取当前管理员ID（与GetCurrentUserID使用相同的机制）
+func GetCurrentAdminID(ctx *gin.Context) (int64, error) {
+	// 管理员和用户使用相同的JWT机制，所以直接调用GetCurrentUserID
+	return GetCurrentUserID(ctx)
+}

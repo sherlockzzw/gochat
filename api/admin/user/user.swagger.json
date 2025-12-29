@@ -49,6 +49,39 @@
         ]
       }
     },
+    "/admin/user/disable": {
+      "post": {
+        "summary": "禁用用户",
+        "operationId": "AdminUser_DisableUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_userDisableUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_userDisableUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
     "/admin/user/info": {
       "get": {
         "summary": "获取用户信息",
@@ -122,6 +155,39 @@
           "AdminUser"
         ]
       }
+    },
+    "/admin/user/update": {
+      "put": {
+        "summary": "更新用户",
+        "operationId": "AdminUser_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_userUpdateUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_userUpdateUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminUser"
+        ]
+      }
     }
   },
   "definitions": {
@@ -175,6 +241,32 @@
       },
       "title": "创建用户响应"
     },
+    "admin_userDisableUserRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "title": "禁用用户请求"
+    },
+    "admin_userDisableUserResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "禁用用户响应"
+    },
     "admin_userGetUserInfoResponse": {
       "type": "object",
       "properties": {
@@ -199,6 +291,42 @@
         }
       },
       "title": "获取用户列表响应"
+    },
+    "admin_userUpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "更新用户请求"
+    },
+    "admin_userUpdateUserResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "更新用户响应"
     },
     "admin_userUserInfo": {
       "type": "object",
@@ -245,6 +373,16 @@
         },
         "updatedAt": {
           "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32",
+          "title": "状态(0禁用,1启用)"
+        },
+        "balance": {
+          "type": "string",
+          "format": "int64",
+          "title": "余额(单位:分)"
         }
       },
       "title": "用户信息"

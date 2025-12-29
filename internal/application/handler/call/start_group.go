@@ -178,13 +178,22 @@ func (h *CallHandler) startGroupCallLogic(ctx *gin.Context, req *call.StartGroup
 
 	// 通过WebSocket发送通话邀请给所有被邀请的成员
 	inviteMessage := map[string]interface{}{
-		"type":      "call_invite",
-		"room_id":   roomID,
+		"type":       "call_invite",
+		"room_id":    roomID,
 		"room_token": roomToken,
-		"call_type": callType,
-		"group_id":  groupID,
+		"call_type":  "group",
+		"media_type": callType, // voice 或 video
+		"group_id":   groupID,
 		"creator_id": userID,
 		"group_name": groupInfo.Name,
+	}
+
+	// 获取创建者信息（用于显示）
+	userDao := dao.NewUserDao(globalUtils.DB)
+	creator, err := userDao.GetUserByID(userID)
+	if err == nil && creator != nil {
+		inviteMessage["creator_name"] = creator.Name
+		inviteMessage["creator_avatar"] = creator.Avatar
 	}
 
 	inviteData, err := json.Marshal(inviteMessage)

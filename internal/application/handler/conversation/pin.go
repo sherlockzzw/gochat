@@ -60,3 +60,4 @@ func (h *ConversationHandler) pinConversationLogic(ctx *gin.Context, req *conver
 	return resp, 0, nil
 }
 
+

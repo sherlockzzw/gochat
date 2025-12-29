@@ -41,6 +41,9 @@ var apiServerCmd = &cobra.Command{
 
 		// 注册API路由
 		router.ApiRouter(r)
+		
+		// 注册管理后台路由
+		router.AdminRouter(r)
 
 		// 启动API服务器
 		apiPort := utils.GetApiPort()

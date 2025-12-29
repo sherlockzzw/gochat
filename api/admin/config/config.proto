@@ -1,0 +1,175 @@
+syntax = "proto3";
+
+package admin_config;
+
+option go_package = "gochat/api/admin/config";
+
+import "google/api/annotations.proto";
+
+// 配置管理服务
+service AdminConfig {
+  // 获取表情包配置
+  rpc GetEmojiConfig(GetEmojiConfigRequest) returns (GetEmojiConfigResponse) {
+    option(google.api.http) = {
+      get:"/admin/config/emoji"
+    };
+  };
+  
+  // 更新表情包配置
+  rpc UpdateEmojiConfig(UpdateEmojiConfigRequest) returns (UpdateEmojiConfigResponse) {
+    option(google.api.http) = {
+      post:"/admin/config/emoji"
+      body:"*"
+    };
+  };
+  
+  // 获取易翻译配置
+  rpc GetTranslateConfig(GetTranslateConfigRequest) returns (GetTranslateConfigResponse) {
+    option(google.api.http) = {
+      get:"/admin/config/translate"
+    };
+  };
+  
+  // 更新易翻译配置
+  rpc UpdateTranslateConfig(UpdateTranslateConfigRequest) returns (UpdateTranslateConfigResponse) {
+    option(google.api.http) = {
+      post:"/admin/config/translate"
+      body:"*"
+    };
+  };
+  
+  // 获取群组配置
+  rpc GetGroupConfig(GetGroupConfigRequest) returns (GetGroupConfigResponse) {
+    option(google.api.http) = {
+      get:"/admin/config/group"
+    };
+  };
+  
+  // 更新群组配置
+  rpc UpdateGroupConfig(UpdateGroupConfigRequest) returns (UpdateGroupConfigResponse) {
+    option(google.api.http) = {
+      post:"/admin/config/group"
+      body:"*"
+    };
+  };
+  
+  // 获取红包配置
+  rpc GetRedPacketConfig(GetRedPacketConfigRequest) returns (GetRedPacketConfigResponse) {
+    option(google.api.http) = {
+      get:"/admin/config/redpacket"
+    };
+  };
+  
+  // 更新红包配置
+  rpc UpdateRedPacketConfig(UpdateRedPacketConfigRequest) returns (UpdateRedPacketConfigResponse) {
+    option(google.api.http) = {
+      post:"/admin/config/redpacket"
+      body:"*"
+    };
+  };
+}
+
+// 获取表情包配置请求
+message GetEmojiConfigRequest {
+}
+
+// 获取表情包配置响应
+message GetEmojiConfigResponse {
+  bool allow_custom = 1;
+  int32 max_size = 2;
+  int32 max_count = 3;
+}
+
+// 更新表情包配置请求
+message UpdateEmojiConfigRequest {
+  bool allow_custom = 1;
+  int32 max_size = 2;
+  int32 max_count = 3;
+}
+
+// 更新表情包配置响应
+message UpdateEmojiConfigResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 获取易翻译配置请求
+message GetTranslateConfigRequest {
+}
+
+// 获取易翻译配置响应
+message GetTranslateConfigResponse {
+  bool enabled = 1;
+  int32 daily_limit = 2;
+  string api_key = 3;
+  repeated string languages = 4;
+}
+
+// 更新易翻译配置请求
+message UpdateTranslateConfigRequest {
+  bool enabled = 1;
+  int32 daily_limit = 2;
+  string api_key = 3;
+  repeated string languages = 4;
+}
+
+// 更新易翻译配置响应
+message UpdateTranslateConfigResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 获取群组配置请求
+message GetGroupConfigRequest {
+}
+
+// 获取群组配置响应
+message GetGroupConfigResponse {
+  bool allow_create = 1;
+  bool redpacket_enabled = 2;
+  int32 redpacket_limit = 3;
+}
+
+// 更新群组配置请求
+message UpdateGroupConfigRequest {
+  bool allow_create = 1;
+  bool redpacket_enabled = 2;
+  int32 redpacket_limit = 3;
+}
+
+// 更新群组配置响应
+message UpdateGroupConfigResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 获取红包配置请求
+message GetRedPacketConfigRequest {
+}
+
+// 获取红包配置响应
+message GetRedPacketConfigResponse {
+  int64 private_min = 1;
+  int64 private_max = 2;
+  int32 private_count = 3;
+  int64 group_min = 4;
+  int64 group_max = 5;
+  int32 group_count = 6;
+}
+
+// 更新红包配置请求
+message UpdateRedPacketConfigRequest {
+  int64 private_min = 1;
+  int64 private_max = 2;
+  int32 private_count = 3;
+  int64 group_min = 4;
+  int64 group_max = 5;
+  int32 group_count = 6;
+}
+
+// 更新红包配置响应
+message UpdateRedPacketConfigResponse {
+  int32 code = 1;
+  string message = 2;
+}
+

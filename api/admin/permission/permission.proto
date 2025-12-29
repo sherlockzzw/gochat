@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package admin_permission;
+
+option go_package = "gochat/api/admin/permission";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+// 权限管理服务
+service AdminPermission {
+  // 获取权限组列表
+  rpc GetPermissionGroups(GetPermissionGroupsRequest) returns (GetPermissionGroupsResponse) {
+    option(google.api.http) = {
+      get:"/admin/permission/groups"
+    };
+  };
+  
+  // 创建权限组
+  rpc CreatePermissionGroup(CreatePermissionGroupRequest) returns (CreatePermissionGroupResponse) {
+    option(google.api.http) = {
+      post:"/admin/permission/group"
+      body:"*"
+    };
+  };
+  
+  // 更新权限组
+  rpc UpdatePermissionGroup(UpdatePermissionGroupRequest) returns (UpdatePermissionGroupResponse) {
+    option(google.api.http) = {
+      put:"/admin/permission/group/{id}"
+      body:"*"
+    };
+  };
+  
+  // 删除权限组
+  rpc DeletePermissionGroup(DeletePermissionGroupRequest) returns (DeletePermissionGroupResponse) {
+    option(google.api.http) = {
+      delete:"/admin/permission/group/{id}"
+    };
+  };
+  
+  // 分配用户到权限组
+  rpc AssignUserToGroup(AssignUserToGroupRequest) returns (AssignUserToGroupResponse) {
+    option(google.api.http) = {
+      post:"/admin/permission/assign"
+      body:"*"
+    };
+  };
+  
+  // 功能开关
+  rpc ToggleFeature(ToggleFeatureRequest) returns (ToggleFeatureResponse) {
+    option(google.api.http) = {
+      post:"/admin/permission/feature/toggle"
+      body:"*"
+    };
+  };
+}
+
+// 获取权限组列表请求
+message GetPermissionGroupsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+}
+
+// 获取权限组列表响应
+message GetPermissionGroupsResponse {
+  repeated PermissionGroupInfo groups = 1;
+  int32 total = 2;
+}
+
+// 创建权限组请求
+message CreatePermissionGroupRequest {
+  string name = 1 [(validate.rules).string.min_len = 1];
+  string description = 2;
+  repeated string permissions = 3;
+}
+
+// 创建权限组响应
+message CreatePermissionGroupResponse {
+  int32 code = 1;
+  string message = 2;
+  PermissionGroupInfo group = 3;
+}
+
+// 更新权限组请求
+message UpdatePermissionGroupRequest {
+  // @inject_tag: uri:"id"
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  string name = 2;
+  string description = 3;
+  repeated string permissions = 4;
+}
+
+// 更新权限组响应
+message UpdatePermissionGroupResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 删除权限组请求
+message DeletePermissionGroupRequest {
+  // @inject_tag: uri:"id"
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+}
+
+// 删除权限组响应
+message DeletePermissionGroupResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 分配用户到权限组请求
+message AssignUserToGroupRequest {
+  int64 user_id = 1 [(validate.rules).int64.gt = 0];
+  int64 group_id = 2 [(validate.rules).int64.gt = 0];
+}
+
+// 分配用户到权限组响应
+message AssignUserToGroupResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 功能开关请求
+message ToggleFeatureRequest {
+  string feature_key = 1 [(validate.rules).string.min_len = 1];
+  bool enabled = 2;
+}
+
+// 功能开关响应
+message ToggleFeatureResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 权限组信息
+message PermissionGroupInfo {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  repeated string permissions = 4;
+  bool is_default = 5;
+  int32 user_count = 6;
+  int64 created_at = 7;
+  int64 updated_at = 8;
+}
+

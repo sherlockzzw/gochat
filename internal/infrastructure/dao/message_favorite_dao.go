@@ -81,3 +81,4 @@ func (d *MessageFavoriteDao) GetFavoriteMessageIDs(userID int64, page, pageSize 
 	return messageIDs, total, nil
 }
 
+

@@ -292,6 +292,76 @@ func (d *BalanceDao) CreateBalanceFlow(flow *models.BalanceFlow) error {
 	return d.db.Create(flow).Error
 }
 
+// GetPendingRecharges 获取所有待审核的充值申请（管理员用）
+func (d *BalanceDao) GetPendingRecharges(page, pageSize int) ([]*models.RechargeRequest, int64, error) {
+	var requests []*models.RechargeRequest
+	var total int64
+
+	query := d.db.Model(&models.RechargeRequest{}).Where("status = ?", models.StatusPending)
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * pageSize
+	if err := query.Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&requests).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return requests, total, nil
+}
+
+// GetPendingWithdraws 获取所有待审核的提现申请（管理员用）
+func (d *BalanceDao) GetPendingWithdraws(page, pageSize int) ([]*models.WithdrawRequest, int64, error) {
+	var requests []*models.WithdrawRequest
+	var total int64
+
+	query := d.db.Model(&models.WithdrawRequest{}).Where("status = ?", models.StatusPending)
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * pageSize
+	if err := query.Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&requests).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return requests, total, nil
+}
+
+// GetAllBalanceFlows 获取所有资金流水（管理员用）
+func (d *BalanceDao) GetAllBalanceFlows(userID int64, flowType string, startTime, endTime int64, page, pageSize int) ([]*models.BalanceFlow, int64, error) {
+	var flows []*models.BalanceFlow
+	var total int64
+
+	query := d.db.Model(&models.BalanceFlow{})
+
+	if userID > 0 {
+		query = query.Where("user_id = ?", userID)
+	}
+	if flowType != "" {
+		query = query.Where("type = ?", flowType)
+	}
+	if startTime > 0 {
+		query = query.Where("created_at >= ?", startTime)
+	}
+	if endTime > 0 {
+		query = query.Where("created_at <= ?", endTime)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * pageSize
+	if err := query.Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&flows).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return flows, total, nil
+}
+
 // GetBalanceFlows 获取用户的资金流水
 func (d *BalanceDao) GetBalanceFlows(userID int64, flowType string, page, pageSize int) ([]*models.BalanceFlow, int64, error) {
 	var flows []*models.BalanceFlow

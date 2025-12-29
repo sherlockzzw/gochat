@@ -1,0 +1,664 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "admin/finance/finance.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AdminFinance"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/admin/finance/balance/adjust": {
+      "post": {
+        "summary": "调整用户余额",
+        "operationId": "AdminFinance_AdjustBalance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeAdjustBalanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_financeAdjustBalanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminFinance"
+        ]
+      }
+    },
+    "/admin/finance/config": {
+      "get": {
+        "summary": "获取资金配置",
+        "operationId": "AdminFinance_GetFinanceConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeGetFinanceConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdminFinance"
+        ]
+      },
+      "post": {
+        "summary": "更新资金配置",
+        "operationId": "AdminFinance_UpdateFinanceConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeUpdateFinanceConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_financeUpdateFinanceConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminFinance"
+        ]
+      }
+    },
+    "/admin/finance/recharge/audit": {
+      "post": {
+        "summary": "审核充值",
+        "operationId": "AdminFinance_AuditRecharge",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeAuditRechargeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_financeAuditRechargeRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminFinance"
+        ]
+      }
+    },
+    "/admin/finance/recharge/pending": {
+      "get": {
+        "summary": "获取待审核充值",
+        "operationId": "AdminFinance_GetPendingRecharges",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeGetPendingRechargesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "description": "@inject_tag: form:\"page\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "description": "@inject_tag: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "AdminFinance"
+        ]
+      }
+    },
+    "/admin/finance/records": {
+      "get": {
+        "summary": "获取资金流水",
+        "operationId": "AdminFinance_GetFinanceRecords",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeGetFinanceRecordsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "description": "@inject_tag: form:\"page\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "description": "@inject_tag: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "description": "@inject_tag: form:\"user_id\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "type",
+            "description": "@inject_tag: form:\"type\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "startTime",
+            "description": "@inject_tag: form:\"start_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "endTime",
+            "description": "@inject_tag: form:\"end_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AdminFinance"
+        ]
+      }
+    },
+    "/admin/finance/withdraw/audit": {
+      "post": {
+        "summary": "审核提现",
+        "operationId": "AdminFinance_AuditWithdraw",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeAuditWithdrawResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/admin_financeAuditWithdrawRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdminFinance"
+        ]
+      }
+    },
+    "/admin/finance/withdraw/pending": {
+      "get": {
+        "summary": "获取待审核提现",
+        "operationId": "AdminFinance_GetPendingWithdraws",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_financeGetPendingWithdrawsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "description": "@inject_tag: form:\"page\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageSize",
+            "description": "@inject_tag: form:\"page_size\"",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "AdminFinance"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "admin_financeAdjustBalanceRequest": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "title": "调整用户余额请求"
+    },
+    "admin_financeAdjustBalanceResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "调整用户余额响应"
+    },
+    "admin_financeAuditRechargeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "action": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "title": "审核充值请求"
+    },
+    "admin_financeAuditRechargeResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "审核充值响应"
+    },
+    "admin_financeAuditWithdrawRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "action": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "title": "审核提现请求"
+    },
+    "admin_financeAuditWithdrawResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "审核提现响应"
+    },
+    "admin_financeFinanceRecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "userId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "type": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64"
+        },
+        "balance": {
+          "type": "string",
+          "format": "int64"
+        },
+        "relatedId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "remark": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "title": "资金流水记录"
+    },
+    "admin_financeGetFinanceConfigResponse": {
+      "type": "object",
+      "properties": {
+        "rechargeEnabled": {
+          "type": "boolean"
+        },
+        "withdrawEnabled": {
+          "type": "boolean"
+        },
+        "rechargeDailyLimit": {
+          "type": "string",
+          "format": "int64"
+        },
+        "withdrawDailyLimit": {
+          "type": "string",
+          "format": "int64"
+        },
+        "withdrawDailyCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "withdrawFeeRate": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "获取资金配置响应"
+    },
+    "admin_financeGetFinanceRecordsResponse": {
+      "type": "object",
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/admin_financeFinanceRecord"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "获取资金流水响应"
+    },
+    "admin_financeGetPendingRechargesResponse": {
+      "type": "object",
+      "properties": {
+        "recharges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/admin_financeRechargeInfo"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "获取待审核充值响应"
+    },
+    "admin_financeGetPendingWithdrawsResponse": {
+      "type": "object",
+      "properties": {
+        "withdraws": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/admin_financeWithdrawInfo"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "获取待审核提现响应"
+    },
+    "admin_financeRechargeInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "userId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "remark": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "title": "充值信息"
+    },
+    "admin_financeUpdateFinanceConfigRequest": {
+      "type": "object",
+      "properties": {
+        "rechargeEnabled": {
+          "type": "boolean"
+        },
+        "withdrawEnabled": {
+          "type": "boolean"
+        },
+        "rechargeDailyLimit": {
+          "type": "string",
+          "format": "int64"
+        },
+        "withdrawDailyLimit": {
+          "type": "string",
+          "format": "int64"
+        },
+        "withdrawDailyCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "withdrawFeeRate": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "更新资金配置请求"
+    },
+    "admin_financeUpdateFinanceConfigResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "更新资金配置响应"
+    },
+    "admin_financeWithdrawInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "userId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string",
+          "format": "int64"
+        },
+        "fee": {
+          "type": "string",
+          "format": "int64"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "title": "提现信息"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "admin/statistics/statistics.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AdminStatistics"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/admin/statistics/finance": {
+      "get": {
+        "summary": "资金流水统计",
+        "operationId": "AdminStatistics_GetFinanceStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_statisticsGetFinanceStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "startTime",
+            "description": "@inject_tag: form:\"start_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "endTime",
+            "description": "@inject_tag: form:\"end_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AdminStatistics"
+        ]
+      }
+    },
+    "/admin/statistics/terminal": {
+      "get": {
+        "summary": "终端统计",
+        "operationId": "AdminStatistics_GetTerminalStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_statisticsGetTerminalStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "startTime",
+            "description": "@inject_tag: form:\"start_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "endTime",
+            "description": "@inject_tag: form:\"end_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AdminStatistics"
+        ]
+      }
+    },
+    "/admin/statistics/usage": {
+      "get": {
+        "summary": "功能使用统计",
+        "operationId": "AdminStatistics_GetUsageStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/admin_statisticsGetUsageStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "startTime",
+            "description": "@inject_tag: form:\"start_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          },
+          {
+            "name": "endTime",
+            "description": "@inject_tag: form:\"end_time\"",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AdminStatistics"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "admin_statisticsGetFinanceStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "totalRecharge": {
+          "type": "string",
+          "format": "int64"
+        },
+        "totalWithdraw": {
+          "type": "string",
+          "format": "int64"
+        },
+        "totalRedpacket": {
+          "type": "string",
+          "format": "int64"
+        },
+        "totalTransfer": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "title": "获取资金流水统计响应"
+    },
+    "admin_statisticsGetTerminalStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "terminalData": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "int64"
+          }
+        }
+      },
+      "title": "获取终端统计响应"
+    },
+    "admin_statisticsGetUsageStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "usageData": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "int64"
+          }
+        }
+      },
+      "title": "获取功能使用统计响应"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

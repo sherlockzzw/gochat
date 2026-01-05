@@ -26,3 +26,4 @@ func (ConversationSetting) TableName() string {
 
 
 
+

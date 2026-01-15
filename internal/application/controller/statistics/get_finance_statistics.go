@@ -9,19 +9,25 @@ import (
 
 // GetFinanceStatistics 获取资金流水统计
 func (c *StatisticsController) GetFinanceStatistics(ctx *gin.Context) {
-	_, err := analysis.BindQuery[statistics.GetFinanceStatisticsRequest](ctx, c.response)
+	req, err := analysis.BindQuery[statistics.GetFinanceStatisticsRequest](ctx, c.response)
 	if err != nil {
 		return
 	}
 
-	// TODO: 实现资金流水统计
-	// 从BalanceFlow表中统计各类资金流水
+	startTime := req.GetStartTime()
+	endTime := req.GetEndTime()
+
+	totalRecharge, totalWithdraw, totalRedpacket, totalTransfer, err := c.balanceDao.GetFinanceStatistics(startTime, endTime)
+	if err != nil {
+		c.response.JsonError(ctx, err, "获取资金流水统计失败")
+		return
+	}
 
 	resp := &statistics.GetFinanceStatisticsResponse{
-		TotalRecharge: 0,
-		TotalWithdraw: 0,
-		TotalRedpacket: 0,
-		TotalTransfer: 0,
+		TotalRecharge:  totalRecharge,
+		TotalWithdraw:  totalWithdraw,
+		TotalRedpacket: totalRedpacket,
+		TotalTransfer:  totalTransfer,
 	}
 
 	c.response.JsonSuccess(ctx, resp)

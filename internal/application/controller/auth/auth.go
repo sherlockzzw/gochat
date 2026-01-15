@@ -7,14 +7,16 @@ import (
 )
 
 type AuthController struct {
-	response *response.SvcRequest
-	adminDao *dao.AdminDao
+	response    *response.SvcRequest
+	adminDao    *dao.AdminDao
+	adminLogDao *dao.AdminLogDao
 }
 
 func NewAuthController() *AuthController {
 	return &AuthController{
-		response: response.NewSvcRequest(),
-		adminDao: dao.NewAdminDao(utils.DB),
+		response:    response.NewSvcRequest(),
+		adminDao:    dao.NewAdminDao(utils.DB),
+		adminLogDao: dao.NewAdminLogDao(utils.DB),
 	}
 }
 

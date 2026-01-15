@@ -34,10 +34,18 @@ func GetCurrentUserID(ctx *gin.Context) (int64, error) {
 		return 0, fmt.Errorf("identity field is not a map")
 	}
 
-	// 从identity map中获取ID字段
-	userIDInterface, exists := identityMap["ID"]
+	// 从identity map中获取ID字段（尝试大写ID和小写id）
+	var userIDInterface interface{}
+	//var exists bool
+
+	// 先尝试大写ID
+	userIDInterface, exists = identityMap["ID"]
 	if !exists {
-		return 0, fmt.Errorf("ID field not found in identity map")
+		// 再尝试小写id（JSON序列化后的字段名）
+		userIDInterface, exists = identityMap["id"]
+		if !exists {
+			return 0, fmt.Errorf("ID field not found in identity map (tried both 'ID' and 'id')")
+		}
 	}
 
 	// 检查ID字段是否为nil

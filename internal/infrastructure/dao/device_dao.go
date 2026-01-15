@@ -97,3 +97,67 @@ func (d *DeviceDao) GetDeviceByToken(token string) (*models.UserDevice, error) {
 	return &device, nil
 }
 
+// GetTerminalStatistics 获取终端统计
+// 参数:
+//   - startTime: 开始时间戳（秒），0表示不限制
+//   - endTime: 结束时间戳（秒），0表示不限制
+// 返回:
+//   - terminalData: 终端统计数据，key为设备类型，value为活跃用户数
+//   - error: 错误信息
+func (d *DeviceDao) GetTerminalStatistics(startTime, endTime int64) (map[string]int64, error) {
+	terminalData := make(map[string]int64)
+
+	// 构建基础查询条件
+	buildTimeQuery := func(query *gorm.DB) *gorm.DB {
+		if startTime > 0 {
+			query = query.Where("last_active_at >= ?", startTime)
+		}
+		if endTime > 0 {
+			query = query.Where("last_active_at <= ?", endTime)
+		}
+		return query
+	}
+
+	// 定义设备类型列表
+	deviceTypes := []string{
+		models.DeviceTypeIOS,
+		models.DeviceTypeAndroid,
+		models.DeviceTypeWebMobile,
+		models.DeviceTypePCDesktop,
+		models.DeviceTypePCWeb,
+	}
+
+	// 统计每种设备类型的活跃用户数（去重）
+	for _, deviceType := range deviceTypes {
+		var count int64
+		query := d.db.Model(&models.UserDevice{}).
+			Where("device_type = ?", deviceType)
+		query = buildTimeQuery(query)
+		
+		// 使用 DISTINCT 去重统计用户数
+		if err := query.Select("COUNT(DISTINCT user_id)").Scan(&count).Error; err != nil {
+			return nil, err
+		}
+
+		// 将设备类型转换为中文显示名称
+		var displayName string
+		switch deviceType {
+		case models.DeviceTypeIOS:
+			displayName = "iOS"
+		case models.DeviceTypeAndroid:
+			displayName = "Android"
+		case models.DeviceTypeWebMobile:
+			displayName = "手机网页"
+		case models.DeviceTypePCDesktop:
+			displayName = "PC桌面"
+		case models.DeviceTypePCWeb:
+			displayName = "PC网页"
+		default:
+			displayName = deviceType
+		}
+
+		terminalData[displayName] = count
+	}
+
+	return terminalData, nil
+}

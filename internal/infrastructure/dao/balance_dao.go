@@ -392,3 +392,150 @@ func (d *BalanceDao) GetExpiredRedPackets(beforeTime int64) ([]*models.RedPacket
 		Find(&packets).Error
 	return packets, err
 }
+
+// GetFinanceStatistics 获取资金流水统计
+// 参数:
+//   - startTime: 开始时间戳（秒），0表示不限制
+//   - endTime: 结束时间戳（秒），0表示不限制
+// 返回:
+//   - totalRecharge: 总充值金额（单位：分）
+//   - totalWithdraw: 总提现金额（单位：分）
+//   - totalRedpacket: 总红包金额（单位：分）
+//   - totalTransfer: 总转账金额（单位：分）
+//   - error: 错误信息
+func (d *BalanceDao) GetFinanceStatistics(startTime, endTime int64) (int64, int64, int64, int64, error) {
+	var totalRecharge, totalWithdraw, totalRedpacket, totalTransfer int64
+
+	// 统计充值金额（只统计已通过的充值）
+	rechargeQuery := d.db.Model(&models.RechargeRequest{}).
+		Where("status = ?", models.StatusApproved)
+	if startTime > 0 {
+		rechargeQuery = rechargeQuery.Where("audit_time >= ?", startTime)
+	}
+	if endTime > 0 {
+		rechargeQuery = rechargeQuery.Where("audit_time <= ?", endTime)
+	}
+	if err := rechargeQuery.Select("COALESCE(SUM(amount), 0)").Scan(&totalRecharge).Error; err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	// 统计提现金额（只统计已通过的提现）
+	withdrawQuery := d.db.Model(&models.WithdrawRequest{}).
+		Where("status = ?", models.StatusApproved)
+	if startTime > 0 {
+		withdrawQuery = withdrawQuery.Where("audit_time >= ?", startTime)
+	}
+	if endTime > 0 {
+		withdrawQuery = withdrawQuery.Where("audit_time <= ?", endTime)
+	}
+	if err := withdrawQuery.Select("COALESCE(SUM(amount), 0)").Scan(&totalWithdraw).Error; err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	// 统计红包金额（统计已发送的红包总金额）
+	redpacketQuery := d.db.Model(&models.RedPacket{})
+	if startTime > 0 {
+		redpacketQuery = redpacketQuery.Where("created_at >= ?", startTime)
+	}
+	if endTime > 0 {
+		redpacketQuery = redpacketQuery.Where("created_at <= ?", endTime)
+	}
+	if err := redpacketQuery.Select("COALESCE(SUM(total_amount), 0)").Scan(&totalRedpacket).Error; err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	// 统计转账金额（统计已收款的转账）
+	transferQuery := d.db.Model(&models.Transfer{}).
+		Where("status = ?", models.TransferStatusReceived)
+	if startTime > 0 {
+		transferQuery = transferQuery.Where("created_at >= ?", startTime)
+	}
+	if endTime > 0 {
+		transferQuery = transferQuery.Where("created_at <= ?", endTime)
+	}
+	if err := transferQuery.Select("COALESCE(SUM(amount), 0)").Scan(&totalTransfer).Error; err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	return totalRecharge, totalWithdraw, totalRedpacket, totalTransfer, nil
+}
+
+// GetUsageStatistics 获取功能使用统计
+// 参数:
+//   - startTime: 开始时间戳（秒），0表示不限制
+//   - endTime: 结束时间戳（秒），0表示不限制
+// 返回:
+//   - usageData: 功能使用统计数据，key为功能名称，value为使用次数
+//   - error: 错误信息
+func (d *BalanceDao) GetUsageStatistics(startTime, endTime int64) (map[string]int64, error) {
+	usageData := make(map[string]int64)
+
+	// 构建基础查询条件
+	buildTimeQuery := func(query *gorm.DB) *gorm.DB {
+		if startTime > 0 {
+			query = query.Where("created_at >= ?", startTime)
+		}
+		if endTime > 0 {
+			query = query.Where("created_at <= ?", endTime)
+		}
+		return query
+	}
+
+	// 统计发送消息数量
+	var messageCount int64
+	messageQuery := d.db.Model(&models.ChatMessage{})
+	messageQuery = buildTimeQuery(messageQuery)
+	if err := messageQuery.Count(&messageCount).Error; err != nil {
+		return nil, err
+	}
+	usageData["发送消息"] = messageCount
+
+	// 统计创建群组数量
+	var groupCount int64
+	groupQuery := d.db.Model(&models.Group{})
+	groupQuery = buildTimeQuery(groupQuery)
+	if err := groupQuery.Count(&groupCount).Error; err != nil {
+		return nil, err
+	}
+	usageData["创建群组"] = groupCount
+
+	// 统计语音通话次数（统计已接通的通话）
+	var voiceCallCount int64
+	voiceCallQuery := d.db.Model(&models.CallRecord{}).
+		Where("type = ? AND status = ?", models.CallTypeVoice, models.RecordStatusAnswered)
+	voiceCallQuery = buildTimeQuery(voiceCallQuery)
+	if err := voiceCallQuery.Count(&voiceCallCount).Error; err != nil {
+		return nil, err
+	}
+	usageData["语音通话"] = voiceCallCount
+
+	// 统计视频通话次数（统计已接通的通话）
+	var videoCallCount int64
+	videoCallQuery := d.db.Model(&models.CallRecord{}).
+		Where("type = ? AND status = ?", models.CallTypeVideo, models.RecordStatusAnswered)
+	videoCallQuery = buildTimeQuery(videoCallQuery)
+	if err := videoCallQuery.Count(&videoCallCount).Error; err != nil {
+		return nil, err
+	}
+	usageData["视频通话"] = videoCallCount
+
+	// 统计发送红包数量
+	var redPacketCount int64
+	redPacketQuery := d.db.Model(&models.RedPacket{})
+	redPacketQuery = buildTimeQuery(redPacketQuery)
+	if err := redPacketQuery.Count(&redPacketCount).Error; err != nil {
+		return nil, err
+	}
+	usageData["发送红包"] = redPacketCount
+
+	// 统计转账次数
+	var transferCount int64
+	transferQuery := d.db.Model(&models.Transfer{})
+	transferQuery = buildTimeQuery(transferQuery)
+	if err := transferQuery.Count(&transferCount).Error; err != nil {
+		return nil, err
+	}
+	usageData["转账"] = transferCount
+
+	return usageData, nil
+}

@@ -7,14 +7,16 @@ import (
 )
 
 type StatisticsController struct {
-	response *response.SvcRequest
+	response  *response.SvcRequest
 	balanceDao *dao.BalanceDao
+	deviceDao  *dao.DeviceDao
 }
 
 func NewStatisticsController() *StatisticsController {
 	return &StatisticsController{
 		response:   response.NewSvcRequest(),
 		balanceDao: dao.NewBalanceDao(utils.DB),
+		deviceDao:  dao.NewDeviceDao(utils.DB),
 	}
 }
 

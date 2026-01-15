@@ -26,12 +26,17 @@ const (
 	ActionTypePermissionAssign   = "permission_assign"  // 分配用户权限
 	ActionTypeConfigUpdate       = "config_update"      // 更新配置
 	ActionTypeFinanceAudit       = "finance_audit"      // 审核资金
-	ActionTypeFinanceAdjust     = "finance_adjust"      // 调整余额
+	ActionTypeFinanceAdjust      = "finance_adjust"      // 调整余额
 	ActionTypeContentDelete      = "content_delete"     // 删除违规内容
-	ActionTypeContentBlock        = "content_block"      // 拦截异常操作
+	ActionTypeContentBlock       = "content_block"       // 拦截异常操作
 	ActionTypeUserCreate         = "user_create"        // 创建用户
 	ActionTypeUserUpdate         = "user_update"        // 更新用户
 	ActionTypeUserDisable        = "user_disable"      // 禁用用户
 	ActionTypeFeatureToggle      = "feature_toggle"     // 功能开关
+	ActionTypeAdminLogin         = "admin_login"        // 管理员登录
+	ActionTypeAdminLogout        = "admin_logout"       // 管理员登出
+	ActionTypeAdminCreate        = "admin_create"       // 创建管理员
+	ActionTypeAdminUpdate        = "admin_update"       // 更新管理员
+	ActionTypeAdminDelete        = "admin_delete"       // 删除管理员
 )
 

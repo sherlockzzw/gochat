@@ -4,6 +4,7 @@ import (
 	"gochat/internal/application/controller/auth"
 	"gochat/internal/application/controller/config"
 	"gochat/internal/application/controller/content"
+	"gochat/internal/application/controller/dashboard"
 	"gochat/internal/application/controller/finance"
 	"gochat/internal/application/controller/log"
 	"gochat/internal/application/controller/permission"
@@ -21,6 +22,7 @@ type API struct {
 	ContentController    *content.ContentController
 	StatisticsController *statistics.StatisticsController
 	LogController        *log.LogController
+	DashboardController  *dashboard.DashboardController
 }
 
 // NewAdmin 管理端接口注册
@@ -34,5 +36,6 @@ func NewAdmin() *API {
 		ContentController:    content.NewContentController(),
 		StatisticsController: statistics.NewStatisticsController(),
 		LogController:        log.NewLogController(),
+		DashboardController:  dashboard.NewDashboardController(),
 	}
 }

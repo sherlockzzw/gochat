@@ -2,6 +2,7 @@ package router
 
 import (
 	"gochat/internal/application/controller"
+	"gochat/internal/application/controller/admin_manager"
 	"gochat/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -21,10 +22,11 @@ func adminPublicRouter(route *gin.RouterGroup, api *controller.API) {
 }
 
 func adminPrivateRouter(r *gin.RouterGroup, api *controller.API) {
-	// 使用JWT认证中间件（TODO: 应该使用Admin的JWT中间件）
-	r.Use(middleware.JwtMiddleware("UserBasic").MiddlewareFunc())
+	// 使用JWT认证中间件
+	r.Use(middleware.JwtMiddleware("Admin").MiddlewareFunc())
 
 	// 认证相关
+	r.GET("current", api.AuthController.GetCurrent) // 获取当前登录管理员信息（含权限）
 	r.POST("logout", api.AuthController.Logout)
 
 	// 用户管理
@@ -91,9 +93,25 @@ func adminPrivateRouter(r *gin.RouterGroup, api *controller.API) {
 		statisticsRoute.GET("terminal", api.StatisticsController.GetTerminalStatistics)
 	}
 
+	// 仪表盘
+	dashboardRoute := r.Group("dashboard")
+	{
+		dashboardRoute.GET("statistics", api.DashboardController.GetStatistics)
+	}
+
 	// 操作日志
 	logRoute := r.Group("log")
 	{
 		logRoute.GET("list", api.LogController.GetLogs)
+	}
+
+	// 管理员管理
+	adminManagerCtrl := admin_manager.NewAdminController()
+	adminManagerRoute := r.Group("admin-manager")
+	{
+		adminManagerRoute.GET("admins", adminManagerCtrl.GetAdmins)
+		adminManagerRoute.POST("admin", adminManagerCtrl.CreateAdmin)
+		adminManagerRoute.PUT("admin/:id", adminManagerCtrl.UpdateAdmin)
+		adminManagerRoute.DELETE("admin/:id", adminManagerCtrl.DeleteAdmin)
 	}
 }

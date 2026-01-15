@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package admin_admin;
+
+option go_package = "gochat/api/admin/admin";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+// 管理员管理服务
+service AdminManager {
+  // 获取管理员列表
+  rpc GetAdmins(GetAdminsRequest) returns (GetAdminsResponse) {
+    option(google.api.http) = {
+      get:"/admin/admins"
+    };
+  };
+  
+  // 创建管理员
+  rpc CreateAdmin(CreateAdminRequest) returns (CreateAdminResponse) {
+    option(google.api.http) = {
+      post:"/admin/admin"
+      body:"*"
+    };
+  };
+  
+  // 更新管理员
+  rpc UpdateAdmin(UpdateAdminRequest) returns (UpdateAdminResponse) {
+    option(google.api.http) = {
+      put:"/admin/admin/{id}"
+      body:"*"
+    };
+  };
+  
+  // 删除管理员
+  rpc DeleteAdmin(DeleteAdminRequest) returns (DeleteAdminResponse) {
+    option(google.api.http) = {
+      delete:"/admin/admin/{id}"
+    };
+  };
+}
+
+// 管理员信息
+message AdminInfo {
+  int64 id = 1;
+  string name = 2;
+  int64 role_id = 3;
+  string role_name = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
+}
+
+// 获取管理员列表请求
+message GetAdminsRequest {
+  // @inject_tag: form:"page"
+  int32 page = 1;
+  // @inject_tag: form:"page_size"
+  int32 page_size = 2;
+}
+
+// 获取管理员列表响应
+message GetAdminsResponse {
+  repeated AdminInfo admins = 1;
+  int32 total = 2;
+}
+
+// 创建管理员请求
+message CreateAdminRequest {
+  string name = 1 [(validate.rules).string.min_len = 1];
+  string password = 2 [(validate.rules).string.min_len = 8];
+  int64 role_id = 3 [(validate.rules).int64.gt = 0];
+}
+
+// 创建管理员响应
+message CreateAdminResponse {
+  int32 code = 1;
+  string message = 2;
+  AdminInfo admin = 3;
+}
+
+// 更新管理员请求
+message UpdateAdminRequest {
+  // @inject_tag: uri:"id"
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+  string password = 2 [(validate.rules).string.min_len = 8];
+  int64 role_id = 3 [(validate.rules).int64.gt = 0];
+}
+
+// 更新管理员响应
+message UpdateAdminResponse {
+  int32 code = 1;
+  string message = 2;
+}
+
+// 删除管理员请求
+message DeleteAdminRequest {
+  // @inject_tag: uri:"id"
+  int64 id = 1 [(validate.rules).int64.gt = 0];
+}
+
+// 删除管理员响应
+message DeleteAdminResponse {
+  int32 code = 1;
+  string message = 2;
+}

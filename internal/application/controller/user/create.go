@@ -26,13 +26,15 @@ func (h *ControllerUser) CreateUser(ctx *gin.Context) {
 
 	now := time.Now().Unix()
 	userBasic := &models.UserBasic{
-		Name:      req.Name,
-		Password:  string(hashedPassword),
-		Phone:     req.Phone,
-		Email:     req.Email,
-		ClientIp:  req.ClientIp,
-		CreatedAt: now,
-		UpdatedAt: now,
+		Name:            req.Name,
+		Password:        string(hashedPassword),
+		Phone:           req.Phone,
+		Email:           req.Email,
+		ClientIp:        req.ClientIp,
+		PrivacySettings: "[]",
+		CreatedAt:       now,
+		UpdatedAt:       now,
+		LoginAccount:    req.Name,
 	}
 
 	if err := h.dao.CreateUser(userBasic); err != nil {
@@ -48,4 +50,3 @@ func (h *ControllerUser) CreateUser(ctx *gin.Context) {
 
 	h.response.JsonSuccess(ctx, resp)
 }
-
